@@ -15,6 +15,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "BannerKu - Layanan Pemesanan Banner",
   description: "Layanan pemesanan banner custom online: pilih bahan, tentukan ukuran, upload desain, dan kalkulasi harga otomatis.",
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

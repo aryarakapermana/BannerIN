@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { registerAction } from "@/app/(auth)/actions";
 
 export default function RegisterPage() {
@@ -11,7 +12,17 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-zinc-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
-          <Link href="/" className="inline-block">
+          <Link href="/" className="inline-flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-sm border border-zinc-200">
+              <Image
+                src="/logo.png"
+                alt="BannerKu Logo"
+                width={40}
+                height={40}
+                className="w-full h-full object-cover"
+                priority
+              />
+            </div>
             <span className="text-3xl font-black tracking-tight text-blue-600">
               Banner<span className="text-amber-500">Ku</span>
             </span>

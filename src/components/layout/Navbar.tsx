@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getCurrentProfile } from "@/lib/auth";
 import { logoutAction } from "@/app/(auth)/actions";
 
@@ -11,7 +12,17 @@ export async function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center space-x-3">
-            <Link href="/" className="flex items-center space-x-2">
+            <Link href="/" className="flex items-center space-x-2.5 group">
+              <div className="w-8 h-8 rounded-lg overflow-hidden shadow-sm border border-zinc-200 transition-transform group-hover:scale-105">
+                <Image
+                  src="/logo.png"
+                  alt="BannerKu Logo"
+                  width={32}
+                  height={32}
+                  className="w-full h-full object-cover"
+                  priority
+                />
+              </div>
               <span className="text-2xl font-black tracking-tight text-blue-600">
                 Banner<span className="text-amber-500">Ku</span>
               </span>
