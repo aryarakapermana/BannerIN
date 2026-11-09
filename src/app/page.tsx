@@ -1,153 +1,1120 @@
-import Link from "next/link";
-import { getCurrentProfile } from "@/lib/auth";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+'use client'
 
-export const dynamic = "force-dynamic";
+import Image from 'next/image'
+import Link from 'next/link'
+import './landing.css'
+import { useMemo, useState } from 'react'
 
-export default async function HomePage() {
-  const profile = await getCurrentProfile();
+const rupiah = new Intl.NumberFormat('id-ID', {
+  style: 'currency',
+  currency: 'IDR',
+  maximumFractionDigits: 0,
+})
+
+const materials = [
+  {
+    id: 'flexi-280',
+    name: 'Flexi 280 gsm',
+    badge: 'Pilihan ekonomis',
+    weight: '280 gsm',
+    forUse: 'Spanduk acara & promosi toko',
+    character: 'Ringan, untuk kebutuhan promosi harian',
+    finishing: 'Mata ayam · Lipat tepi',
+    price: 25000,
+  },
+  {
+    id: 'flexi-340',
+    name: 'Flexi 340 gsm',
+    badge: 'Lebih tebal',
+    weight: '340 gsm',
+    forUse: 'Banner dengan kebutuhan bahan lebih tebal',
+    character: 'Bobot bahan lebih tinggi dibanding 280 gsm',
+    finishing: 'Mata ayam · Lipat tepi',
+    price: 35000,
+  },
+  {
+    id: 'flexi-korea',
+    name: 'Flexi Korea 440g',
+    badge: 'Tahan lama outdoor',
+    weight: '440 gsm',
+    forUse: 'Promosi outdoor jangka panjang & billboard',
+    character: 'Sangat tebal, serat rapat, tahan cuaca ekstrem',
+    finishing: 'Mata ayam · Lipat tepi · Selongsong',
+    price: 45000,
+  },
+  {
+    id: 'albatros',
+    name: 'Albatros',
+    badge: 'Untuk dalam ruang',
+    weight: '260 gsm',
+    forUse: 'Roll banner, X-banner & materi pameran',
+    character: 'Permukaan halus untuk tampilan visual tajam',
+    finishing: 'Dudukan display · Laminasi',
+    price: 65000,
+  },
+]
+
+const products = [
+  {
+    id: 'banner-custom',
+    category: 'banner',
+    title: 'Banner custom',
+    badge: 'Sesuai ukuranmu',
+    subtitle: 'Promosi toko & acara',
+    spec: 'Ukuran fleksibel',
+    priceText: 'Rp25.000 / m²',
+    image:
+      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80',
+    alt: 'Banner custom kedai kopi di luar ruangan',
+  },
+  {
+    id: 'roll-banner',
+    category: 'banner',
+    title: 'Roll banner',
+    badge: 'Praktis dibawa',
+    subtitle: 'Presentasi & pameran',
+    spec: 'Contoh: 60 × 160 cm',
+    priceText: 'Rp150.000 / set',
+    image:
+      'https://images.unsplash.com/photo-1542744094-3a31f272c490?auto=format&fit=crop&w=700&q=80',
+    alt: 'Roll banner stand di ruang pameran',
+  },
+  {
+    id: 'x-banner',
+    category: 'banner',
+    title: 'X-banner',
+    badge: 'Ringkas & ringan',
+    subtitle: 'Promosi dalam ruang',
+    spec: 'Contoh: 60 × 160 cm',
+    priceText: 'Rp85.000 / set',
+    image:
+      'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=700&q=80',
+    alt: 'X-banner promosi di dalam toko retail',
+  },
+  {
+    id: 'poster',
+    category: 'poster',
+    title: 'Poster',
+    badge: 'Detail yang bercerita',
+    subtitle: 'Dekorasi & informasi',
+    spec: 'Contoh: ukuran A3',
+    priceText: 'Rp15.000 / lembar',
+    image:
+      'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=700&q=80',
+    alt: 'Poster promosi tertata rapi di dinding',
+  },
+]
+
+const inspirations = [
+  {
+    tag: 'UNTUK USAHA',
+    title: 'Sambut pelanggan dari depan.',
+    desc: 'Banner custom untuk wajah baru tokomu.',
+    image:
+      'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=700&q=80',
+    alt: 'Fasad kedai kopi dengan banner promosi',
+  },
+  {
+    tag: 'UNTUK ACARA',
+    title: 'Jadikan acaramu lebih berkesan.',
+    desc: 'Display yang menyalurkan identitas acara.',
+    image:
+      'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=700&q=80',
+    alt: 'Banner backdrop seminar dan acara komunitas',
+  },
+  {
+    tag: 'UNTUK PROMOSI',
+    title: 'Penawaran yang sulit terlewat.',
+    desc: 'Bawa pesan usahamu ke lebih banyak mata.',
+    image:
+      'https://images.unsplash.com/photo-1506617420156-8e4536971650?auto=format&fit=crop&w=700&q=80',
+    alt: 'Spanduk promo toko ritel buah dan sayur segar',
+  },
+]
+
+const faqs = [
+  {
+    q: 'Bagaimana menentukan ukuran banner?',
+    a: 'Ukur lebar dan tinggi area pemasangan dalam sentimeter, lalu masukkan ke kalkulator estimasi. Sisakan ruang untuk pemasangan dan finishing. Jika ragu, kirim ukuran serta foto lokasi saat konsultasi.',
+  },
+  {
+    q: 'Apakah estimasi sudah termasuk ongkir?',
+    a: 'Estimasi di kalkulator mencakup biaya cetak bahan dan luas banner. Ongkos kirim dan finishing khusus akan dikonfirmasi secara transparan sebelum Anda melakukan pembayaran.',
+  },
+  {
+    q: 'Bisa pesan kalau belum punya desain?',
+    a: 'Bisa! Anda dapat berkonsultasi dengan tim kami melalui tombol bantuan atau WhatsApp. Kami dapat membantu penataan teks dan aset siap cetak Anda.',
+  },
+  {
+    q: 'Berapa lama proses cetaknya?',
+    a: 'Setelah desain disetujui (ACC), proses cetak standar memakan waktu 1 hari kerja tergantung antrean produksi dan jumlah pesanan.',
+  },
+  {
+    q: 'Bagaimana pesanan akan dikirim?',
+    a: 'Pesanan dapat diambil langsung di percetakan atau dikirim menggunakan kurir instan (ojek online) maupun ekspedisi kargo untuk luar kota.',
+  },
+]
+
+export default function LandingPage() {
+  const [selectedProductTab, setSelectedProductTab] = useState<'all' | 'banner' | 'poster'>('all')
+  const [calculatorMaterial, setCalculatorMaterial] = useState(materials[0])
+  const [width, setWidth] = useState(300)
+  const [height, setHeight] = useState(100)
+  const [quantity, setQuantity] = useState(1)
+  const [finishing, setFinishing] = useState('Tanpa tambahan')
+  const [openFaq, setOpenFaq] = useState<number | null>(0)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const area = useMemo(() => Math.max(0, (width * height) / 10000), [width, height])
+  const estimatedTotal = useMemo(
+    () => Math.ceil(area * calculatorMaterial.price * Math.max(1, quantity)),
+    [area, calculatorMaterial.price, quantity],
+  )
+
+  const filteredProducts = useMemo(() => {
+    if (selectedProductTab === 'all') return products
+    return products.filter((p) => p.category === selectedProductTab)
+  }, [selectedProductTab])
 
   return (
-    <div className="min-h-screen flex flex-col bg-zinc-50">
-      <Navbar />
-
-      {/* Hero Section */}
-      <section className="bg-white border-b border-zinc-200 py-16 sm:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold mb-6">
-            ✨ Layanan Pemesanan Banner Online Modern
-          </div>
-          <h1 className="text-4xl sm:text-6xl font-black text-zinc-900 tracking-tight max-w-4xl mx-auto">
-            Pesan Banner Cetak Kustom{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-              Tanpa Komunikasi Rumit
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900">
+      {/* 1. Header / Navbar */}
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
+        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-8">
+          <Link href="/" className="inline-flex items-center gap-3">
+            <span className="relative size-10 shrink-0 overflow-hidden rounded-xl shadow-sm ring-1 ring-black/5">
+              <Image
+                src="/bannerku-logo.png"
+                alt="Logo BannerKu"
+                width={40}
+                height={40}
+                className="size-full object-cover"
+                priority
+              />
             </span>
-          </h1>
-          <p className="mt-6 text-lg sm:text-xl text-zinc-600 max-w-2xl mx-auto leading-relaxed">
-            Pilih bahan terbaik, isi ukuran dalam sentimeter, unggah desain Anda,
-            dan dapatkan rincian estimasi harga otomatis secara transparan.
-          </p>
+            <span className="text-xl font-extrabold tracking-tight text-slate-950">
+              Banner<span className="text-blue-600">Ku</span>
+            </span>
+          </Link>
 
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            {profile ? (
-              <Link
-                href={
-                  profile.role === "admin"
-                    ? "/admin/dashboard"
-                    : "/customer/dashboard"
-                }
-                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-base shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5"
-              >
-                Buka Dashboard {profile.role === "admin" ? "Admin" : "Konsumen"} &rarr;
-              </Link>
-            ) : (
-              <>
-                <Link
-                  href="/register"
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-base shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5"
-                >
-                  Mulai Pesan Sekarang
-                </Link>
-                <Link
-                  href="/login"
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white border border-zinc-300 hover:bg-zinc-50 text-zinc-800 font-semibold text-base transition-colors"
-                >
-                  Masuk ke Akun
-                </Link>
-              </>
-            )}
+          <nav className="hidden items-center gap-8 md:flex" aria-label="Navigasi utama">
+            <a href="#produk" className="nav-link">
+              Produk
+            </a>
+            <a href="#cara-pesan" className="nav-link">
+              Cara pesan
+            </a>
+            <a href="#panduan-berkas" className="nav-link">
+              Panduan cetak
+            </a>
+            <a href="#faq" className="nav-link">
+              Bantuan
+            </a>
+          </nav>
+
+          <div className="hidden items-center gap-5 md:flex">
             <Link
-              href="/materials"
-              className="w-full sm:w-auto px-6 py-3.5 rounded-xl text-zinc-600 hover:text-blue-600 font-medium text-base transition-colors"
+              href="/login"
+              className="text-sm font-bold text-slate-700 hover:text-blue-600 transition"
             >
-              Lihat Katalog Bahan &rarr;
+              Masuk
+            </Link>
+            <Link href="/studio" className="btn-primary">
+              Mulai pesanan
+              <svg
+                className="size-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+              </svg>
             </Link>
           </div>
+
+          <button
+            type="button"
+            className="grid size-10 place-items-center rounded-xl border border-slate-200 text-slate-700 md:hidden"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {mobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+        </div>
+
+        {/* Mobile dropdown */}
+        {mobileMenuOpen && (
+          <div className="border-t border-slate-100 bg-white px-5 py-4 shadow-xl md:hidden">
+            <div className="flex flex-col gap-3">
+              <a
+                href="#produk"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-lg px-3 py-2 font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                Produk
+              </a>
+              <a
+                href="#cara-pesan"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-lg px-3 py-2 font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                Cara pesan
+              </a>
+              <a
+                href="#panduan-berkas"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-lg px-3 py-2 font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                Panduan cetak
+              </a>
+              <a
+                href="#faq"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-lg px-3 py-2 font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                Bantuan
+              </a>
+              <div className="mt-2 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
+                <Link href="/login" className="text-sm font-bold text-slate-700">
+                  Masuk
+                </Link>
+                <Link href="/studio" className="btn-primary">
+                  Mulai pesanan
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* 2. Hero Section */}
+      <section className="relative overflow-hidden bg-white pb-16 pt-32 lg:pb-24 lg:pt-40">
+        <div className="hero-grid absolute inset-0 opacity-40" aria-hidden="true" />
+        <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="grid items-center gap-12 lg:grid-cols-12">
+            <div className="lg:col-span-7">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-1.5 text-xs font-bold text-blue-700">
+                <span className="size-2 rounded-full bg-blue-600 animate-pulse" />
+                Percetakan online, untuk idemu.
+              </div>
+
+              <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
+                Ide besar.
+                <br />
+                <span className="text-blue-600">Cetak jadi nyata.</span>
+              </h1>
+
+              <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
+                Banner untuk usaha, acara, dan segala rencanamu. Pilih produk, atur ukuran, lalu kirim
+                desain. Mulai dari satu tempat: <span className="font-semibold text-slate-900">BannerKu</span>.
+              </p>
+
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                <Link href="/studio" className="btn-primary text-base px-6 py-3.5">
+                  Pesan banner sekarang
+                  <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                  </svg>
+                </Link>
+                <a href="#kalkulator" className="btn-secondary text-base px-6 py-3.5">
+                  <svg className="size-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <rect x="4" y="3" width="16" height="18" rx="2" strokeWidth={2} />
+                    <line x1="8" y1="7" x2="16" y2="7" strokeWidth={2} />
+                    <line x1="8" y1="11" x2="10" y2="11" strokeWidth={2} />
+                    <line x1="14" y1="11" x2="16" y2="11" strokeWidth={2} />
+                    <line x1="8" y1="15" x2="10" y2="15" strokeWidth={2} />
+                    <line x1="14" y1="15" x2="16" y2="15" strokeWidth={2} />
+                  </svg>
+                  Hitung estimasi
+                </a>
+              </div>
+
+              <p className="mt-4 text-xs font-medium text-slate-500">
+                Belum punya desain? Kita cari solusinya bersama.
+              </p>
+            </div>
+
+            <div className="lg:col-span-5">
+              <div className="relative rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xl shadow-blue-500/10">
+                <div className="overflow-hidden rounded-xl bg-slate-900 relative aspect-4/3 flex items-center justify-center p-6 text-white text-center">
+                  <Image
+                    src="https://images.unsplash.com/photo-1542744094-3a31f272c490?auto=format&fit=crop&w=800&q=80"
+                    alt="Mockup cetak banner"
+                    fill
+                    className="object-cover opacity-50"
+                  />
+                  <div className="relative z-10 space-y-2">
+                    <span className="inline-block rounded-full bg-blue-600/90 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white">
+                      Idemu, dalam ukuran nyata
+                    </span>
+                    <h3 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
+                      IDE BESAR JADI NYATA
+                    </h3>
+                    <p className="text-xs text-slate-200">KREASI TANPA BATAS · MULAI SEKARANG</p>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex items-center gap-3 rounded-xl bg-slate-50 p-3.5 text-xs text-slate-700">
+                  <span className="grid size-6 place-items-center rounded-full bg-emerald-100 text-emerald-600 shrink-0">
+                    <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                  </span>
+                  <div>
+                    <strong className="block font-bold text-slate-900">Dari layar ke ruang usahamu.</strong>
+                    <span className="text-slate-500">Banner cetak · Roll banner · Poster</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 3 Value Props Bar */}
+          <div className="mt-14 grid gap-4 border-t border-slate-100 pt-8 sm:grid-cols-3">
+            <div className="flex items-start gap-3.5 rounded-2xl border border-slate-200/60 bg-slate-50/50 p-4">
+              <span className="grid size-10 place-items-center rounded-xl bg-blue-50 text-blue-600 shrink-0">
+                <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                </svg>
+              </span>
+              <div>
+                <h4 className="text-sm font-bold text-slate-900">Ukuran sesuai kebutuhan</h4>
+                <p className="mt-0.5 text-xs text-slate-500">Dari meja promosi hingga fasad toko.</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3.5 rounded-2xl border border-slate-200/60 bg-slate-50/50 p-4">
+              <span className="grid size-10 place-items-center rounded-xl bg-emerald-50 text-emerald-600 shrink-0">
+                <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </span>
+              <div>
+                <h4 className="text-sm font-bold text-slate-900">Konfirmasi sebelum cetak</h4>
+                <p className="mt-0.5 text-xs text-slate-500">Periksa detail pesanan dan desain.</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3.5 rounded-2xl border border-slate-200/60 bg-slate-50/50 p-4">
+              <span className="grid size-10 place-items-center rounded-xl bg-amber-50 text-amber-600 shrink-0">
+                <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.75.75 0 01-.777-.777c.057-.597.234-1.222.518-1.808C3.805 16.74 3 14.496 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+                </svg>
+              </span>
+              <div>
+                <h4 className="text-sm font-bold text-slate-900">Bisa tanya, bisa dibantu</h4>
+                <p className="mt-0.5 text-xs text-slate-500">Konsultasikan bahan dan berkasmu.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* 4 Langkah Pemesanan */}
-      <section className="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight">
-            Alur Pemesanan BannerKu
-          </h2>
-          <p className="mt-2 text-sm text-zinc-500">
-            Empat langkah praktis dari pemilihan bahan hingga pesanan diproses percetakan
+      {/* 3. Section Produk Cetak */}
+      <section id="produk" className="border-t border-slate-200/80 bg-slate-50 py-16 lg:py-24">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div>
+            <span className="text-xs font-extrabold uppercase tracking-widest text-blue-600">
+              PRODUK CETAK
+            </span>
+            <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+              Ada cetakan untuk setiap rencana.
+            </h2>
+            <p className="mt-2 max-w-2xl text-base text-slate-600">
+              Pilih bentuk yang tepat untuk pesan yang ingin kamu sampaikan.
+            </p>
+          </div>
+
+          <div className="mt-6 flex gap-2">
+            <button
+              type="button"
+              onClick={() => setSelectedProductTab('all')}
+              className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${
+                selectedProductTab === 'all'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              Semua produk
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedProductTab('banner')}
+              className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${
+                selectedProductTab === 'banner'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              Banner
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedProductTab('poster')}
+              className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${
+                selectedProductTab === 'poster'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              Poster & lainnya
+            </button>
+          </div>
+
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {filteredProducts.map((p) => (
+              <div
+                key={p.id}
+                className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-blue-300 hover:shadow-md"
+              >
+                <div>
+                  <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-slate-100">
+                    <Image
+                      src={p.image}
+                      alt={p.alt}
+                      fill
+                      className="object-cover transition duration-300 group-hover:scale-105"
+                    />
+                    <span className="absolute left-2.5 top-2.5 rounded-full bg-white/90 px-2.5 py-0.5 text-[10px] font-bold text-slate-800 shadow-sm backdrop-blur-sm">
+                      {p.badge}
+                    </span>
+                  </div>
+
+                  <h3 className="mt-4 text-base font-bold text-slate-950">{p.title}</h3>
+                  <p className="text-xs text-slate-500">{p.subtitle}</p>
+
+                  <div className="mt-3 border-t border-slate-100 pt-3">
+                    <span className="block text-[11px] text-slate-400">{p.spec}</span>
+                    <div className="mt-1 flex items-baseline gap-1">
+                      <span className="text-[11px] text-slate-500">Estimasi mulai</span>
+                      <strong className="text-sm font-extrabold text-slate-900">{p.priceText}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <Link
+                  href={`/studio?product=${p.id}`}
+                  className="mt-4 inline-flex items-center justify-between border-t border-slate-100 pt-3 text-xs font-bold text-blue-600 group-hover:text-blue-700"
+                >
+                  Pilih produk
+                  <svg className="size-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+                  </svg>
+                </Link>
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-6 text-xs text-slate-400">
+            * Harga di atas adalah ilustrasi estimasi awal, bukan penawaran final. Harga menyesuaikan ukuran, bahan, jumlah, dan finishing.
           </p>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
-            <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 font-bold flex items-center justify-center mb-4">
-              1
-            </div>
-            <h3 className="font-semibold text-zinc-900 text-base">Pilih Bahan</h3>
-            <p className="text-xs text-zinc-500 mt-2 leading-relaxed">
-              Tersedia Flexi Standard 280g, Premium 340g, Korea 440g, dan Albatros sesuai kebutuhan indoor atau outdoor Anda.
-            </p>
-          </div>
+      {/* 4. Section Kalkulator Rencanakan Anggaran */}
+      <section id="kalkulator" className="border-t border-slate-200/80 bg-white py-16 lg:py-24">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="grid items-start gap-12 lg:grid-cols-12">
+            <div className="lg:col-span-5">
+              <span className="grid size-10 place-items-center rounded-xl bg-blue-50 text-blue-600 mb-4">
+                <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <rect x="4" y="3" width="16" height="18" rx="2" />
+                  <line x1="8" y1="7" x2="16" y2="7" />
+                  <line x1="8" y1="11" x2="10" y2="11" />
+                  <line x1="14" y1="11" x2="16" y2="11" />
+                  <line x1="8" y1="15" x2="10" y2="15" />
+                  <line x1="14" y1="15" x2="16" y2="15" />
+                </svg>
+              </span>
+              <span className="text-xs font-extrabold uppercase tracking-widest text-blue-600">
+                RENCANAKAN ANGGARAN
+              </span>
+              <h2 className="mt-2 text-3xl font-extrabold leading-tight tracking-tight text-slate-950 sm:text-4xl">
+                Ukuranmu.
+                <br />
+                Estimasimu.
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-slate-600">
+                Tak perlu menebak-nebak. Masukkan kebutuhan cetakmu untuk melihat gambaran biaya awal.
+              </p>
 
-          <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
-            <div className="w-10 h-10 rounded-lg bg-amber-100 text-amber-700 font-bold flex items-center justify-center mb-4">
-              2
+              <div className="mt-8 flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600">
+                <svg className="size-5 text-blue-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
+                <div>
+                  <strong className="block text-slate-900">Ukur area pemasangan dalam sentimeter.</strong>
+                  Belum yakin? Konsultasikan ukurannya dulu dengan tim BannerKu.
+                </div>
+              </div>
             </div>
-            <h3 className="font-semibold text-zinc-900 text-base">Tentukan Ukuran</h3>
-            <p className="text-xs text-zinc-500 mt-2 leading-relaxed">
-              Masukkan lebar dan tinggi dalam sentimeter (cm). Luas (m²) dan total harga dihitung otomatis oleh sistem.
-            </p>
-          </div>
 
-          <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
-            <div className="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center mb-4">
-              3
-            </div>
-            <h3 className="font-semibold text-zinc-900 text-base">Unggah & Preview</h3>
-            <p className="text-xs text-zinc-500 mt-2 leading-relaxed">
-              Unggah file gambar (JPG/PNG). Sesuaikan posisi dan perbesaran gambar pada area canvas simulasi banner.
-            </p>
-          </div>
+            <div className="lg:col-span-7">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-100 sm:p-8">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <h3 className="font-bold text-slate-900">Hitung kebutuhan cetak</h3>
+                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                    SIMULASI
+                  </span>
+                </div>
 
-          <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
-            <div className="w-10 h-10 rounded-lg bg-green-100 text-green-700 font-bold flex items-center justify-center mb-4">
-              4
+                <div className="mt-6 space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700">Produk</label>
+                    <select className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                      <option>Banner custom</option>
+                      <option>Roll banner</option>
+                      <option>X-banner</option>
+                      <option>Poster</option>
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700">Lebar (cm)</label>
+                      <div className="relative mt-1.5">
+                        <input
+                          type="number"
+                          min="10"
+                          value={width}
+                          onChange={(e) => setWidth(Math.max(1, Number(e.target.value)))}
+                          className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 pr-10 text-sm font-medium text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        />
+                        <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
+                          cm
+                        </span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700">Tinggi (cm)</label>
+                      <div className="relative mt-1.5">
+                        <input
+                          type="number"
+                          min="10"
+                          value={height}
+                          onChange={(e) => setHeight(Math.max(1, Number(e.target.value)))}
+                          className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 pr-10 text-sm font-medium text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        />
+                        <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
+                          cm
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700">Bahan</label>
+                      <select
+                        value={calculatorMaterial.id}
+                        onChange={(e) => {
+                          const m = materials.find((item) => item.id === e.target.value)
+                          if (m) setCalculatorMaterial(m)
+                        }}
+                        className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                      >
+                        {materials.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700">Jumlah (pcs)</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={quantity}
+                        onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
+                        className="mt-1.5 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700">Finishing</label>
+                    <select
+                      value={finishing}
+                      onChange={(e) => setFinishing(e.target.value)}
+                      className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    >
+                      <option>Tanpa tambahan</option>
+                      <option>Mata ayam di setiap sudut</option>
+                      <option>Mata ayam keliling (tiap 1m)</option>
+                      <option>Selongsong atas-bawah</option>
+                      <option>Lipat tepi rapi</option>
+                    </select>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-1">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 border border-emerald-200">
+                      <span className="size-1.5 rounded-full bg-emerald-500" />
+                      Luas cetak: {area.toFixed(2)} m²
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-6 rounded-xl border border-slate-100 bg-slate-50 p-5">
+                  <div className="flex items-baseline justify-between">
+                    <div>
+                      <span className="text-xs font-semibold text-slate-500">Estimasi awal cetak</span>
+                      <div className="text-3xl font-black text-slate-950">
+                        {rupiah.format(estimatedTotal)}
+                      </div>
+                    </div>
+                    <span className="text-xs font-medium text-slate-400">
+                      {area.toFixed(2)} m² × {rupiah.format(calculatorMaterial.price)} × {quantity} pcs
+                    </span>
+                  </div>
+                  <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
+                    Contoh perhitungan, bukan harga final. Belum termasuk tambahan finishing dan ongkir.
+                  </p>
+
+                  <Link
+                    href={`/studio?material=${calculatorMaterial.id}&width=${width}&height=${height}&qty=${quantity}`}
+                    className="btn-accent mt-5 w-full justify-center text-center font-bold"
+                  >
+                    Lanjutkan pesanan
+                    <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                    </svg>
+                  </Link>
+
+                  <p className="mt-2.5 text-center text-[11px] text-slate-400">
+                    Detail dan harga dikonfirmasi sebelum produksi.
+                  </p>
+                </div>
+              </div>
             </div>
-            <h3 className="font-semibold text-zinc-900 text-base">Pantau Status</h3>
-            <p className="text-xs text-zinc-500 mt-2 leading-relaxed">
-              Kirim pesanan. Server memvalidasi dan menyimpan snapshot harga, sementara admin memproses pesanan Anda.
-            </p>
           </div>
         </div>
       </section>
 
-      {/* Rincian Rumus Transparan */}
-      <section className="bg-white border-y border-zinc-200 py-12">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-            Aturan Bisnis Inti
-          </span>
-          <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 mt-3">
-            Transparansi Rumus Perhitungan Harga
-          </h2>
-          <p className="text-xs sm:text-sm text-zinc-500 mt-1 max-w-xl mx-auto">
-            Harga dihitung murni berbasis luas meter persegi (m²), bukan keliling.
+      {/* 5. Section Cara Pesan */}
+      <section id="cara-pesan" className="border-t border-slate-200/80 bg-slate-50 py-16 lg:py-24">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div>
+            <span className="text-xs font-extrabold uppercase tracking-widest text-blue-600">
+              CARA PESAN
+            </span>
+            <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+              Dari klik pertama, sampai siap dipasang.
+            </h2>
+          </div>
+
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <span className="inline-block rounded-xl bg-blue-50 px-3 py-1 text-sm font-extrabold text-blue-600 font-mono">
+                01
+              </span>
+              <h3 className="mt-4 text-base font-bold text-slate-900">Pilih & sesuaikan</h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-600">
+                Tentukan produk, ukuran, bahan, jumlah, dan finishing sesuai kebutuhan.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <span className="inline-block rounded-xl bg-blue-50 px-3 py-1 text-sm font-extrabold text-blue-600 font-mono">
+                02
+              </span>
+              <h3 className="mt-4 text-base font-bold text-slate-900">Kirim desainmu</h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-600">
+                Unggah berkas siap cetak, atau diskusikan kebutuhan desain dengan tim.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <span className="inline-block rounded-xl bg-blue-50 px-3 py-1 text-sm font-extrabold text-blue-600 font-mono">
+                03
+              </span>
+              <h3 className="mt-4 text-base font-bold text-slate-900">Periksa & konfirmasi</h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-600">
+                Cek kembali desain, rincian biaya, serta pilihan pengiriman sebelum membayar.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <span className="inline-block rounded-xl bg-blue-50 px-3 py-1 text-sm font-extrabold text-blue-600 font-mono">
+                04
+              </span>
+              <h3 className="mt-4 text-base font-bold text-slate-900">Cetak & terima</h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-600">
+                Setelah dikonfirmasi, pesanan masuk proses cetak lalu disiapkan untuk dikirim.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 text-xs text-emerald-800">
+            <svg className="size-5 shrink-0 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+            <span>
+              <strong>Kamu ikut menentukan hasilnya.</strong> Pastikan desain dan detail pesanan sudah sesuai sebelum menyetujui proses cetak.
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Section Kenali Bahannya */}
+      <section id="bahan" className="border-t border-slate-200/80 bg-white py-16 lg:py-24">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <span className="text-xs font-extrabold uppercase tracking-widest text-blue-600">
+                KENALI BAHANNYA
+              </span>
+              <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+                Bahan tepat. Pesan lebih terlihat.
+              </h2>
+              <p className="mt-2 max-w-2xl text-base text-slate-600">
+                Sesuaikan pilihan dengan lokasi, tampilan, dan kebutuhan pemasangan.
+              </p>
+            </div>
+
+            <a
+              href="https://wa.me/6281234567890"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary self-start sm:self-auto"
+            >
+              <svg className="size-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.75.75 0 01-.777-.777c.057-.597.234-1.222.518-1.808C3.805 16.74 3 14.496 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+              </svg>
+              Bantu pilihkan bahan
+            </a>
+          </div>
+
+          <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="border-b border-slate-200 bg-slate-50 font-bold text-slate-700">
+                  <tr>
+                    <th className="px-6 py-4">Bahan</th>
+                    <th className="px-6 py-4">Cocok untuk</th>
+                    <th className="px-6 py-4">Karakter bahan</th>
+                    <th className="px-6 py-4">Opsi finishing</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-600">
+                  {materials.map((m) => (
+                    <tr key={m.id} className="hover:bg-slate-50/70 transition">
+                      <td className="px-6 py-5">
+                        <strong className="block text-sm font-bold text-slate-900">{m.name}</strong>
+                        <span className="mt-1 inline-block rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700">
+                          {m.badge}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5">{m.forUse}</td>
+                      <td className="px-6 py-5">{m.character}</td>
+                      <td className="px-6 py-5">{m.finishing}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <p className="mt-4 text-xs text-slate-400">
+            Pilihan bahan dan finishing mengikuti kebutuhan produk serta ketersediaan. Konfirmasikan rekomendasi dan biaya dengan tim sebelum memesan.
           </p>
+        </div>
+      </section>
 
-          <div className="mt-6 bg-zinc-900 text-zinc-100 p-6 rounded-2xl font-mono text-xs sm:text-sm text-left shadow-inner">
-            <p className="text-zinc-400">{"// 1. Konversi sentimeter ke meter persegi (m²)"}</p>
-            <p className="text-amber-400 font-semibold">
-              luas_m2 = (lebar_cm / 100) * (tinggi_cm / 100)
+      {/* 7. Section Ide Untuk Cetakanmu */}
+      <section className="border-t border-slate-200/80 bg-slate-50 py-16 lg:py-24">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div>
+            <span className="text-xs font-extrabold uppercase tracking-widest text-blue-600">
+              IDE UNTUK CETAKANMU
+            </span>
+            <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+              Kecil usahanya. Besar kesannya.
+            </h2>
+            <p className="mt-2 max-w-2xl text-base text-slate-600">
+              Inspirasi visual untuk promosi, ruang usaha, dan momen yang kamu rencanakan.
             </p>
-            <p className="mt-3 text-zinc-400">{"// 2. Total harga pesanan"}</p>
-            <p className="text-emerald-400 font-semibold">
-              total_harga = luas_m2 * harga_per_m2 * jumlah
-            </p>
+          </div>
+
+          <div className="mt-10 grid gap-6 sm:grid-cols-3">
+            {inspirations.map((item, idx) => (
+              <div key={idx} className="group overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md">
+                <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-slate-100">
+                  <Image
+                    src={item.image}
+                    alt={item.alt}
+                    fill
+                    className="object-cover transition duration-300 group-hover:scale-105"
+                  />
+                  <span className="absolute left-2.5 top-2.5 rounded-full bg-slate-900/80 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-sm">
+                    {item.tag}
+                  </span>
+                </div>
+                <h3 className="mt-4 flex items-center justify-between text-sm font-bold text-slate-900">
+                  {item.title}
+                  <svg className="size-4 text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+                  </svg>
+                </h3>
+                <p className="mt-1 text-xs text-slate-500">{item.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <Footer />
+      {/* 8. Section Dari Desain Ke Cetakan (Dark Blue Box) */}
+      <section id="panduan-berkas" className="py-16 lg:py-24">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="overflow-hidden rounded-3xl bg-slate-950 p-8 text-white shadow-2xl sm:p-12 lg:p-16">
+            <div className="grid items-center gap-12 lg:grid-cols-12">
+              <div className="lg:col-span-6">
+                <span className="text-xs font-extrabold uppercase tracking-widest text-blue-400">
+                  DARI DESAIN KE CETAKAN
+                </span>
+                <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl">
+                  Desain siap? Kita lanjut cetak.
+                </h2>
+                <p className="mt-4 text-sm leading-relaxed text-slate-300 sm:text-base">
+                  Berkas yang tepat membantu hasil cetak sesuai harapan. Cek hal penting ini sebelum mengunggah.
+                </p>
+
+                <div className="mt-8">
+                  <a
+                    href="#panduan"
+                    className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-xs font-bold text-slate-950 transition hover:bg-slate-100"
+                  >
+                    <svg className="size-4 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                    </svg>
+                    Lihat panduan berkas
+                  </a>
+                </div>
+
+                <p className="mt-6 text-xs text-slate-400">
+                  Belum punya desain? Ceritakan kebutuhanmu. Opsi bantuan dan biayanya dikonfirmasi terlebih dahulu.
+                </p>
+              </div>
+
+              <div className="lg:col-span-6">
+                <div className="rounded-2xl border border-slate-800 bg-white p-6 text-slate-900 shadow-xl sm:p-8">
+                  <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                    <span className="grid size-9 place-items-center rounded-xl bg-blue-50 text-blue-600">
+                      <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </span>
+                    <div>
+                      <h4 className="font-bold text-slate-900">Cek sebelum unggah</h4>
+                      <span className="text-[11px] text-slate-400 font-mono">PDF / JPG / PNG</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 space-y-4 text-xs text-slate-600">
+                    <div className="flex items-start gap-3">
+                      <span className="size-2 rounded-full bg-blue-600 shrink-0 mt-1.5" />
+                      <div>
+                        <strong className="block text-slate-900 font-bold">Format berkas</strong>
+                        Utamakan PDF, JPG atau PNG juga dapat dikonsultasikan.
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <span className="size-2 rounded-full bg-blue-600 shrink-0 mt-1.5" />
+                      <div>
+                        <strong className="block text-slate-900 font-bold">Ukuran & resolusi</strong>
+                        Samakan proporsi desain dengan ukuran cetak. Hindari gambar pecah.
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <span className="size-2 rounded-full bg-blue-600 shrink-0 mt-1.5" />
+                      <div>
+                        <strong className="block text-slate-900 font-bold">Warna & area aman</strong>
+                        Gunakan CMYK bila tersedia. Jauhkan teks dari tepi potong.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 9. Section Sebelum Kamu Pesan (FAQ) */}
+      <section id="faq" className="border-t border-slate-200/80 bg-slate-50 py-16 lg:py-24">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="grid gap-12 lg:grid-cols-12">
+            <div className="lg:col-span-5">
+              <span className="text-xs font-extrabold uppercase tracking-widest text-blue-600">
+                SEBELUM KAMU PESAN
+              </span>
+              <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+                Masih ada yang ingin ditanyakan?
+              </h2>
+              <p className="mt-3 text-base text-slate-600">
+                Mulai dari pertanyaan yang paling sering muncul saat menyiapkan cetakan.
+              </p>
+
+              <div className="mt-8">
+                <a
+                  href="https://wa.me/6281234567890"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary"
+                >
+                  <svg className="size-4 text-emerald-600" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z" />
+                  </svg>
+                  Tanya lewat WhatsApp
+                </a>
+              </div>
+            </div>
+
+            <div className="lg:col-span-7">
+              <div className="space-y-3">
+                {faqs.map((faq, index) => {
+                  const isOpen = openFaq === index
+                  return (
+                    <div
+                      key={index}
+                      className="overflow-hidden rounded-2xl border border-slate-200 bg-white transition shadow-sm"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setOpenFaq(isOpen ? null : index)}
+                        className="flex w-full items-center justify-between px-6 py-4 text-left text-sm font-bold text-slate-900"
+                      >
+                        <span>{faq.q}</span>
+                        <span className="text-slate-400 font-mono text-base ml-4">
+                          {isOpen ? '—' : '+'}
+                        </span>
+                      </button>
+                      {isOpen && (
+                        <div className="border-t border-slate-100 px-6 py-4 text-xs leading-relaxed text-slate-600 bg-slate-50/50">
+                          {faq.a}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 10. Bottom Blue Banner CTA */}
+      <section className="bg-blue-600 py-14 text-white">
+        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 px-5 sm:flex-row sm:items-center lg:px-8">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-widest text-blue-200">
+              CETAK LANGKAH BERIKUTNYA
+            </span>
+            <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+              Saatnya idemu terlihat.
+            </h2>
+            <p className="mt-1 text-sm text-blue-100 max-w-xl">
+              Untuk usahamu, acaramu, atau rencana besar berikutnya. Mulai dengan cetakan yang tepat.
+            </p>
+          </div>
+
+          <div className="flex flex-col items-start gap-3 sm:items-end">
+            <Link href="/studio" className="btn-accent px-6 py-3 text-sm font-bold">
+              Mulai pesan sekarang
+              <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+              </svg>
+            </Link>
+            <a
+              href="https://wa.me/6281234567890"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-semibold text-blue-100 hover:text-white transition"
+            >
+              atau konsultasi dulu →
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* 11. Footer */}
+      <footer className="border-t border-slate-200 bg-white py-12 text-slate-600">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="lg:col-span-2">
+              <Link href="/" className="inline-flex items-center gap-3">
+                <span className="relative size-8 shrink-0 overflow-hidden rounded-lg shadow-sm">
+                  <Image
+                    src="/bannerku-logo.png"
+                    alt="Logo BannerKu"
+                    width={32}
+                    height={32}
+                    className="size-full object-cover"
+                  />
+                </span>
+                <span className="text-lg font-extrabold text-slate-950">
+                  Banner<span className="text-blue-600">Ku</span>
+                </span>
+              </Link>
+              <p className="mt-3 max-w-sm text-xs leading-relaxed text-slate-500">
+                Layanan pemesanan banner & percetakan online. Membantu ide menemukan bentuk cetaknya.
+              </p>
+              <span className="mt-4 inline-block rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold text-slate-600">
+                Dicetak untuk ide-ide Indonesia
+              </span>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-950">Produk</h4>
+              <ul className="mt-3 space-y-2 text-xs">
+                <li><Link href="/studio?product=banner-custom" className="hover:text-blue-600">Banner custom</Link></li>
+                <li><Link href="/studio?product=roll-banner" className="hover:text-blue-600">Roll banner</Link></li>
+                <li><Link href="/studio?product=x-banner" className="hover:text-blue-600">X-banner</Link></li>
+                <li><Link href="/studio?product=poster" className="hover:text-blue-600">Poster</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-950">Panduan</h4>
+              <ul className="mt-3 space-y-2 text-xs">
+                <li><a href="#cara-pesan" className="hover:text-blue-600">Cara pesan</a></li>
+                <li><a href="#panduan-berkas" className="hover:text-blue-600">Panduan berkas</a></li>
+                <li><a href="#bahan" className="hover:text-blue-600">Pilihan bahan</a></li>
+                <li><a href="#kalkulator" className="hover:text-blue-600">Hitung estimasi</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-950">Bantuan</h4>
+              <ul className="mt-3 space-y-2 text-xs">
+                <li><a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">Hubungi kami</a></li>
+                <li><a href="#faq" className="hover:text-blue-600">Pertanyaan umum</a></li>
+                <li><Link href="/customer/dashboard" className="hover:text-blue-600">Lacak pesanan</Link></li>
+                <li><Link href="/login" className="hover:text-blue-600">Masuk akun</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-slate-100 pt-6 text-xs text-slate-400 sm:flex-row">
+            <span>© 2026 BannerKu. Hak cipta dilindungi.</span>
+            <div className="flex gap-6">
+              <a href="#" className="hover:text-slate-600">Syarat & ketentuan</a>
+              <a href="#" className="hover:text-slate-600">Kebijakan privasi</a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
-  );
+  )
 }
