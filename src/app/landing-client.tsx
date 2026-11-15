@@ -76,9 +76,8 @@ const products = [
     subtitle: 'Promosi toko & acara',
     spec: 'Ukuran fleksibel',
     priceText: 'Rp20.000 / m²',
-    image:
-      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80',
-    alt: 'Banner custom kedai kopi di luar ruangan',
+    image: '/images/landing/banner-custom.jpg',
+    alt: 'Banner custom cetak digital printing untuk promosi toko & acara',
   },
   {
     id: 'roll-banner',
@@ -88,9 +87,8 @@ const products = [
     subtitle: 'Presentasi & pameran',
     spec: 'Contoh: 60 × 160 cm',
     priceText: 'Rp150.000 / set',
-    image:
-      'https://images.unsplash.com/photo-1542744094-3a31f272c490?auto=format&fit=crop&w=700&q=80',
-    alt: 'Roll banner stand di ruang pameran',
+    image: '/images/landing/roll-banner.jpg',
+    alt: 'Roll banner stand praktis untuk presentasi & pameran',
   },
   {
     id: 'x-banner',
@@ -100,9 +98,8 @@ const products = [
     subtitle: 'Promosi dalam ruang',
     spec: 'Contoh: 60 × 160 cm',
     priceText: 'Rp85.000 / set',
-    image:
-      'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=700&q=80',
-    alt: 'X-banner promosi di dalam toko retail',
+    image: '/images/landing/x-banner.jpg',
+    alt: 'X-banner ringkas dan ringan untuk promosi dalam ruang',
   },
   {
     id: 'poster',
@@ -123,25 +120,22 @@ const inspirations = [
     tag: 'UNTUK USAHA',
     title: 'Sambut pelanggan dari depan.',
     desc: 'Banner custom untuk wajah baru tokomu.',
-    image:
-      'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=700&q=80',
-    alt: 'Fasad kedai kopi dengan banner promosi',
+    image: '/images/landing/sambut-pelanggan.jpg',
+    alt: 'Sambut pelanggan dari depan - Banner custom untuk wajah baru tokomu',
   },
   {
     tag: 'UNTUK ACARA',
     title: 'Jadikan acaramu lebih berkesan.',
     desc: 'Display yang menyalurkan identitas acara.',
-    image:
-      'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=700&q=80',
-    alt: 'Banner backdrop seminar dan acara komunitas',
+    image: '/images/landing/jadikan-acaramu.jpg',
+    alt: 'Jadikan acaramu lebih berkesan - Display yang menyalurkan identitas acara',
   },
   {
     tag: 'UNTUK PROMOSI',
     title: 'Penawaran yang sulit terlewat.',
     desc: 'Bawa pesan usahamu ke lebih banyak mata.',
-    image:
-      'https://images.unsplash.com/photo-1506617420156-8e4536971650?auto=format&fit=crop&w=700&q=80',
-    alt: 'Spanduk promo toko ritel buah dan sayur segar',
+    image: '/images/landing/penawaran-terlewat.jpg',
+    alt: 'Penawaran yang sulit terlewat - Bawa pesan usahamu ke lebih banyak mata',
   },
 ]
 
@@ -475,8 +469,8 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
               <div className="relative rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xl shadow-blue-500/10">
                 <div className="overflow-hidden rounded-xl bg-slate-900 relative aspect-4/3 flex items-center justify-center p-6 text-white text-center">
                   <Image
-                    src="https://images.unsplash.com/photo-1542744094-3a31f272c490?auto=format&fit=crop&w=800&q=80"
-                    alt="Mockup cetak banner"
+                    src="/images/landing/banner-custom.jpg"
+                    alt="Mockup cetak banner BannerIN"
                     fill
                     className="object-cover opacity-50"
                   />
