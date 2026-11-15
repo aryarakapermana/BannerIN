@@ -487,11 +487,10 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
               type="button"
               suppressHydrationWarning
               onClick={() => setSelectedProductTab('all')}
-              className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${
-                selectedProductTab === 'all'
+              className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${selectedProductTab === 'all'
                   ? 'bg-blue-600 text-white shadow-sm'
                   : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-              }`}
+                }`}
             >
               Semua produk
             </button>
@@ -499,11 +498,10 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
               type="button"
               suppressHydrationWarning
               onClick={() => setSelectedProductTab('banner')}
-              className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${
-                selectedProductTab === 'banner'
+              className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${selectedProductTab === 'banner'
                   ? 'bg-blue-600 text-white shadow-sm'
                   : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-              }`}
+                }`}
             >
               Banner
             </button>
@@ -511,11 +509,10 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
               type="button"
               suppressHydrationWarning
               onClick={() => setSelectedProductTab('poster')}
-              className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${
-                selectedProductTab === 'poster'
+              className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${selectedProductTab === 'poster'
                   ? 'bg-blue-600 text-white shadow-sm'
                   : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-              }`}
+                }`}
             >
               Poster & lainnya
             </button>

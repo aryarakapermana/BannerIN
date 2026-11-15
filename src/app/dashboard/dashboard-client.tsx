@@ -562,19 +562,19 @@ export default function DashboardClient({
             prev.map((o) =>
               o.id === editingOrder.id
                 ? {
-                    ...o,
-                    customerName: cleanName,
-                    customerPhone: waNormalized,
-                    materialId: selectedMat?.id ?? o.materialId,
-                    material: selectedMat?.name ?? o.material,
-                    width: w,
-                    height: h,
-                    quantity: q,
-                    areaSqm: breakdown.areaSqm,
-                    total: breakdown.totalPrice,
-                    status: editingOrder.status,
-                    notes: cleanNotes,
-                  }
+                  ...o,
+                  customerName: cleanName,
+                  customerPhone: waNormalized,
+                  materialId: selectedMat?.id ?? o.materialId,
+                  material: selectedMat?.name ?? o.material,
+                  width: w,
+                  height: h,
+                  quantity: q,
+                  areaSqm: breakdown.areaSqm,
+                  total: breakdown.totalPrice,
+                  status: editingOrder.status,
+                  notes: cleanNotes,
+                }
                 : o
             )
           )
@@ -636,26 +636,7 @@ export default function DashboardClient({
           prev.map((o) =>
             o.id === updatedDto.id
               ? {
-                  ...o,
-                  customerName: updatedDto.customerName,
-                  customerPhone: updatedDto.customerPhone,
-                  materialId: updatedDto.materialId,
-                  material: updatedDto.material,
-                  width: updatedDto.width,
-                  height: updatedDto.height,
-                  quantity: updatedDto.quantity,
-                  areaSqm: updatedDto.areaSqm,
-                  total: updatedDto.total,
-                  status: updatedDto.status,
-                  notes: updatedDto.notes,
-                }
-              : o
-          )
-        )
-        setSelectedProofOrder((prev) =>
-          prev && prev.id === updatedDto.id
-            ? {
-                ...prev,
+                ...o,
                 customerName: updatedDto.customerName,
                 customerPhone: updatedDto.customerPhone,
                 materialId: updatedDto.materialId,
@@ -668,6 +649,25 @@ export default function DashboardClient({
                 status: updatedDto.status,
                 notes: updatedDto.notes,
               }
+              : o
+          )
+        )
+        setSelectedProofOrder((prev) =>
+          prev && prev.id === updatedDto.id
+            ? {
+              ...prev,
+              customerName: updatedDto.customerName,
+              customerPhone: updatedDto.customerPhone,
+              materialId: updatedDto.materialId,
+              material: updatedDto.material,
+              width: updatedDto.width,
+              height: updatedDto.height,
+              quantity: updatedDto.quantity,
+              areaSqm: updatedDto.areaSqm,
+              total: updatedDto.total,
+              status: updatedDto.status,
+              notes: updatedDto.notes,
+            }
             : prev
         )
         setOrderFeedback({
@@ -776,8 +776,8 @@ export default function DashboardClient({
       const extension = order.fileSize?.includes('PDF')
         ? 'pdf'
         : order.fileSize?.includes('PNG')
-        ? 'png'
-        : 'jpg'
+          ? 'png'
+          : 'jpg'
       a.download = `Desain-${order.orderNumber.replace(/[^a-zA-Z0-9_-]/g, '')}.${extension}`
       document.body.appendChild(a)
       a.click()
@@ -880,10 +880,10 @@ export default function DashboardClient({
           prev.map((m) =>
             m.id === editingMaterial.id
               ? {
-                  ...editingMaterial,
-                  price: numericPrice,
-                  lastUpdated: `Diperbarui baru saja oleh ${adminName}`,
-                }
+                ...editingMaterial,
+                price: numericPrice,
+                lastUpdated: `Diperbarui baru saja oleh ${adminName}`,
+              }
               : m
           )
         )
@@ -950,11 +950,10 @@ export default function DashboardClient({
                   setCurrentView('summary')
                   setOrderFilterTab('all')
                 }}
-                className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left transition cursor-pointer ${
-                  currentView === 'summary'
+                className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left transition cursor-pointer ${currentView === 'summary'
                     ? 'bg-purple-600 text-white shadow-sm'
                     : 'text-slate-400 hover:bg-white/5 hover:text-white'
-                }`}
+                  }`}
               >
                 <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -969,11 +968,10 @@ export default function DashboardClient({
                   setCurrentView('orders')
                   setOrderFilterTab('pending')
                 }}
-                className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left transition cursor-pointer ${
-                  currentView === 'orders'
+                className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left transition cursor-pointer ${currentView === 'orders'
                     ? 'bg-purple-600 text-white shadow-sm'
                     : 'text-slate-400 hover:bg-white/5 hover:text-white'
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -990,11 +988,10 @@ export default function DashboardClient({
                 type="button"
                 suppressHydrationWarning
                 onClick={() => setCurrentView('materials')}
-                className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left transition cursor-pointer ${
-                  currentView === 'materials'
+                className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left transition cursor-pointer ${currentView === 'materials'
                     ? 'bg-purple-600 text-white shadow-sm'
                     : 'text-slate-400 hover:bg-white/5 hover:text-white'
-                }`}
+                  }`}
               >
                 <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -1085,8 +1082,8 @@ export default function DashboardClient({
               {currentView === 'summary'
                 ? 'Ringkasan Pesanan'
                 : currentView === 'orders'
-                ? 'Kelola Pesanan Masuk'
-                : 'Katalog & Harga Bahan'}
+                  ? 'Kelola Pesanan Masuk'
+                  : 'Katalog & Harga Bahan'}
             </span>
           </div>
 
@@ -1160,11 +1157,10 @@ export default function DashboardClient({
 
               {orderFeedback && (
                 <div
-                  className={`mt-4 flex items-center justify-between rounded-xl border px-4 py-2.5 text-xs font-medium ${
-                    orderFeedback.type === 'success'
+                  className={`mt-4 flex items-center justify-between rounded-xl border px-4 py-2.5 text-xs font-medium ${orderFeedback.type === 'success'
                       ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
                       : 'border-rose-200 bg-rose-50 text-rose-700'
-                  }`}
+                    }`}
                 >
                   <span>{orderFeedback.message}</span>
                   <button
@@ -1272,11 +1268,10 @@ export default function DashboardClient({
                       type="button"
                       suppressHydrationWarning
                       onClick={() => setOrderFilterTab('all')}
-                      className={`rounded-full px-3 py-1 text-xs font-bold transition ${
-                        orderFilterTab === 'all'
+                      className={`rounded-full px-3 py-1 text-xs font-bold transition ${orderFilterTab === 'all'
                           ? 'bg-purple-600 text-white'
                           : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
+                        }`}
                     >
                       Semua {orders.length}
                     </button>
@@ -1284,11 +1279,10 @@ export default function DashboardClient({
                       type="button"
                       suppressHydrationWarning
                       onClick={() => setOrderFilterTab('pending')}
-                      className={`rounded-full px-3 py-1 text-xs font-bold transition ${
-                        orderFilterTab === 'pending'
+                      className={`rounded-full px-3 py-1 text-xs font-bold transition ${orderFilterTab === 'pending'
                           ? 'bg-purple-600 text-white'
                           : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
+                        }`}
                     >
                       Perlu konfirmasi {metrics.pendingOrders}
                     </button>
@@ -1296,11 +1290,10 @@ export default function DashboardClient({
                       type="button"
                       suppressHydrationWarning
                       onClick={() => setOrderFilterTab('processing')}
-                      className={`rounded-full px-3 py-1 text-xs font-bold transition ${
-                        orderFilterTab === 'processing'
+                      className={`rounded-full px-3 py-1 text-xs font-bold transition ${orderFilterTab === 'processing'
                           ? 'bg-purple-600 text-white'
                           : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
+                        }`}
                     >
                       Produksi {metrics.processingOrders}
                     </button>
@@ -1408,17 +1401,16 @@ export default function DashboardClient({
                                 suppressHydrationWarning
                                 value={ord.status}
                                 onChange={(e) => handleStatusChange(ord.id, e.target.value as OrderStatus)}
-                                className={`rounded-full px-2.5 py-1 text-[11px] font-bold border outline-none cursor-pointer ${
-                                  ord.status === 'pending'
+                                className={`rounded-full px-2.5 py-1 text-[11px] font-bold border outline-none cursor-pointer ${ord.status === 'pending'
                                     ? 'bg-amber-50 text-amber-700 border-amber-200'
                                     : ord.status === 'confirmed'
-                                    ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                    : ord.status === 'processing'
-                                    ? 'bg-purple-50 text-purple-700 border-purple-200'
-                                    : ord.status === 'completed'
-                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                    : 'bg-rose-50 text-rose-700 border-rose-200'
-                                }`}
+                                      ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                      : ord.status === 'processing'
+                                        ? 'bg-purple-50 text-purple-700 border-purple-200'
+                                        : ord.status === 'completed'
+                                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                          : 'bg-rose-50 text-rose-700 border-rose-200'
+                                  }`}
                               >
                                 <option value="pending">● Pending</option>
                                 <option value="confirmed">● Confirmed</option>
@@ -1638,11 +1630,10 @@ export default function DashboardClient({
                       type="button"
                       suppressHydrationWarning
                       onClick={() => setMaterialFilterTab('all')}
-                      className={`rounded-full px-3 py-1 text-xs font-bold transition ${
-                        materialFilterTab === 'all'
+                      className={`rounded-full px-3 py-1 text-xs font-bold transition ${materialFilterTab === 'all'
                           ? 'bg-purple-600 text-white'
                           : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
+                        }`}
                     >
                       Semua bahan {materials.length}
                     </button>
@@ -1650,11 +1641,10 @@ export default function DashboardClient({
                       type="button"
                       suppressHydrationWarning
                       onClick={() => setMaterialFilterTab('active')}
-                      className={`rounded-full px-3 py-1 text-xs font-bold transition ${
-                        materialFilterTab === 'active'
+                      className={`rounded-full px-3 py-1 text-xs font-bold transition ${materialFilterTab === 'active'
                           ? 'bg-purple-600 text-white'
                           : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
+                        }`}
                     >
                       Aktif {metrics.activeMaterials}
                     </button>
@@ -1662,11 +1652,10 @@ export default function DashboardClient({
                       type="button"
                       suppressHydrationWarning
                       onClick={() => setMaterialFilterTab('inactive')}
-                      className={`rounded-full px-3 py-1 text-xs font-bold transition ${
-                        materialFilterTab === 'inactive'
+                      className={`rounded-full px-3 py-1 text-xs font-bold transition ${materialFilterTab === 'inactive'
                           ? 'bg-purple-600 text-white'
                           : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
+                        }`}
                     >
                       Nonaktif {metrics.inactiveMaterials}
                     </button>
@@ -1960,8 +1949,8 @@ export default function DashboardClient({
                   {isSavingModal
                     ? 'Menyimpan...'
                     : isNewMaterial
-                    ? '+ Tambahkan bahan'
-                    : '✓ Simpan perubahan'}
+                      ? '+ Tambahkan bahan'
+                      : '✓ Simpan perubahan'}
                 </button>
               </div>
             </div>
@@ -2341,8 +2330,8 @@ export default function DashboardClient({
                 {isSavingOrderModal
                   ? 'Menyimpan...'
                   : isNewOrder
-                  ? 'Buat Pesanan'
-                  : 'Simpan Perubahan'}
+                    ? 'Buat Pesanan'
+                    : 'Simpan Perubahan'}
               </button>
             </div>
           </div>
