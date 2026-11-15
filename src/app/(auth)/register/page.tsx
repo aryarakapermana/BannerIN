@@ -51,19 +51,57 @@ export default function RegisterPage() {
           )}
 
           {state?.success && (
-            <div className="mb-6 p-4 rounded-md bg-green-50 border border-green-200 text-sm text-green-800">
-              <p className="font-semibold">Pendaftaran Berhasil!</p>
-              <p className="mt-1 text-xs">{state.message}</p>
-              <div className="mt-4">
+            <div className="mb-6 rounded-2xl border-2 border-emerald-300 bg-emerald-50/90 p-5 text-sm text-emerald-950 shadow-sm">
+              <div className="flex items-center gap-3">
+                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-emerald-600 text-white shadow-xs">
+                  <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                  </svg>
+                </span>
+                <div>
+                  <h3 className="font-extrabold text-emerald-950 text-base">Pendaftaran Berhasil! Tinggal 1 Langkah Lagi</h3>
+                  <span className="text-xs text-emerald-700">Tautan verifikasi akun telah dikirim ke email Anda.</span>
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-xl bg-white/90 p-3.5 border border-emerald-200/80 text-xs text-slate-700 space-y-2">
+                <div className="flex items-start gap-2">
+                  <span className="font-bold text-emerald-600">1.</span>
+                  <span>Buka aplikasi email Anda (periksa folder <strong>Kotak Masuk (Inbox)</strong> atau <strong>Spam / Promosi</strong>).</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="font-bold text-emerald-600">2.</span>
+                  <span>Klik tombol <strong>Confirm your email / Konfirmasi Email</strong> dari BannerIN.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="font-bold text-emerald-600">3.</span>
+                  <span>Setelah terkonfirmasi, Anda dapat langsung masuk dengan kata sandi yang telah didaftarkan.</span>
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-wrap items-center gap-3">
                 <Link
                   href="/login"
-                  className="inline-block bg-green-600 text-white font-semibold text-xs px-3.5 py-2 rounded-md hover:bg-green-700"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition"
                 >
                   Lanjut ke Halaman Masuk &rarr;
                 </Link>
               </div>
             </div>
           )}
+
+          {/* Pengingat Konfirmasi Akun via Email */}
+          <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50/80 p-3.5 text-xs text-blue-900 flex items-start gap-3">
+            <span className="grid size-6 shrink-0 place-items-center rounded-lg bg-blue-600 text-white mt-0.5">
+              <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+              </svg>
+            </span>
+            <div className="leading-relaxed">
+              <strong className="block font-bold text-blue-950">Penting: Verifikasi Email Pribadi</strong>
+              Setelah mendaftar, pastikan Anda membuka kotak masuk (atau folder spam) email Anda dan mengklik tautan konfirmasi agar akun aktif sebelum mencoba masuk (*login*).
+            </div>
+          </div>
 
           <form action={formAction} className="space-y-4">
             <div>
@@ -124,6 +162,9 @@ export default function RegisterPage() {
                   placeholder="nama@email.com"
                   className="block w-full rounded-lg border border-zinc-300 px-3.5 py-2 text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
                 />
+                <p className="mt-1 text-[11px] text-zinc-500">
+                  Gunakan email pribadi aktif. Tautan konfirmasi aktivasi akun akan dikirimkan ke email ini.
+                </p>
               </div>
             </div>
 
@@ -185,6 +226,11 @@ export default function RegisterPage() {
             Setiap pendaftaran baru otomatis mendapatkan peran sebagai{" "}
             <span className="font-semibold text-zinc-700">Konsumen</span>.
           </p>
+
+          <div className="mt-3 flex items-center justify-center gap-1.5 text-center text-[11px] text-zinc-500">
+            <span>✉️</span>
+            <span>Tautan aktivasi akun akan dikirim otomatis ke email Anda.</span>
+          </div>
 
           <div className="mt-6 border-t border-zinc-200 pt-4 text-center">
             <Link

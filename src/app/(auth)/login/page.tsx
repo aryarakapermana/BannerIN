@@ -237,8 +237,11 @@ function LoginForm() {
           )}
 
           {customerState?.error && (
-            <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-medium text-rose-700">
-              {customerState.error}
+            <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-3.5 text-xs text-rose-800 space-y-1.5">
+              <div className="font-semibold text-rose-700">{customerState.error}</div>
+              <p className="border-t border-rose-200/60 pt-1.5 text-[11px] leading-relaxed text-rose-700/90">
+                💡 <strong>Belum konfirmasi email?</strong> Jika Anda baru saja mendaftar, pastikan sudah membuka tautan aktivasi di folder Kotak Masuk atau Spam email pribadi Anda sebelum masuk.
+              </p>
             </div>
           )}
 

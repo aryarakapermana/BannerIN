@@ -127,7 +127,7 @@ export async function registerAction(
   return {
     success: true,
     message:
-      "Pendaftaran berhasil! Silakan periksa email Anda untuk verifikasi atau silakan masuk jika verifikasi email tidak diwajibkan.",
+      "Pendaftaran berhasil! Tautan konfirmasi telah dikirimkan ke email Anda. Silakan buka kotak masuk atau spam email Anda dan klik tautan verifikasi sebelum masuk.",
   };
 }
 
