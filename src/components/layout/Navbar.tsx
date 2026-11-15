@@ -74,6 +74,7 @@ export async function Navbar() {
                 <form action={logoutAction}>
                   <button
                     type="submit"
+                    suppressHydrationWarning
                     className="text-xs px-3 py-1.5 rounded-md border border-zinc-300 text-zinc-600 hover:bg-zinc-50 hover:text-red-600 hover:border-red-200 transition-colors"
                   >
                     Keluar

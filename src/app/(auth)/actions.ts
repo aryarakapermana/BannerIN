@@ -16,6 +16,7 @@ export async function loginAction(
   const email = formData.get("email")?.toString().trim();
   const password = formData.get("password")?.toString();
   const redirectTo = formData.get("redirectTo")?.toString();
+  const loginRole = formData.get("loginRole")?.toString();
 
   if (!email || !password) {
     return { error: "Email dan kata sandi wajib diisi." };
@@ -28,7 +29,17 @@ export async function loginAction(
   });
 
   if (error) {
-    return { error: "Email atau kata sandi tidak valid. Silakan coba lagi." };
+    const errorMsg = error.message.toLowerCase();
+    if (errorMsg.includes("email not confirmed")) {
+      return {
+        error:
+          "Email Anda belum dikonfirmasi. Silakan periksa kotak masuk/spam email Anda untuk verifikasi, atau minta admin untuk mengonfirmasi akun Anda.",
+      };
+    }
+    return {
+      error:
+        "Email atau kata sandi tidak valid. Pastikan kata sandi benar dan akun Anda telah terkonfirmasi di Supabase.",
+    };
   }
 
   if (!data.user) {
@@ -44,16 +55,27 @@ export async function loginAction(
 
   const userRole = profile?.role || "customer";
 
+  if (loginRole === "admin" && userRole !== "admin") {
+    await supabase.auth.signOut();
+    return {
+      error:
+        "Akun ini terdaftar sebagai pelanggan. Silakan masuk melalui formulir Login Pelanggan.",
+    };
+  }
+
   if (redirectTo && redirectTo.startsWith("/")) {
+    if (redirectTo === "/admin" || redirectTo === "/admin/dashboard") {
+      redirect("/dashboard");
+    }
     // Validasi agar redirect tetap aman
-    if (redirectTo.startsWith("/admin") && userRole !== "admin") {
+    if ((redirectTo.startsWith("/admin") || redirectTo.startsWith("/dashboard")) && userRole !== "admin") {
       redirect("/customer/dashboard");
     }
     redirect(redirectTo);
   }
 
   if (userRole === "admin") {
-    redirect("/admin/dashboard");
+    redirect("/dashboard");
   } else {
     redirect("/customer/dashboard");
   }

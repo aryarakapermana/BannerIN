@@ -3,6 +3,20 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
+import { logoutAction } from '@/app/(auth)/actions'
+import { NumericInput } from '@/components/ui/NumericInput'
+import { Order, priceCalculator } from '@/domain'
+import {
+  updateOrderStatusAction,
+  adminCreateOrderAction,
+  adminUpdateOrderAction,
+  deleteOrderAction,
+  updateMaterialPriceAction,
+  toggleMaterialStatusAction,
+  createMaterialAction,
+  updateMaterialAction,
+  deleteMaterialAction,
+} from './actions'
 
 export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'completed' | 'cancelled'
 
@@ -11,15 +25,35 @@ export type DashboardOrder = {
   orderNumber: string
   customerName: string
   customerPhone: string
+  materialId?: string
   material: string
   width: number
   height: number
+  quantity?: number
+  areaSqm?: number
   total: number
   status: OrderStatus
+  notes?: string | null
+  paymentMethod?: string
+  paymentProofPath?: string | null
+  paymentProofUrl?: string | null
   preview: string
+  originalFilePath?: string
   fileSize: string
   createdAt: string
   dateFormatted: string
+}
+
+type OrderFormState = {
+  id?: string
+  customerName: string
+  whatsappNumber: string
+  materialId: string
+  width: number | ''
+  height: number | ''
+  quantity: number | ''
+  status: OrderStatus
+  notes: string
 }
 
 export type DashboardMaterial = {
@@ -33,6 +67,8 @@ export type DashboardMaterial = {
   active: boolean
   lastUpdated: string
 }
+
+type EditingMaterialState = Omit<DashboardMaterial, 'price'> & { price: number | '' }
 
 const rupiah = new Intl.NumberFormat('id-ID', {
   style: 'currency',
@@ -143,7 +179,7 @@ const defaultMaterials: DashboardMaterial[] = [
     description: 'Permukaan halus untuk banner promosi harian.',
     price: 28000,
     active: true,
-    lastUpdated: '08 Nov 2026 oleh Rani Aditya',
+    lastUpdated: '08 Nov 2026 oleh Arya',
   },
   {
     id: 'mat-2',
@@ -154,7 +190,7 @@ const defaultMaterials: DashboardMaterial[] = [
     description: 'Bahan lebih tebal untuk banner promosi jangka panjang.',
     price: 45000,
     active: true,
-    lastUpdated: '06 Nov 2026 oleh Rani Aditya',
+    lastUpdated: '06 Nov 2026 oleh Arya',
   },
   {
     id: 'mat-3',
@@ -165,7 +201,7 @@ const defaultMaterials: DashboardMaterial[] = [
     description: 'Pilihan ringan dan ekonomis untuk promosi harian.',
     price: 25000,
     active: true,
-    lastUpdated: '05 Nov 2026 oleh Rani Aditya',
+    lastUpdated: '05 Nov 2026 oleh Arya',
   },
   {
     id: 'mat-4',
@@ -176,7 +212,7 @@ const defaultMaterials: DashboardMaterial[] = [
     description: 'Hasil cetak tajam untuk poster dan display indoor.',
     price: 65000,
     active: true,
-    lastUpdated: '04 Nov 2026 oleh Rani Aditya',
+    lastUpdated: '04 Nov 2026 oleh Arya',
   },
   {
     id: 'mat-5',
@@ -187,7 +223,7 @@ const defaultMaterials: DashboardMaterial[] = [
     description: 'Finishing semi-gloss untuk roll banner dan display.',
     price: 70000,
     active: true,
-    lastUpdated: '04 Nov 2026 oleh Rani Aditya',
+    lastUpdated: '04 Nov 2026 oleh Arya',
   },
   {
     id: 'mat-6',
@@ -198,7 +234,7 @@ const defaultMaterials: DashboardMaterial[] = [
     description: 'Media perekat tahan air untuk kaca dan permukaan rata.',
     price: 85000,
     active: false,
-    lastUpdated: '02 Nov 2026 oleh Rani Aditya',
+    lastUpdated: '02 Nov 2026 oleh Arya',
   },
   {
     id: 'mat-7',
@@ -209,23 +245,30 @@ const defaultMaterials: DashboardMaterial[] = [
     description: 'Media tembus cahaya untuk neon box dan signage.',
     price: 95000,
     active: false,
-    lastUpdated: '01 Nov 2026 oleh Rani Aditya',
+    lastUpdated: '01 Nov 2026 oleh Arya',
   },
 ]
 
 interface DashboardClientProps {
   initialMaterials?: DashboardMaterial[]
   initialOrders?: DashboardOrder[]
+  adminName?: string
   isDemo?: boolean
 }
 
 export default function DashboardClient({
   initialMaterials,
   initialOrders,
+  adminName = 'Arya',
+  isDemo = false,
 }: DashboardClientProps = {}) {
-  const [currentView, setCurrentView] = useState<'orders' | 'materials'>('orders')
-  const [orders, setOrders] = useState<DashboardOrder[]>(initialOrders && initialOrders.length > 0 ? initialOrders : defaultOrders)
-  const [materials, setMaterials] = useState<DashboardMaterial[]>(initialMaterials && initialMaterials.length > 0 ? initialMaterials : defaultMaterials)
+  const [currentView, setCurrentView] = useState<'summary' | 'orders' | 'materials'>('summary')
+  const [orders, setOrders] = useState<DashboardOrder[]>(
+    initialOrders !== undefined ? initialOrders : isDemo ? defaultOrders : []
+  )
+  const [materials, setMaterials] = useState<DashboardMaterial[]>(
+    initialMaterials && initialMaterials.length > 0 ? initialMaterials : defaultMaterials
+  )
 
   // Orders filters
   const [orderSearch, setOrderSearch] = useState('')
@@ -235,11 +278,32 @@ export default function DashboardClient({
   const [materialSearch, setMaterialSearch] = useState('')
   const [materialFilterTab, setMaterialFilterTab] = useState<'all' | 'active' | 'inactive'>('all')
   const [quickEditId, setQuickEditId] = useState<string | null>('mat-1')
-  const [quickEditPrice, setQuickEditPrice] = useState<number>(28000)
+  const [quickEditPrice, setQuickEditPrice] = useState<number | ''>(28000)
 
   // Edit Modal State
-  const [editingMaterial, setEditingMaterial] = useState<DashboardMaterial | null>(null)
+  const [editingMaterial, setEditingMaterial] = useState<EditingMaterialState | null>(null)
+  const [isNewMaterial, setIsNewMaterial] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalError, setModalError] = useState<string | null>(null)
+  const [isSavingModal, setIsSavingModal] = useState(false)
+
+  // Modal Verifikasi Bukti Pembayaran State
+  const [selectedProofOrder, setSelectedProofOrder] = useState<DashboardOrder | null>(null)
+  const [isUpdatingProofStatus, setIsUpdatingProofStatus] = useState(false)
+
+  // Modal Tambah / Edit Pesanan & Hapus Pesanan State (CRUD Pesanan)
+  const [editingOrder, setEditingOrder] = useState<OrderFormState | null>(null)
+  const [isNewOrder, setIsNewOrder] = useState(false)
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false)
+  const [orderModalError, setOrderModalError] = useState<string | null>(null)
+  const [isSavingOrderModal, setIsSavingOrderModal] = useState(false)
+  const [deletingOrder, setDeletingOrder] = useState<DashboardOrder | null>(null)
+  const [deleteOrderError, setDeleteOrderError] = useState<string | null>(null)
+  const [isDeletingOrder, setIsDeletingOrder] = useState(false)
+  const [orderFeedback, setOrderFeedback] = useState<{
+    type: 'success' | 'error'
+    message: string
+  } | null>(null)
 
   // Filtered orders
   const filteredOrders = useMemo(() => {
@@ -279,7 +343,10 @@ export default function DashboardClient({
     const todayOrders = orders.length
     const pendingOrders = orders.filter((o) => o.status === 'pending').length
     const processingOrders = orders.filter((o) => o.status === 'processing').length
-    const revenue = 12480000
+    const revenue = orders.reduce(
+      (sum, o) => sum + (o.status !== 'cancelled' ? o.total : 0),
+      0
+    )
     const activeMaterials = materials.filter((m) => m.active).length
     const inactiveMaterials = materials.filter((m) => !m.active).length
     return {
@@ -293,36 +360,554 @@ export default function DashboardClient({
     }
   }, [orders, materials])
 
-  const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
+  const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
+    const previousOrder = orders.find((o) => o.id === orderId)
     setOrders((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)),
     )
-  }
-
-  const handleToggleMaterial = (matId: string) => {
-    setMaterials((prev) =>
-      prev.map((m) => (m.id === matId ? { ...m, active: !m.active } : m)),
+    setSelectedProofOrder((prev) =>
+      prev && prev.id === orderId ? { ...prev, status: newStatus } : prev,
     )
+    if (!orderId.startsWith('ord-')) {
+      const res = await updateOrderStatusAction(orderId, newStatus)
+      if (!res.success && previousOrder) {
+        setOrders((prev) =>
+          prev.map((o) => (o.id === orderId ? { ...o, status: previousOrder.status } : o)),
+        )
+        setSelectedProofOrder((prev) =>
+          prev && prev.id === orderId ? { ...prev, status: previousOrder.status } : prev,
+        )
+        setOrderFeedback({
+          type: 'error',
+          message: res.error || 'Gagal memperbarui status pesanan.',
+        })
+      } else if (res.success) {
+        setOrderFeedback({
+          type: 'success',
+          message: `Status pesanan ${previousOrder?.orderNumber ?? ''} diperbarui ke ${newStatus}.`,
+        })
+      }
+    }
   }
 
-  const handleSaveQuickPrice = (matId: string) => {
+  const handleConfirmPaymentFromModal = async (order: DashboardOrder) => {
+    setIsUpdatingProofStatus(true)
+    try {
+      await handleStatusChange(order.id, 'confirmed')
+    } finally {
+      setIsUpdatingProofStatus(false)
+    }
+  }
+
+  const orderModalMaterials = useMemo(() => {
+    if (!editingOrder) return materials.filter((m) => m.active)
+    return materials.filter((m) => m.active || m.id === editingOrder.materialId)
+  }, [materials, editingOrder])
+
+  const orderModalPreview = useMemo(() => {
+    if (!editingOrder) return null
+    const selectedMat = materials.find((m) => m.id === editingOrder.materialId)
+    const w = Number(editingOrder.width)
+    const h = Number(editingOrder.height)
+    const q = Number(editingOrder.quantity)
+    if (
+      !selectedMat ||
+      !Number.isFinite(w) ||
+      !Number.isFinite(h) ||
+      !Number.isFinite(q) ||
+      w < 10 ||
+      h < 10 ||
+      q < 1
+    ) {
+      return null
+    }
+    return {
+      material: selectedMat,
+      ...priceCalculator.calculateBreakdown({
+        widthCm: w,
+        heightCm: h,
+        pricePerSqm: selectedMat.price,
+        quantity: Math.floor(q),
+      }),
+    }
+  }, [editingOrder, materials])
+
+  const handleOpenNewOrderModal = () => {
+    const defaultMat = materials.find((m) => m.active) ?? materials[0]
+    setEditingOrder({
+      customerName: '',
+      whatsappNumber: '',
+      materialId: defaultMat?.id ?? '',
+      width: 200,
+      height: 100,
+      quantity: 1,
+      status: 'confirmed',
+      notes: '',
+    })
+    setIsNewOrder(true)
+    setOrderModalError(null)
+    setIsOrderModalOpen(true)
+  }
+
+  const handleOpenEditOrderModal = (ord: DashboardOrder) => {
+    const matchedMat =
+      (ord.materialId && materials.find((m) => m.id === ord.materialId)) ||
+      materials.find((m) => m.name.toLowerCase() === ord.material.toLowerCase()) ||
+      materials.find((m) => m.active) ||
+      materials[0]
+
+    setEditingOrder({
+      id: ord.id,
+      customerName: ord.customerName,
+      whatsappNumber: ord.customerPhone === '-' ? '' : ord.customerPhone,
+      materialId: matchedMat?.id ?? '',
+      width: ord.width,
+      height: ord.height,
+      quantity: ord.quantity ?? 1,
+      status: ord.status,
+      notes: ord.notes ?? '',
+    })
+    setIsNewOrder(false)
+    setOrderModalError(null)
+    setIsOrderModalOpen(true)
+  }
+
+  const handleSaveOrderModal = async () => {
+    if (!editingOrder) return
+    if (!editingOrder.customerName.trim()) {
+      setOrderModalError('Nama pemesan wajib diisi.')
+      return
+    }
+    if (!editingOrder.whatsappNumber.trim()) {
+      setOrderModalError('Nomor WhatsApp wajib diisi.')
+      return
+    }
+    if (!editingOrder.materialId) {
+      setOrderModalError('Bahan cetak wajib dipilih.')
+      return
+    }
+    const w = Number(editingOrder.width)
+    const h = Number(editingOrder.height)
+    const q = Number(editingOrder.quantity)
+    if (!Number.isFinite(w) || w < 10 || w > 5000) {
+      setOrderModalError('Lebar banner harus di antara 10 cm hingga 5.000 cm.')
+      return
+    }
+    if (!Number.isFinite(h) || h < 10 || h > 5000) {
+      setOrderModalError('Tinggi banner harus di antara 10 cm hingga 5.000 cm.')
+      return
+    }
+    if (!Number.isFinite(q) || q < 1 || !Number.isInteger(q)) {
+      setOrderModalError('Jumlah cetak minimal 1 lembar (bilangan bulat).')
+      return
+    }
+
+    setIsSavingOrderModal(true)
+    setOrderModalError(null)
+
+    try {
+      const selectedMat = materials.find((m) => m.id === editingOrder.materialId)
+      const isMockOperation =
+        isDemo ||
+        (!isNewOrder && editingOrder.id?.startsWith('ord-')) ||
+        Boolean(editingOrder.materialId.startsWith('mat-'))
+
+      if (isMockOperation) {
+        const waNormalized = Order.normalizeWhatsApp(editingOrder.whatsappNumber).e164
+        const cleanName = Order.normalizeCustomerName(editingOrder.customerName)
+        const cleanNotes = Order.normalizeNotes(editingOrder.notes)
+        const breakdown = priceCalculator.calculateBreakdown({
+          widthCm: w,
+          heightCm: h,
+          pricePerSqm: selectedMat?.price ?? 25000,
+          quantity: q,
+        })
+
+        if (isNewOrder) {
+          const mockId = `ord-demo-${Date.now()}`
+          const newDemoOrder: DashboardOrder = {
+            id: mockId,
+            orderNumber: `#BK-DEMO-${orders.length + 1}`,
+            customerName: cleanName,
+            customerPhone: waNormalized,
+            materialId: selectedMat?.id,
+            material: selectedMat?.name || 'Bahan Banner',
+            width: w,
+            height: h,
+            quantity: q,
+            areaSqm: breakdown.areaSqm,
+            total: breakdown.totalPrice,
+            status: editingOrder.status,
+            notes: cleanNotes,
+            paymentMethod: 'qris_static',
+            preview: '',
+            fileSize: 'Tanpa lampiran desain',
+            createdAt: new Date().toLocaleTimeString('id-ID', {
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
+            dateFormatted: new Date().toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            }),
+          }
+          setOrders((prev) => [newDemoOrder, ...prev])
+          setOrderFeedback({
+            type: 'success',
+            message: `Pesanan ${newDemoOrder.orderNumber} berhasil ditambahkan.`,
+          })
+        } else if (editingOrder.id) {
+          setOrders((prev) =>
+            prev.map((o) =>
+              o.id === editingOrder.id
+                ? {
+                    ...o,
+                    customerName: cleanName,
+                    customerPhone: waNormalized,
+                    materialId: selectedMat?.id ?? o.materialId,
+                    material: selectedMat?.name ?? o.material,
+                    width: w,
+                    height: h,
+                    quantity: q,
+                    areaSqm: breakdown.areaSqm,
+                    total: breakdown.totalPrice,
+                    status: editingOrder.status,
+                    notes: cleanNotes,
+                  }
+                : o
+            )
+          )
+          setOrderFeedback({
+            type: 'success',
+            message: 'Perubahan pesanan berhasil disimpan.',
+          })
+        }
+        setIsOrderModalOpen(false)
+        return
+      }
+
+      if (isNewOrder) {
+        const res = await adminCreateOrderAction({
+          customerName: editingOrder.customerName,
+          whatsappNumber: editingOrder.whatsappNumber,
+          materialId: editingOrder.materialId,
+          widthCm: w,
+          heightCm: h,
+          quantity: q,
+          status: editingOrder.status,
+          notes: editingOrder.notes,
+        })
+        if (!res.success || !res.order) {
+          setOrderModalError(res.error || 'Gagal menambahkan pesanan baru.')
+          return
+        }
+        const createdOrder: DashboardOrder = {
+          ...res.order,
+          paymentProofPath: null,
+          paymentProofUrl: null,
+          preview: '',
+          originalFilePath: undefined,
+          fileSize: 'Tanpa lampiran desain',
+        }
+        setOrders((prev) => [createdOrder, ...prev])
+        setOrderFeedback({
+          type: 'success',
+          message: `Pesanan ${createdOrder.orderNumber} untuk ${createdOrder.customerName} berhasil dibuat.`,
+        })
+      } else if (editingOrder.id) {
+        const res = await adminUpdateOrderAction({
+          orderId: editingOrder.id,
+          customerName: editingOrder.customerName,
+          whatsappNumber: editingOrder.whatsappNumber,
+          materialId: editingOrder.materialId,
+          widthCm: w,
+          heightCm: h,
+          quantity: q,
+          status: editingOrder.status,
+          notes: editingOrder.notes,
+        })
+        if (!res.success || !res.order) {
+          setOrderModalError(res.error || 'Gagal menyimpan perubahan pesanan.')
+          return
+        }
+        const updatedDto = res.order
+        setOrders((prev) =>
+          prev.map((o) =>
+            o.id === updatedDto.id
+              ? {
+                  ...o,
+                  customerName: updatedDto.customerName,
+                  customerPhone: updatedDto.customerPhone,
+                  materialId: updatedDto.materialId,
+                  material: updatedDto.material,
+                  width: updatedDto.width,
+                  height: updatedDto.height,
+                  quantity: updatedDto.quantity,
+                  areaSqm: updatedDto.areaSqm,
+                  total: updatedDto.total,
+                  status: updatedDto.status,
+                  notes: updatedDto.notes,
+                }
+              : o
+          )
+        )
+        setSelectedProofOrder((prev) =>
+          prev && prev.id === updatedDto.id
+            ? {
+                ...prev,
+                customerName: updatedDto.customerName,
+                customerPhone: updatedDto.customerPhone,
+                materialId: updatedDto.materialId,
+                material: updatedDto.material,
+                width: updatedDto.width,
+                height: updatedDto.height,
+                quantity: updatedDto.quantity,
+                areaSqm: updatedDto.areaSqm,
+                total: updatedDto.total,
+                status: updatedDto.status,
+                notes: updatedDto.notes,
+              }
+            : prev
+        )
+        setOrderFeedback({
+          type: 'success',
+          message: `Pesanan ${updatedDto.orderNumber} berhasil diperbarui (harga dihitung ulang server).`,
+        })
+      }
+
+      setIsOrderModalOpen(false)
+    } catch (err: unknown) {
+      setOrderModalError(
+        err instanceof Error ? err.message : 'Terjadi kesalahan saat menyimpan pesanan.'
+      )
+    } finally {
+      setIsSavingOrderModal(false)
+    }
+  }
+
+  const handleOpenDeleteOrderModal = (ord: DashboardOrder) => {
+    setDeleteOrderError(null)
+    setDeletingOrder(ord)
+  }
+
+  const handleConfirmDeleteOrder = async () => {
+    if (!deletingOrder) return
+    setIsDeletingOrder(true)
+    setDeleteOrderError(null)
+
+    try {
+      if (isDemo || deletingOrder.id.startsWith('ord-')) {
+        setOrders((prev) => prev.filter((o) => o.id !== deletingOrder.id))
+        if (selectedProofOrder?.id === deletingOrder.id) {
+          setSelectedProofOrder(null)
+        }
+        setOrderFeedback({
+          type: 'success',
+          message: `Pesanan ${deletingOrder.orderNumber} berhasil dihapus.`,
+        })
+        setDeletingOrder(null)
+        return
+      }
+
+      const res = await deleteOrderAction(deletingOrder.id)
+      if (!res.success) {
+        setDeleteOrderError(res.error || 'Gagal menghapus pesanan.')
+        return
+      }
+
+      const deletedNumber = deletingOrder.orderNumber
+      setOrders((prev) => prev.filter((o) => o.id !== deletingOrder.id))
+      if (selectedProofOrder?.id === deletingOrder.id) {
+        setSelectedProofOrder(null)
+      }
+      setDeletingOrder(null)
+      setOrderFeedback({
+        type: 'success',
+        message: `Pesanan ${deletedNumber} telah dihapus permanen dari sistem.`,
+      })
+    } catch (err: unknown) {
+      setDeleteOrderError(
+        err instanceof Error ? err.message : 'Terjadi kesalahan saat menghapus pesanan.'
+      )
+    } finally {
+      setIsDeletingOrder(false)
+    }
+  }
+
+  const handleToggleMaterial = async (matId: string) => {
+    const target = materials.find((m) => m.id === matId)
+    const newActive = !target?.active
     setMaterials((prev) =>
-      prev.map((m) => (m.id === matId ? { ...m, price: quickEditPrice } : m)),
+      prev.map((m) => (m.id === matId ? { ...m, active: newActive } : m)),
+    )
+    if (!matId.startsWith('mat-')) {
+      await toggleMaterialStatusAction(matId, newActive)
+    }
+  }
+
+  const handleSaveQuickPrice = async (matId: string) => {
+    if (quickEditPrice === '' || isNaN(quickEditPrice) || quickEditPrice < 0) {
+      alert('Harga per m² wajib diisi dan tidak boleh negatif.')
+      return
+    }
+    const numericPrice = quickEditPrice
+    setMaterials((prev) =>
+      prev.map((m) => (m.id === matId ? { ...m, price: numericPrice } : m)),
     )
     setQuickEditId(null)
+    if (!matId.startsWith('mat-')) {
+      await updateMaterialPriceAction(matId, numericPrice)
+    }
+  }
+
+  const handleDownloadDesign = async (order: DashboardOrder) => {
+    try {
+      const targetUrl = order.originalFilePath || order.preview
+      if (!targetUrl) {
+        alert('File desain belum tersedia untuk pesanan ini.')
+        return
+      }
+      const res = await fetch(targetUrl)
+      const blob = await res.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = blobUrl
+      const extension = order.fileSize?.includes('PDF')
+        ? 'pdf'
+        : order.fileSize?.includes('PNG')
+        ? 'png'
+        : 'jpg'
+      a.download = `Desain-${order.orderNumber.replace(/[^a-zA-Z0-9_-]/g, '')}.${extension}`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(blobUrl)
+    } catch {
+      const targetUrl = order.originalFilePath || order.preview
+      if (targetUrl) {
+        window.open(targetUrl, '_blank')
+      }
+    }
+  }
+
+  const handleOpenAddModal = () => {
+    setEditingMaterial({
+      id: '',
+      code: `BHN-00${materials.length + 1}`,
+      name: '',
+      category: 'Banner outdoor',
+      weight: '340g',
+      description: '',
+      price: 25000,
+      active: true,
+      lastUpdated: `Baru saja oleh ${adminName}`,
+    })
+    setIsNewMaterial(true)
+    setModalError(null)
+    setIsModalOpen(true)
   }
 
   const handleOpenEditModal = (m: DashboardMaterial) => {
     setEditingMaterial({ ...m })
+    setIsNewMaterial(false)
+    setModalError(null)
     setIsModalOpen(true)
   }
 
-  const handleSaveModal = () => {
+  const handleSaveModal = async () => {
     if (!editingMaterial) return
-    setMaterials((prev) =>
-      prev.map((m) => (m.id === editingMaterial.id ? editingMaterial : m)),
-    )
-    setIsModalOpen(false)
+    if (!editingMaterial.name.trim()) {
+      setModalError('Nama bahan wajib diisi.')
+      return
+    }
+    if (
+      editingMaterial.price === '' ||
+      isNaN(editingMaterial.price) ||
+      editingMaterial.price < 0
+    ) {
+      setModalError('Harga per m² wajib diisi dan tidak boleh negatif.')
+      return
+    }
+    const numericPrice = editingMaterial.price
+
+    setIsSavingModal(true)
+    setModalError(null)
+
+    try {
+      if (isNewMaterial) {
+        const res = await createMaterialAction({
+          name: editingMaterial.name,
+          description: editingMaterial.description,
+          price_per_sqm: numericPrice,
+          is_active: editingMaterial.active,
+        })
+        if (!res.success) {
+          setModalError(res.error || 'Gagal menambahkan bahan.')
+          setIsSavingModal(false)
+          return
+        }
+        if (res.material) {
+          const newMat: DashboardMaterial = {
+            id: res.material.id,
+            code: `BHN-00${materials.length + 1}`,
+            name: res.material.name,
+            category: 'Banner outdoor',
+            weight: res.material.name.includes('gram')
+              ? res.material.name.split('gram')[0].trim().split(' ').pop() + 'g'
+              : '340g',
+            description: res.material.description || '',
+            price: res.material.price_per_sqm,
+            active: res.material.is_active,
+            lastUpdated: `Baru saja oleh ${adminName}`,
+          }
+          setMaterials((prev) => [...prev, newMat])
+        }
+      } else {
+        const res = await updateMaterialAction({
+          id: editingMaterial.id,
+          name: editingMaterial.name,
+          description: editingMaterial.description,
+          price_per_sqm: numericPrice,
+          is_active: editingMaterial.active,
+        })
+        if (!res.success) {
+          setModalError(res.error || 'Gagal memperbarui bahan.')
+          setIsSavingModal(false)
+          return
+        }
+        setMaterials((prev) =>
+          prev.map((m) =>
+            m.id === editingMaterial.id
+              ? {
+                  ...editingMaterial,
+                  price: numericPrice,
+                  lastUpdated: `Diperbarui baru saja oleh ${adminName}`,
+                }
+              : m
+          )
+        )
+      }
+      setIsModalOpen(false)
+    } catch {
+      setModalError('Terjadi kesalahan saat menyimpan bahan.')
+    } finally {
+      setIsSavingModal(false)
+    }
+  }
+
+  const handleDeleteMaterial = async (matId: string) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus bahan ini dari katalog?')) return
+    const res = await deleteMaterialAction(matId)
+    if (!res.success) {
+      alert(res.error || 'Gagal menghapus bahan.')
+      return
+    }
+    if (res.error) {
+      alert(res.error) // Notifikasi soft-delete jika ada transaksi
+    }
+    setMaterials((prev) => prev.filter((m) => m.id !== matId))
+    if (isModalOpen) setIsModalOpen(false)
   }
 
   return (
@@ -360,9 +945,13 @@ export default function DashboardClient({
             <nav className="mt-3 space-y-1 text-xs font-bold">
               <button
                 type="button"
-                onClick={() => setCurrentView('orders')}
-                className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left transition ${
-                  currentView === 'orders'
+                suppressHydrationWarning
+                onClick={() => {
+                  setCurrentView('summary')
+                  setOrderFilterTab('all')
+                }}
+                className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left transition cursor-pointer ${
+                  currentView === 'summary'
                     ? 'bg-purple-600 text-white shadow-sm'
                     : 'text-slate-400 hover:bg-white/5 hover:text-white'
                 }`}
@@ -375,11 +964,16 @@ export default function DashboardClient({
 
               <button
                 type="button"
+                suppressHydrationWarning
                 onClick={() => {
                   setCurrentView('orders')
                   setOrderFilterTab('pending')
                 }}
-                className="flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left text-slate-400 hover:bg-white/5 hover:text-white transition"
+                className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left transition cursor-pointer ${
+                  currentView === 'orders'
+                    ? 'bg-purple-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                }`}
               >
                 <div className="flex items-center gap-3">
                   <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -388,14 +982,15 @@ export default function DashboardClient({
                   Kelola Pesanan Masuk
                 </div>
                 <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-bold text-slate-300 font-mono">
-                  2
+                  {metrics.pendingOrders}
                 </span>
               </button>
 
               <button
                 type="button"
+                suppressHydrationWarning
                 onClick={() => setCurrentView('materials')}
-                className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left transition ${
+                className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left transition cursor-pointer ${
                   currentView === 'materials'
                     ? 'bg-purple-600 text-white shadow-sm'
                     : 'text-slate-400 hover:bg-white/5 hover:text-white'
@@ -409,7 +1004,8 @@ export default function DashboardClient({
 
               <button
                 type="button"
-                className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-slate-400 hover:bg-white/5 hover:text-white transition"
+                suppressHydrationWarning
+                className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-slate-400 hover:bg-white/5 hover:text-white transition cursor-pointer"
               >
                 <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -419,7 +1015,8 @@ export default function DashboardClient({
 
               <button
                 type="button"
-                className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-slate-400 hover:bg-white/5 hover:text-white transition"
+                suppressHydrationWarning
+                className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-slate-400 hover:bg-white/5 hover:text-white transition cursor-pointer"
               >
                 <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -452,19 +1049,26 @@ export default function DashboardClient({
         <div className="border-t border-slate-800 pt-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <span className="grid size-8 place-items-center rounded-lg bg-slate-800 text-xs font-bold text-slate-200">
-                RA
+              <span className="grid size-8 place-items-center rounded-lg bg-purple-900/70 border border-purple-600/40 text-xs font-bold text-purple-200">
+                {adminName.substring(0, 2).toUpperCase()}
               </span>
               <div>
-                <strong className="block text-xs font-bold text-white">Rani Aditya</strong>
+                <strong className="block text-xs font-bold text-white">{adminName}</strong>
                 <span className="text-[10px] text-slate-400">Administrator</span>
               </div>
             </div>
-            <Link href="/login" className="text-slate-500 hover:text-slate-300">
-              <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-            </Link>
+            <form action={logoutAction}>
+              <button
+                type="submit"
+                suppressHydrationWarning
+                title="Keluar (Logout)"
+                className="grid size-8 place-items-center rounded-lg text-slate-400 hover:bg-white/10 hover:text-rose-400 transition cursor-pointer"
+              >
+                <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </button>
+            </form>
           </div>
           <span className="mt-3 block text-[10px] text-slate-500">BannerKu Admin · v1.0</span>
         </div>
@@ -478,7 +1082,11 @@ export default function DashboardClient({
             <span>Admin</span>
             <span>›</span>
             <span className="font-bold text-slate-900">
-              {currentView === 'orders' ? 'Ringkasan Pesanan' : 'Katalog & Harga Bahan'}
+              {currentView === 'summary'
+                ? 'Ringkasan Pesanan'
+                : currentView === 'orders'
+                ? 'Kelola Pesanan Masuk'
+                : 'Katalog & Harga Bahan'}
             </span>
           </div>
 
@@ -487,7 +1095,14 @@ export default function DashboardClient({
               <svg className="size-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span>Minggu, 8 November 2026</span>
+              <span suppressHydrationWarning>
+                {new Date().toLocaleDateString('id-ID', {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </span>
             </div>
             <span className="grid size-7 place-items-center rounded-lg border border-slate-200 text-slate-600">
               🔔
@@ -498,27 +1113,33 @@ export default function DashboardClient({
 
         {/* Content Body */}
         <main className="p-8">
-          {/* VIEW 1: RINGKASAN PESANAN */}
-          {currentView === 'orders' && (
+          {/* VIEW 1: RINGKASAN PESANAN & KELOLA PESANAN MASUK */}
+          {(currentView === 'summary' || currentView === 'orders') && (
             <div>
               {/* Header */}
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-2xl font-black tracking-tight text-slate-950">Ringkasan pesanan</h1>
+                  <h1 className="text-2xl font-black tracking-tight text-slate-950">
+                    {currentView === 'orders' ? 'Kelola Pesanan Masuk' : 'Ringkasan pesanan'}
+                  </h1>
                   <p className="mt-1 text-xs text-slate-500">
-                    Dari pesanan masuk hingga siap diambil. Semua dalam kendalimu.
+                    {currentView === 'orders'
+                      ? 'Kelola status pesanan, unduh file desain asli resolusi tinggi, dan teruskan ke percetakan.'
+                      : 'Dari pesanan masuk hingga siap diambil. Semua dalam kendalimu.'}
                   </p>
                 </div>
 
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
+                    suppressHydrationWarning
                     className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-2xs"
                   >
-                    📅 8 November 2026
+                    📅 {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                   </button>
                   <button
                     type="button"
+                    suppressHydrationWarning
                     className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50"
                   >
                     <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -526,8 +1147,36 @@ export default function DashboardClient({
                     </svg>
                     Ekspor laporan
                   </button>
+                  <button
+                    type="button"
+                    suppressHydrationWarning
+                    onClick={handleOpenNewOrderModal}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-purple-700 transition cursor-pointer"
+                  >
+                    + Tambah pesanan
+                  </button>
                 </div>
               </div>
+
+              {orderFeedback && (
+                <div
+                  className={`mt-4 flex items-center justify-between rounded-xl border px-4 py-2.5 text-xs font-medium ${
+                    orderFeedback.type === 'success'
+                      ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                      : 'border-rose-200 bg-rose-50 text-rose-700'
+                  }`}
+                >
+                  <span>{orderFeedback.message}</span>
+                  <button
+                    type="button"
+                    suppressHydrationWarning
+                    onClick={() => setOrderFeedback(null)}
+                    className="ml-4 font-bold opacity-70 hover:opacity-100 cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
 
               {/* 4 Stat Cards */}
               <div className="mt-6 grid grid-cols-4 gap-4">
@@ -603,6 +1252,7 @@ export default function DashboardClient({
                     <div className="relative w-64">
                       <input
                         type="text"
+                        suppressHydrationWarning
                         placeholder="Cari ID, nama, atau nomor HP"
                         value={orderSearch}
                         onChange={(e) => setOrderSearch(e.target.value)}
@@ -620,6 +1270,7 @@ export default function DashboardClient({
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
+                      suppressHydrationWarning
                       onClick={() => setOrderFilterTab('all')}
                       className={`rounded-full px-3 py-1 text-xs font-bold transition ${
                         orderFilterTab === 'all'
@@ -631,6 +1282,7 @@ export default function DashboardClient({
                     </button>
                     <button
                       type="button"
+                      suppressHydrationWarning
                       onClick={() => setOrderFilterTab('pending')}
                       className={`rounded-full px-3 py-1 text-xs font-bold transition ${
                         orderFilterTab === 'pending'
@@ -638,10 +1290,11 @@ export default function DashboardClient({
                           : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                       }`}
                     >
-                      Perlu konfirmasi 2
+                      Perlu konfirmasi {metrics.pendingOrders}
                     </button>
                     <button
                       type="button"
+                      suppressHydrationWarning
                       onClick={() => setOrderFilterTab('processing')}
                       className={`rounded-full px-3 py-1 text-xs font-bold transition ${
                         orderFilterTab === 'processing'
@@ -649,7 +1302,7 @@ export default function DashboardClient({
                           : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                       }`}
                     >
-                      Produksi 1
+                      Produksi {metrics.processingOrders}
                     </button>
                   </div>
 
@@ -666,88 +1319,161 @@ export default function DashboardClient({
                         <th className="py-3 px-3">Bahan</th>
                         <th className="py-3 px-3">Dimensi</th>
                         <th className="py-3 px-3">Preview Desain</th>
+                        <th className="py-3 px-3">Bukti Pembayaran</th>
                         <th className="py-3 px-3">Snapshot Total Harga</th>
                         <th className="py-3 px-3">Status</th>
                         <th className="py-3 px-3">Aksi operasional</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-slate-700">
-                      {filteredOrders.map((ord) => (
-                        <tr key={ord.id} className="hover:bg-slate-50/70 transition">
-                          <td className="py-3 px-3 font-mono">
-                            <strong className="block text-slate-900">{ord.orderNumber}</strong>
-                            <span className="text-[10px] text-slate-400">{ord.createdAt}</span>
-                          </td>
-                          <td className="py-3 px-3">
-                            <strong className="block text-slate-900">{ord.customerName}</strong>
-                            <span className="text-[10px] text-slate-400 font-mono">{ord.customerPhone}</span>
-                          </td>
-                          <td className="py-3 px-3 font-medium text-slate-800">{ord.material}</td>
-                          <td className="py-3 px-3 font-mono">
-                            <strong className="block text-slate-900">{ord.width} × {ord.height}</strong>
-                            <span className="text-[10px] text-slate-400">
-                              {((ord.width * ord.height) / 10000).toFixed(0)} m² × 1 pcs
-                            </span>
-                          </td>
-                          <td className="py-3 px-3">
-                            <div className="flex items-center gap-2">
-                              <div className="relative size-10 shrink-0 overflow-hidden rounded border border-slate-200 bg-slate-100">
-                                <Image
-                                  src={ord.preview}
-                                  alt="Preview"
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                              <span className="text-[10px] text-slate-500 font-mono">{ord.fileSize}</span>
+                      {filteredOrders.length === 0 ? (
+                        <tr>
+                          <td colSpan={9} className="py-14 text-center">
+                            <div className="flex flex-col items-center justify-center text-slate-400">
+                              <span className="grid size-12 place-items-center rounded-2xl bg-slate-100 text-2xl mb-3">
+                                📦
+                              </span>
+                              <p className="text-sm font-bold text-slate-800">Belum ada antrean pesanan</p>
+                              <p className="text-xs text-slate-400 mt-1 max-w-sm">
+                                Pesanan baru yang dibuat konsumen melalui Studio akan otomatis tercatat di sini secara real-time.
+                              </p>
                             </div>
                           </td>
-                          <td className="py-3 px-3">
-                            <strong className="block text-slate-900 font-mono">{rupiah.format(ord.total)}</strong>
-                            <span className="text-[10px] text-slate-400">🔒 Saat pemesanan</span>
-                          </td>
-                          <td className="py-3 px-3">
-                            <select
-                              value={ord.status}
-                              onChange={(e) => handleStatusChange(ord.id, e.target.value as OrderStatus)}
-                              className={`rounded-full px-2.5 py-1 text-[11px] font-bold border outline-none ${
-                                ord.status === 'pending'
-                                  ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                  : ord.status === 'confirmed'
-                                  ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                  : ord.status === 'processing'
-                                  ? 'bg-purple-50 text-purple-700 border-purple-200'
-                                  : ord.status === 'completed'
-                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                  : 'bg-rose-50 text-rose-700 border-rose-200'
-                              }`}
-                            >
-                              <option value="pending">● Pending</option>
-                              <option value="confirmed">● Confirmed</option>
-                              <option value="processing">● Processing</option>
-                              <option value="completed">● Completed</option>
-                              <option value="cancelled">● Cancelled</option>
-                            </select>
-                          </td>
-                          <td className="py-3 px-3">
-                            <button
-                              type="button"
-                              className="inline-flex items-center gap-1 font-bold text-purple-600 hover:text-purple-700 text-[11px]"
-                            >
-                              <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                              </svg>
-                              Download File Desain Asli (Resolusi Tinggi)
-                            </button>
-                          </td>
                         </tr>
-                      ))}
+                      ) : (
+                        filteredOrders.map((ord) => (
+                          <tr key={ord.id} className="hover:bg-slate-50/70 transition">
+                            <td className="py-3 px-3 font-mono">
+                              <strong className="block text-slate-900">{ord.orderNumber}</strong>
+                              <span className="text-[10px] text-slate-400">{ord.createdAt}</span>
+                            </td>
+                            <td className="py-3 px-3">
+                              <strong className="block text-slate-900">{ord.customerName}</strong>
+                              <span className="text-[10px] text-slate-400 font-mono">{ord.customerPhone}</span>
+                            </td>
+                            <td className="py-3 px-3 font-medium text-slate-800">{ord.material}</td>
+                            <td className="py-3 px-3 font-mono">
+                              <strong className="block text-slate-900">{ord.width} × {ord.height} cm</strong>
+                              <span className="text-[10px] text-slate-400">
+                                {(ord.areaSqm ?? (ord.width * ord.height) / 10000).toFixed(2)} m² × {ord.quantity ?? 1} pcs
+                              </span>
+                            </td>
+                            <td className="py-3 px-3">
+                              <div className="flex items-center gap-2">
+                                <div className="relative size-10 shrink-0 overflow-hidden rounded border border-slate-200 bg-slate-100 flex items-center justify-center">
+                                  {ord.preview ? (
+                                    /* eslint-disable-next-line @next/next/no-img-element */
+                                    <img
+                                      src={ord.preview}
+                                      alt="Preview Desain"
+                                      className="h-full w-full object-cover"
+                                    />
+                                  ) : (
+                                    <span className="text-[10px] font-bold text-slate-400">—</span>
+                                  )}
+                                </div>
+                                <span className="text-[10px] text-slate-500 font-mono">{ord.fileSize}</span>
+                              </div>
+                            </td>
+                            <td className="py-3 px-3">
+                              {ord.paymentProofUrl ? (
+                                <button
+                                  type="button"
+                                  suppressHydrationWarning
+                                  onClick={() => setSelectedProofOrder(ord)}
+                                  className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50/70 px-2.5 py-1.5 text-[11px] font-bold text-emerald-800 hover:bg-emerald-100 transition cursor-pointer"
+                                >
+                                  <span className="size-7 shrink-0 overflow-hidden rounded border border-emerald-200 bg-white block">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                      src={ord.paymentProofUrl}
+                                      alt="Thumbnail Bukti Bayar"
+                                      className="h-full w-full object-cover"
+                                    />
+                                  </span>
+                                  <span>Lihat Bukti</span>
+                                </button>
+                              ) : (
+                                <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold text-slate-400">
+                                  Belum ada bukti
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3 px-3">
+                              <strong className="block text-slate-900 font-mono">{rupiah.format(ord.total)}</strong>
+                              <span className="text-[10px] text-slate-400">🔒 Saat pemesanan</span>
+                            </td>
+                            <td className="py-3 px-3">
+                              <select
+                                suppressHydrationWarning
+                                value={ord.status}
+                                onChange={(e) => handleStatusChange(ord.id, e.target.value as OrderStatus)}
+                                className={`rounded-full px-2.5 py-1 text-[11px] font-bold border outline-none cursor-pointer ${
+                                  ord.status === 'pending'
+                                    ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                    : ord.status === 'confirmed'
+                                    ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                    : ord.status === 'processing'
+                                    ? 'bg-purple-50 text-purple-700 border-purple-200'
+                                    : ord.status === 'completed'
+                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                    : 'bg-rose-50 text-rose-700 border-rose-200'
+                                }`}
+                              >
+                                <option value="pending">● Pending</option>
+                                <option value="confirmed">● Confirmed</option>
+                                <option value="processing">● Processing</option>
+                                <option value="completed">● Completed</option>
+                                <option value="cancelled">● Cancelled</option>
+                              </select>
+                            </td>
+                            <td className="py-3 px-3">
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  suppressHydrationWarning
+                                  onClick={() => handleOpenEditOrderModal(ord)}
+                                  className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:border-purple-300 hover:text-purple-700 transition cursor-pointer"
+                                  title="Edit detail & ukuran pesanan"
+                                >
+                                  Edit
+                                </button>
+                                {(ord.originalFilePath || ord.preview) && (
+                                  <button
+                                    type="button"
+                                    suppressHydrationWarning
+                                    onClick={() => handleDownloadDesign(ord)}
+                                    className="inline-flex items-center gap-1 rounded-lg border border-purple-200 bg-purple-50 px-2.5 py-1 text-[11px] font-bold text-purple-700 hover:bg-purple-100 transition cursor-pointer"
+                                    title="Download File Desain Asli (Resolusi Tinggi)"
+                                  >
+                                    <svg className="size-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    Desain
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  suppressHydrationWarning
+                                  onClick={() => handleOpenDeleteOrderModal(ord)}
+                                  className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] font-bold text-rose-700 hover:bg-rose-100 transition cursor-pointer"
+                                  title="Hapus pesanan ini"
+                                >
+                                  Hapus
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
 
                 <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4 text-xs text-slate-400">
-                  <span>Menampilkan 1–6 dari 6 pesanan</span>
+                  <span>
+                    Menampilkan {filteredOrders.length > 0 ? `1–${filteredOrders.length}` : '0'} dari {orders.length} pesanan
+                  </span>
                   <div className="flex items-center gap-1">
                     <span className="grid size-6 place-items-center rounded bg-purple-600 text-white font-bold">1</span>
                   </div>
@@ -806,27 +1532,16 @@ export default function DashboardClient({
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
+                    suppressHydrationWarning
                     className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50"
                   >
                     Ekspor katalog
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      setEditingMaterial({
-                        id: `mat-${Date.now()}`,
-                        code: `BHN-00${materials.length + 1}`,
-                        name: '',
-                        category: 'Banner outdoor',
-                        weight: '340g',
-                        description: '',
-                        price: 30000,
-                        active: true,
-                        lastUpdated: 'Baru saja oleh Rani Aditya',
-                      })
-                      setIsModalOpen(true)
-                    }}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-purple-700"
+                    suppressHydrationWarning
+                    onClick={handleOpenAddModal}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-purple-700 cursor-pointer"
                   >
                     + Tambah bahan
                   </button>
@@ -900,6 +1615,7 @@ export default function DashboardClient({
                     <div className="relative w-64">
                       <input
                         type="text"
+                        suppressHydrationWarning
                         placeholder="Cari nama atau kode bahan"
                         value={materialSearch}
                         onChange={(e) => setMaterialSearch(e.target.value)}
@@ -920,6 +1636,7 @@ export default function DashboardClient({
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
+                      suppressHydrationWarning
                       onClick={() => setMaterialFilterTab('all')}
                       className={`rounded-full px-3 py-1 text-xs font-bold transition ${
                         materialFilterTab === 'all'
@@ -931,6 +1648,7 @@ export default function DashboardClient({
                     </button>
                     <button
                       type="button"
+                      suppressHydrationWarning
                       onClick={() => setMaterialFilterTab('active')}
                       className={`rounded-full px-3 py-1 text-xs font-bold transition ${
                         materialFilterTab === 'active'
@@ -942,6 +1660,7 @@ export default function DashboardClient({
                     </button>
                     <button
                       type="button"
+                      suppressHydrationWarning
                       onClick={() => setMaterialFilterTab('inactive')}
                       className={`rounded-full px-3 py-1 text-xs font-bold transition ${
                         materialFilterTab === 'inactive'
@@ -995,10 +1714,10 @@ export default function DashboardClient({
                                 <div>
                                   <div className="flex items-center rounded-lg border-2 border-purple-600 bg-white px-2 py-1 shadow-xs">
                                     <span className="text-[11px] font-bold text-slate-400 mr-1">Rp</span>
-                                    <input
-                                      type="number"
+                                    <NumericInput
+                                      placeholder="25000"
                                       value={quickEditPrice}
-                                      onChange={(e) => setQuickEditPrice(Number(e.target.value))}
+                                      onValueChange={setQuickEditPrice}
                                       className="w-20 font-bold font-mono text-xs outline-none"
                                     />
                                     <span className="text-[10px] text-slate-400">/m²</span>
@@ -1013,6 +1732,7 @@ export default function DashboardClient({
                               <label className="inline-flex items-center gap-2 cursor-pointer">
                                 <input
                                   type="checkbox"
+                                  suppressHydrationWarning
                                   checked={mat.active}
                                   onChange={() => handleToggleMaterial(mat.id)}
                                   className="sr-only peer"
@@ -1029,6 +1749,7 @@ export default function DashboardClient({
                                 <div className="flex items-center gap-1.5">
                                   <button
                                     type="button"
+                                    suppressHydrationWarning
                                     onClick={() => handleSaveQuickPrice(mat.id)}
                                     className="rounded-lg bg-purple-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-purple-700"
                                   >
@@ -1036,6 +1757,7 @@ export default function DashboardClient({
                                   </button>
                                   <button
                                     type="button"
+                                    suppressHydrationWarning
                                     onClick={() => setQuickEditId(null)}
                                     className="rounded-lg border border-slate-200 p-1 text-slate-400 hover:text-slate-600"
                                   >
@@ -1046,6 +1768,7 @@ export default function DashboardClient({
                                 <div className="flex items-center gap-1.5">
                                   <button
                                     type="button"
+                                    suppressHydrationWarning
                                     onClick={() => handleOpenEditModal(mat)}
                                     className="rounded-lg border border-slate-200 px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-slate-50"
                                   >
@@ -1053,6 +1776,7 @@ export default function DashboardClient({
                                   </button>
                                   <button
                                     type="button"
+                                    suppressHydrationWarning
                                     onClick={() => {
                                       setQuickEditId(mat.id)
                                       setQuickEditPrice(mat.price)
@@ -1100,7 +1824,7 @@ export default function DashboardClient({
         </main>
       </div>
 
-      {/* 3. Full Modal Edit Bahan */}
+      {/* 3. Full Modal Tambah / Edit Bahan */}
       {isModalOpen && editingMaterial && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4">
           <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
@@ -1110,18 +1834,32 @@ export default function DashboardClient({
                   📦
                 </span>
                 <div>
-                  <h3 className="text-base font-extrabold text-slate-950">Edit bahan</h3>
-                  <p className="text-xs text-slate-500">Perbarui informasi, harga, dan ketersediaan bahan di toko.</p>
+                  <h3 className="text-base font-extrabold text-slate-950">
+                    {isNewMaterial ? 'Tambah bahan baru' : 'Edit bahan'}
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    {isNewMaterial
+                      ? 'Daftarkan jenis bahan banner baru ke katalog toko percetakan.'
+                      : 'Perbarui informasi, harga, dan ketersediaan bahan di toko.'}
+                  </p>
                 </div>
               </div>
               <span className="text-[10px] font-mono font-bold text-slate-400">{editingMaterial.code}</span>
             </div>
+
+            {modalError && (
+              <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700">
+                {modalError}
+              </div>
+            )}
 
             <div className="mt-5 space-y-4 text-xs">
               <div>
                 <label className="block font-bold text-slate-700">Nama bahan *</label>
                 <input
                   type="text"
+                  suppressHydrationWarning
+                  placeholder="Contoh: Flexi Jerman 510 gram"
                   value={editingMaterial.name}
                   onChange={(e) => setEditingMaterial({ ...editingMaterial, name: e.target.value })}
                   className="mt-1.5 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-medium text-slate-900 focus:border-purple-600 focus:outline-none"
@@ -1131,11 +1869,15 @@ export default function DashboardClient({
               <div>
                 <div className="flex justify-between">
                   <label className="block font-bold text-slate-700">Deskripsi</label>
-                  <span className="text-slate-400 font-mono text-[10px]">{editingMaterial.description.length} / 200</span>
+                  <span className="text-slate-400 font-mono text-[10px]">
+                    {editingMaterial.description ? editingMaterial.description.length : 0} / 200
+                  </span>
                 </div>
                 <textarea
                   rows={3}
-                  value={editingMaterial.description}
+                  suppressHydrationWarning
+                  placeholder="Deskripsi keunggulan dan peruntukan bahan..."
+                  value={editingMaterial.description || ''}
                   onChange={(e) => setEditingMaterial({ ...editingMaterial, description: e.target.value })}
                   className="mt-1.5 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-medium text-slate-900 focus:border-purple-600 focus:outline-none"
                 />
@@ -1146,15 +1888,15 @@ export default function DashboardClient({
                 <label className="block font-bold text-slate-700">Harga per m² *</label>
                 <div className="relative mt-1.5 flex items-center rounded-xl border border-slate-200 px-3.5 py-2.5 focus-within:border-purple-600">
                   <span className="font-bold text-slate-400 mr-2">Rp</span>
-                  <input
-                    type="number"
+                  <NumericInput
+                    placeholder="25000"
                     value={editingMaterial.price}
-                    onChange={(e) => setEditingMaterial({ ...editingMaterial, price: Number(e.target.value) })}
+                    onValueChange={(val) => setEditingMaterial({ ...editingMaterial, price: val })}
                     className="w-full font-bold font-mono text-slate-900 outline-none text-xs"
                   />
                   <span className="text-slate-400 font-medium">/ m²</span>
                 </div>
-                <span className="text-[10px] text-slate-400 mt-1 block">Masukkan angka tanpa titik atau koma.</span>
+                <span className="text-[10px] text-slate-400 mt-1 block">Masukkan nominal per m² (tidak boleh negatif).</span>
               </div>
 
               <div className="flex items-center justify-between border-t border-slate-100 pt-3">
@@ -1168,6 +1910,7 @@ export default function DashboardClient({
                   </span>
                   <input
                     type="checkbox"
+                    suppressHydrationWarning
                     checked={editingMaterial.active}
                     onChange={(e) => setEditingMaterial({ ...editingMaterial, active: e.target.checked })}
                     className="sr-only peer"
@@ -1179,29 +1922,487 @@ export default function DashboardClient({
               <div className="rounded-xl border border-blue-100 bg-blue-50/70 p-3 text-[11px] text-blue-900 flex items-start gap-2">
                 <span>🛡️</span>
                 <span>
-                  Perubahan hanya berlaku untuk pesanan baru. Snapshot total harga pesanan sebelumnya tetap tersimpan.
+                  Perubahan harga tersimpan aman di database dan hanya berlaku untuk pesanan baru.
                 </span>
               </div>
             </div>
 
             <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
-              <span className="text-[10px] text-slate-400">* Wajib diisi</span>
+              <div>
+                {!isNewMaterial && (
+                  <button
+                    type="button"
+                    suppressHydrationWarning
+                    onClick={() => handleDeleteMaterial(editingMaterial.id)}
+                    className="rounded-xl border border-rose-200 px-3.5 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                  >
+                    Hapus bahan
+                  </button>
+                )}
+              </div>
               <div className="flex items-center gap-3">
                 <button
                   type="button"
+                  suppressHydrationWarning
                   onClick={() => setIsModalOpen(false)}
-                  className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50"
+                  disabled={isSavingModal}
+                  className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer disabled:opacity-50"
                 >
                   Batal
                 </button>
                 <button
                   type="button"
+                  suppressHydrationWarning
                   onClick={handleSaveModal}
-                  className="rounded-xl bg-purple-600 px-5 py-2 text-xs font-bold text-white shadow-sm hover:bg-purple-700"
+                  disabled={isSavingModal}
+                  className="rounded-xl bg-purple-600 px-5 py-2 text-xs font-bold text-white shadow-sm hover:bg-purple-700 cursor-pointer disabled:opacity-50"
                 >
-                  ✓ Simpan perubahan
+                  {isSavingModal
+                    ? 'Menyimpan...'
+                    : isNewMaterial
+                    ? '+ Tambahkan bahan'
+                    : '✓ Simpan perubahan'}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 4. Modal Verifikasi Bukti Pembayaran Pelanggan */}
+      {selectedProofOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-3xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+            <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700">
+                    Verifikasi Pembayaran
+                  </span>
+                  <span className="font-mono text-xs font-extrabold text-slate-900">
+                    {selectedProofOrder.orderNumber}
+                  </span>
+                </div>
+                <h3 className="mt-1.5 text-base font-extrabold text-slate-950">
+                  Bukti Pembayaran — {selectedProofOrder.customerName}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Cocokkan nominal transfer dengan total tagihan terkunci sebelum mengubah status ke Confirmed.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                suppressHydrationWarning
+                onClick={() => setSelectedProofOrder(null)}
+                aria-label="Tutup modal bukti pembayaran"
+                className="grid size-8 place-items-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-900 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-12">
+              {/* Gambar Bukti Transfer */}
+              <div className="md:col-span-7 flex flex-col">
+                <div className="flex items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-950/95 p-3 min-h-[260px] max-h-[60vh]">
+                  {selectedProofOrder.paymentProofUrl ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={selectedProofOrder.paymentProofUrl}
+                      alt={`Bukti Pembayaran ${selectedProofOrder.orderNumber}`}
+                      className="max-h-[55vh] w-auto rounded-lg object-contain"
+                    />
+                  ) : (
+                    <span className="text-xs text-slate-400">
+                      Gambar bukti pembayaran tidak tersedia.
+                    </span>
+                  )}
+                </div>
+
+                {selectedProofOrder.paymentProofUrl && (
+                  <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                    <a
+                      href={selectedProofOrder.paymentProofUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-bold text-slate-700 hover:bg-slate-50 transition"
+                    >
+                      Buka Resolusi Penuh ↗
+                    </a>
+                    <a
+                      href={selectedProofOrder.paymentProofUrl}
+                      download={`Bukti-Bayar-${selectedProofOrder.orderNumber.replace(/[^a-zA-Z0-9_-]/g, '')}`}
+                      className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 font-bold text-blue-700 hover:bg-blue-100 transition"
+                    >
+                      Unduh Bukti ⬇
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {/* Ringkasan Tagihan & Detail Pelanggan */}
+              <div className="md:col-span-5 flex flex-col justify-between space-y-4">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3 text-xs">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      TOTAL TAGIHAN SERVER
+                    </span>
+                    <strong className="mt-0.5 block text-2xl font-black font-mono text-slate-950">
+                      {rupiah.format(selectedProofOrder.total)}
+                    </strong>
+                  </div>
+
+                  <div className="space-y-2 border-t border-slate-200/80 pt-3">
+                    <div className="flex justify-between gap-2">
+                      <span className="text-slate-500">Pemesan</span>
+                      <strong className="text-slate-900 text-right">{selectedProofOrder.customerName}</strong>
+                    </div>
+                    <div className="flex justify-between gap-2">
+                      <span className="text-slate-500">WhatsApp</span>
+                      <strong className="font-mono text-slate-900">{selectedProofOrder.customerPhone}</strong>
+                    </div>
+                    <div className="flex justify-between gap-2">
+                      <span className="text-slate-500">Bahan</span>
+                      <strong className="text-slate-900 text-right">{selectedProofOrder.material}</strong>
+                    </div>
+                    <div className="flex justify-between gap-2">
+                      <span className="text-slate-500">Ukuran</span>
+                      <strong className="font-mono text-slate-900">
+                        {selectedProofOrder.width} × {selectedProofOrder.height} cm · {selectedProofOrder.quantity ?? 1} pcs
+                      </strong>
+                    </div>
+                    <div className="flex justify-between gap-2">
+                      <span className="text-slate-500">Status Saat Ini</span>
+                      <strong className="uppercase font-mono text-purple-700">{selectedProofOrder.status}</strong>
+                    </div>
+                    {selectedProofOrder.notes && (
+                      <div className="border-t border-slate-200/80 pt-2">
+                        <span className="block text-[10px] font-bold text-slate-500 mb-0.5">
+                          Catatan Finishing:
+                        </span>
+                        <p className="text-slate-800">{selectedProofOrder.notes}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  {selectedProofOrder.status === 'pending' && (
+                    <button
+                      type="button"
+                      suppressHydrationWarning
+                      disabled={isUpdatingProofStatus}
+                      onClick={() => handleConfirmPaymentFromModal(selectedProofOrder)}
+                      className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition cursor-pointer disabled:opacity-50"
+                    >
+                      {isUpdatingProofStatus
+                        ? 'Menyimpan Status...'
+                        : '✓ Konfirmasi Pembayaran (Confirmed)'}
+                    </button>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      suppressHydrationWarning
+                      onClick={() => {
+                        const target = selectedProofOrder
+                        setSelectedProofOrder(null)
+                        handleOpenEditOrderModal(target)
+                      }}
+                      className="flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                    >
+                      Edit Pesanan
+                    </button>
+                    <button
+                      type="button"
+                      suppressHydrationWarning
+                      onClick={() => handleOpenDeleteOrderModal(selectedProofOrder)}
+                      className="flex items-center justify-center rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100 transition cursor-pointer"
+                    >
+                      Hapus Pesanan
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    suppressHydrationWarning
+                    onClick={() => setSelectedProofOrder(null)}
+                    className="flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                  >
+                    Tutup
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5. Modal Tambah / Edit Pesanan (CRUD Create & Update) */}
+      {isOrderModalOpen && editingOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
+                <span className="grid size-9 place-items-center rounded-xl bg-purple-50 text-purple-600">
+                  🧾
+                </span>
+                <div>
+                  <h3 className="text-base font-extrabold text-slate-950">
+                    {isNewOrder ? 'Tambah Pesanan Manual' : 'Edit Detail Pesanan'}
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    {isNewOrder
+                      ? 'Catat pesanan offline/WhatsApp langsung dengan kalkulasi harga baku percetakan.'
+                      : 'Perbarui data pemesan, bahan, ukuran, atau status. Harga otomatis dihitung ulang oleh server.'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                suppressHydrationWarning
+                onClick={() => setIsOrderModalOpen(false)}
+                className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-bold text-slate-500 hover:bg-slate-50 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {orderModalError && (
+              <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-medium text-rose-700">
+                {orderModalError}
+              </div>
+            )}
+
+            <div className="mt-5 space-y-4 text-xs">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block font-bold text-slate-700">Nama Pemesan *</label>
+                  <input
+                    type="text"
+                    suppressHydrationWarning
+                    placeholder="Contoh: Budi Santoso"
+                    value={editingOrder.customerName}
+                    onChange={(e) =>
+                      setEditingOrder({ ...editingOrder, customerName: e.target.value })
+                    }
+                    className="mt-1.5 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-medium text-slate-900 focus:border-purple-600 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700">Nomor WhatsApp *</label>
+                  <input
+                    type="tel"
+                    suppressHydrationWarning
+                    placeholder="081234567890"
+                    value={editingOrder.whatsappNumber}
+                    onChange={(e) =>
+                      setEditingOrder({ ...editingOrder, whatsappNumber: e.target.value })
+                    }
+                    className="mt-1.5 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-mono font-medium text-slate-900 focus:border-purple-600 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block font-bold text-slate-700">Bahan Cetak *</label>
+                  <select
+                    suppressHydrationWarning
+                    value={editingOrder.materialId}
+                    onChange={(e) =>
+                      setEditingOrder({ ...editingOrder, materialId: e.target.value })
+                    }
+                    className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 font-medium text-slate-900 focus:border-purple-600 focus:outline-none"
+                  >
+                    {orderModalMaterials.map((mat) => (
+                      <option key={mat.id} value={mat.id}>
+                        {mat.name} ({rupiah.format(mat.price)}/m²)
+                        {!mat.active ? ' [Nonaktif]' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700">Status Pesanan</label>
+                  <select
+                    suppressHydrationWarning
+                    value={editingOrder.status}
+                    onChange={(e) =>
+                      setEditingOrder({
+                        ...editingOrder,
+                        status: e.target.value as OrderStatus,
+                      })
+                    }
+                    className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 font-bold text-slate-900 focus:border-purple-600 focus:outline-none"
+                  >
+                    <option value="pending">● Pending</option>
+                    <option value="confirmed">● Confirmed</option>
+                    <option value="processing">● Processing</option>
+                    <option value="completed">● Completed</option>
+                    <option value="cancelled">● Cancelled</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-700">Lebar (cm) *</label>
+                  <NumericInput
+                    placeholder="200"
+                    value={editingOrder.width}
+                    onValueChange={(val) =>
+                      setEditingOrder({ ...editingOrder, width: val })
+                    }
+                    className="mt-1.5 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-mono font-bold text-slate-900 focus:border-purple-600 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700">Tinggi (cm) *</label>
+                  <NumericInput
+                    placeholder="100"
+                    value={editingOrder.height}
+                    onValueChange={(val) =>
+                      setEditingOrder({ ...editingOrder, height: val })
+                    }
+                    className="mt-1.5 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-mono font-bold text-slate-900 focus:border-purple-600 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700">Jumlah (pcs) *</label>
+                  <NumericInput
+                    placeholder="1"
+                    value={editingOrder.quantity}
+                    onValueChange={(val) =>
+                      setEditingOrder({ ...editingOrder, quantity: val })
+                    }
+                    className="mt-1.5 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-mono font-bold text-slate-900 focus:border-purple-600 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between">
+                  <label className="block font-bold text-slate-700">Catatan / Finishing</label>
+                  <span className="text-[10px] font-mono text-slate-400">
+                    {editingOrder.notes.length} / 500
+                  </span>
+                </div>
+                <textarea
+                  rows={2}
+                  suppressHydrationWarning
+                  placeholder="Contoh: Mata ayam 4 sudut, lipat tepi rapi..."
+                  value={editingOrder.notes}
+                  onChange={(e) =>
+                    setEditingOrder({ ...editingOrder, notes: e.target.value })
+                  }
+                  className="mt-1.5 w-full rounded-xl border border-slate-200 px-3.5 py-2 font-medium text-slate-900 focus:border-purple-600 focus:outline-none"
+                />
+              </div>
+
+              {orderModalPreview && (
+                <div className="rounded-xl border border-purple-100 bg-purple-50/70 p-4 flex items-center justify-between">
+                  <div>
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-purple-700">
+                      Estimasi Kalkulasi Server
+                    </span>
+                    <span className="mt-0.5 block text-[11px] text-slate-600 font-mono">
+                      {orderModalPreview.areaSqm.toFixed(2)} m² ×{' '}
+                      {orderModalPreview.quantity} pcs ×{' '}
+                      {rupiah.format(orderModalPreview.material.price)}/m²
+                    </span>
+                  </div>
+                  <strong className="text-lg font-black font-mono text-slate-950">
+                    {rupiah.format(orderModalPreview.totalPrice)}
+                  </strong>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6 flex items-center justify-end gap-2.5 border-t border-slate-100 pt-4">
+              <button
+                type="button"
+                suppressHydrationWarning
+                onClick={() => setIsOrderModalOpen(false)}
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                suppressHydrationWarning
+                disabled={isSavingOrderModal}
+                onClick={handleSaveOrderModal}
+                className="rounded-xl bg-purple-600 px-5 py-2 text-xs font-bold text-white shadow-sm hover:bg-purple-700 disabled:opacity-50 cursor-pointer"
+              >
+                {isSavingOrderModal
+                  ? 'Menyimpan...'
+                  : isNewOrder
+                  ? 'Buat Pesanan'
+                  : 'Simpan Perubahan'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. Modal Konfirmasi Hapus Pesanan (CRUD Delete) */}
+      {deletingOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-start gap-3">
+              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-rose-50 text-rose-600 text-lg">
+                🗑️
+              </span>
+              <div>
+                <h3 className="text-base font-extrabold text-slate-950">
+                  Hapus Pesanan Secara Permanen?
+                </h3>
+                <p className="mt-1 text-xs leading-relaxed text-slate-500">
+                  Pesanan <strong className="font-mono text-slate-900">{deletingOrder.orderNumber}</strong>{' '}
+                  atas nama <strong className="text-slate-900">{deletingOrder.customerName}</strong>{' '}
+                  senilai <strong className="font-mono text-slate-900">{rupiah.format(deletingOrder.total)}</strong>{' '}
+                  akan dihapus permanen dari database.
+                </p>
+                {deletingOrder.paymentProofPath && (
+                  <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] font-medium text-amber-800">
+                    ⚠️ Lampiran bukti pembayaran pada storage privat juga akan ikut dihapus.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {deleteOrderError && (
+              <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-medium text-rose-700">
+                {deleteOrderError}
+              </div>
+            )}
+
+            <div className="mt-6 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                suppressHydrationWarning
+                disabled={isDeletingOrder}
+                onClick={() => {
+                  setDeleteOrderError(null)
+                  setDeletingOrder(null)
+                }}
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer disabled:opacity-50"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                suppressHydrationWarning
+                disabled={isDeletingOrder}
+                onClick={handleConfirmDeleteOrder}
+                className="rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-rose-700 cursor-pointer disabled:opacity-50"
+              >
+                {isDeletingOrder ? 'Menghapus...' : 'Ya, Hapus Permanen'}
+              </button>
             </div>
           </div>
         </div>

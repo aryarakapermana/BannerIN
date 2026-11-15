@@ -78,6 +78,7 @@ export default function RegisterPage() {
                   id="fullName"
                   name="fullName"
                   type="text"
+                  suppressHydrationWarning
                   required
                   placeholder="Contoh: Budi Santoso"
                   className="block w-full rounded-lg border border-zinc-300 px-3.5 py-2 text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
@@ -97,6 +98,7 @@ export default function RegisterPage() {
                   id="phone"
                   name="phone"
                   type="tel"
+                  suppressHydrationWarning
                   required
                   placeholder="081234567890"
                   className="block w-full rounded-lg border border-zinc-300 px-3.5 py-2 text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
@@ -117,6 +119,7 @@ export default function RegisterPage() {
                   name="email"
                   type="email"
                   autoComplete="email"
+                  suppressHydrationWarning
                   required
                   placeholder="nama@email.com"
                   className="block w-full rounded-lg border border-zinc-300 px-3.5 py-2 text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
@@ -137,6 +140,7 @@ export default function RegisterPage() {
                   name="password"
                   type="password"
                   autoComplete="new-password"
+                  suppressHydrationWarning
                   required
                   placeholder="••••••••"
                   className="block w-full rounded-lg border border-zinc-300 px-3.5 py-2 text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
@@ -157,6 +161,7 @@ export default function RegisterPage() {
                   name="confirmPassword"
                   type="password"
                   autoComplete="new-password"
+                  suppressHydrationWarning
                   required
                   placeholder="••••••••"
                   className="block w-full rounded-lg border border-zinc-300 px-3.5 py-2 text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
@@ -167,6 +172,7 @@ export default function RegisterPage() {
             <div className="pt-2">
               <button
                 type="submit"
+                suppressHydrationWarning
                 disabled={isPending}
                 className="flex w-full justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 disabled:opacity-50 transition-colors"
               >

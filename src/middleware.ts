@@ -6,10 +6,10 @@ export async function middleware(request: NextRequest) {
   const { supabaseResponse, user, supabase } = await updateSession(request);
 
   const isCustomerRoute = pathname.startsWith("/customer");
-  const isAdminRoute = pathname.startsWith("/admin");
+  const isAdminRoute = pathname.startsWith("/admin") || pathname.startsWith("/dashboard");
   const isAuthRoute = pathname === "/login" || pathname === "/register";
 
-  // 1. Proteksi rute yang membutuhkan login (/customer dan /admin)
+  // 1. Proteksi rute yang membutuhkan login (/customer dan /admin atau /dashboard)
   if (isCustomerRoute || isAdminRoute) {
     if (!user) {
       const loginUrl = new URL("/login", request.url);
@@ -17,7 +17,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    // Pengecekan role khusus rute /admin
+    // Pengecekan role khusus rute admin (/admin dan /dashboard)
     if (isAdminRoute) {
       const { data: profile } = await supabase
         .from("profiles")
@@ -41,7 +41,7 @@ export async function middleware(request: NextRequest) {
       .single();
 
     if (profile?.role === "admin") {
-      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
     return NextResponse.redirect(new URL("/customer/dashboard", request.url));
   }
