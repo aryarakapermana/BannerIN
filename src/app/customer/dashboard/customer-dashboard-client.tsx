@@ -9,7 +9,7 @@ import {
   OrderStatusBadge,
   OrderStatusTimeline,
 } from '@/components/customer/OrderStatusTimeline'
-import { BANNERKU_WHATSAPP, Order } from '@/domain'
+import { BANNERIN_WHATSAPP, Order } from '@/domain'
 import type { CustomerOrderDTO } from '@/lib/customer-orders'
 
 const rupiah = new Intl.NumberFormat('id-ID', {
@@ -151,7 +151,7 @@ export default function CustomerDashboardClient({
             <span className="relative size-8 shrink-0 overflow-hidden rounded-lg shadow-sm">
               <Image
                 src="/bannerku-logo.png"
-                alt="Logo BannerKu"
+                alt="Logo BannerIN"
                 width={32}
                 height={32}
                 className="size-full object-cover"
@@ -159,7 +159,7 @@ export default function CustomerDashboardClient({
               />
             </span>
             <span className="text-lg font-extrabold tracking-tight text-slate-950">
-              Banner<span className="text-blue-600">Ku</span>
+              Banner<span className="text-blue-600">IN</span>
             </span>
           </Link>
 
@@ -474,7 +474,7 @@ export default function CustomerDashboardClient({
                   {filteredOrders.map((order) => {
                     const statusMeta = Order.getCustomerStatusMeta(order.status)
                     const waHelpText = encodeURIComponent(
-                      `Halo Admin BannerKu, saya ingin menanyakan progres pesanan ${order.orderNumber} (${order.materialName}, ${order.widthCm}x${order.heightCm} cm).`
+                      `Halo Admin BannerIN, saya ingin menanyakan progres pesanan ${order.orderNumber} (${order.materialName}, ${order.widthCm}x${order.heightCm} cm).`
                     )
 
                     return (
@@ -607,7 +607,7 @@ export default function CustomerDashboardClient({
                               </Link>
 
                               <a
-                                href={`${BANNERKU_WHATSAPP.baseUrl}?text=${waHelpText}`}
+                                href={`${BANNERIN_WHATSAPP.baseUrl}?text=${waHelpText}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
@@ -644,7 +644,7 @@ export default function CustomerDashboardClient({
                       d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  Status menunjukkan tahap produksi terbaru dari database BannerKu.
+                  Status menunjukkan tahap produksi terbaru dari database BannerIN.
                 </span>
               </div>
             </div>
@@ -725,7 +725,7 @@ export default function CustomerDashboardClient({
 
       <footer className="mt-16 border-t border-slate-200 bg-white py-6 text-xs text-slate-400">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 lg:px-8">
-          <span>© 2026 BannerKu. Hak cipta dilindungi.</span>
+          <span>© 2026 BannerIN. Hak cipta dilindungi.</span>
           <span>Privasi akunmu terjamin melalui Row Level Security.</span>
         </div>
       </footer>

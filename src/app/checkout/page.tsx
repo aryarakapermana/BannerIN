@@ -125,7 +125,7 @@ export default async function CheckoutPage({
   const displayName =
     profile?.full_name?.trim() ||
     user.email?.split("@")[0] ||
-    "Pelanggan BannerKu";
+    "Pelanggan BannerIN";
 
   // Siapkan nomor WA prefill bersih (tanpa prefix +62 double) jika sudah tersimpan di profil
   const cleanInitialPhone = profile?.phone

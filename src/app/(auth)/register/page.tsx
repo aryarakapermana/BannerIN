@@ -16,7 +16,7 @@ export default function RegisterPage() {
             <div className="w-10 h-10 rounded-xl overflow-hidden shadow-sm border border-zinc-200">
               <Image
                 src="/logo.png"
-                alt="BannerKu Logo"
+                alt="BannerIN Logo"
                 width={40}
                 height={40}
                 className="w-full h-full object-cover"
@@ -24,7 +24,7 @@ export default function RegisterPage() {
               />
             </div>
             <span className="text-3xl font-black tracking-tight text-blue-600">
-              Banner<span className="text-amber-500">Ku</span>
+              Banner<span className="text-amber-500">IN</span>
             </span>
           </Link>
           <h2 className="mt-4 text-2xl font-bold tracking-tight text-zinc-900">

@@ -16,7 +16,7 @@ export async function Navbar() {
               <div className="w-8 h-8 rounded-lg overflow-hidden shadow-sm border border-zinc-200 transition-transform group-hover:scale-105">
                 <Image
                   src="/logo.png"
-                  alt="BannerKu Logo"
+                  alt="BannerIN Logo"
                   width={32}
                   height={32}
                   className="w-full h-full object-cover"
@@ -24,7 +24,7 @@ export async function Navbar() {
                 />
               </div>
               <span className="text-2xl font-black tracking-tight text-blue-600">
-                Banner<span className="text-amber-500">Ku</span>
+                Banner<span className="text-amber-500">IN</span>
               </span>
             </Link>
             <span className="hidden sm:inline-block text-xs px-2.5 py-0.5 rounded-full font-medium bg-blue-50 text-blue-700 border border-blue-200">

@@ -40,7 +40,7 @@ function LoginForm() {
           <span className="relative size-8 shrink-0 overflow-hidden rounded-lg shadow-xs">
             <Image
               src="/bannerku-logo.png"
-              alt="Logo BannerKu"
+              alt="Logo BannerIN"
               width={32}
               height={32}
               className="size-full object-cover"
@@ -48,7 +48,7 @@ function LoginForm() {
             />
           </span>
           <span className="text-lg font-extrabold tracking-tight text-slate-950">
-            Banner<span className="text-blue-600">Ku</span>
+            Banner<span className="text-blue-600">IN</span>
           </span>
         </Link>
         <Link
@@ -88,7 +88,7 @@ function LoginForm() {
             <span className="relative size-10 shrink-0 overflow-hidden rounded-xl shadow-sm">
               <Image
                 src="/bannerku-logo.png"
-                alt="Logo BannerKu"
+                alt="Logo BannerIN"
                 width={40}
                 height={40}
                 className="size-full object-cover"
@@ -96,7 +96,7 @@ function LoginForm() {
               />
             </span>
             <span className="text-2xl font-extrabold tracking-tight text-white">
-              Banner<span className="text-blue-500">Ku</span>
+              Banner<span className="text-blue-500">IN</span>
             </span>
           </Link>
 
@@ -189,7 +189,7 @@ function LoginForm() {
       <div className="flex flex-1 flex-col justify-between bg-white px-5 py-6 sm:p-10 lg:p-14 xl:p-16">
         <div className="hidden items-center justify-between text-xs lg:flex">
           <span className="font-semibold text-slate-400">
-            Portal Pelanggan BannerKu
+            Portal Pelanggan BannerIN
           </span>
           <Link
             href="/"
@@ -244,7 +244,7 @@ function LoginForm() {
 
           {showForgotNote && (
             <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs text-blue-800">
-              Lupa kata sandi? Hubungi tim CS / Admin BannerKu untuk bantuan reset akses akun Anda.
+              Lupa kata sandi? Hubungi tim CS / Admin BannerIN untuk bantuan reset akses akun Anda.
             </div>
           )}
 
@@ -405,7 +405,7 @@ function LoginForm() {
           {/* Highlighted Customer Register Card */}
           <div className="mt-5 rounded-xl border border-blue-100 bg-blue-50/70 p-4 text-center">
             <p className="text-xs text-slate-600">
-              <span className="hidden lg:inline">Belum punya akun BannerKu?</span>
+              <span className="hidden lg:inline">Belum punya akun BannerIN?</span>
               <span className="lg:hidden">Baru pertama kali memesan?</span>
             </p>
             <Link
@@ -480,9 +480,9 @@ function LoginForm() {
         {/* Footer */}
         <div className="mt-6 text-center text-[11px] text-slate-400">
           <span className="hidden lg:inline">
-            © 2026 BannerKu. Hak cipta dilindungi.
+            © 2026 BannerIN. Hak cipta dilindungi.
           </span>
-          <span className="lg:hidden">© 2026 BannerKu</span>
+          <span className="lg:hidden">© 2026 BannerIN</span>
         </div>
       </div>
 
@@ -527,7 +527,7 @@ function LoginForm() {
               Masuk sebagai Admin
             </h3>
             <p className="mt-1.5 text-xs leading-relaxed text-slate-500">
-              Khusus tim operasional percetakan BannerKu. Kelola pesanan, pembayaran, dan proses produksi.
+              Khusus tim operasional percetakan BannerIN. Kelola pesanan, pembayaran, dan proses produksi.
             </p>
 
             {adminState?.error && (
@@ -564,7 +564,7 @@ function LoginForm() {
                     name="email"
                     type="email"
                     required
-                    placeholder="admin@bannerku.com"
+                    placeholder="admin@bannerin.com"
                     className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-3 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-600/15"
                   />
                   <svg
@@ -688,7 +688,7 @@ export default function LoginPage() {
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center bg-white p-8 text-xs font-medium text-slate-500">
-          Memuat halaman masuk BannerKu...
+          Memuat halaman masuk BannerIN...
         </div>
       }
     >

@@ -12,10 +12,10 @@ import {
 } from "../src/domain";
 
 /**
- * Fase 13: Pengujian Menyeluruh Sistem BannerKu (Testing & Security Verification)
+ * Fase 13: Pengujian Menyeluruh Sistem BannerIN (Testing & Security Verification)
  * Memverifikasi 15 skenario pengujian resmi sesuai dokumen BANNERKU_PROJECT_PLAN.md
  */
-describe("Fase 13: Pengujian Menyeluruh Sistem BannerKu (15 Skenario SRS)", () => {
+describe("Fase 13: Pengujian Menyeluruh Sistem BannerIN (15 Skenario SRS)", () => {
   const calculator = new PriceCalculator();
   const editorService = new DesignEditorService();
   const orderService = new OrderService();

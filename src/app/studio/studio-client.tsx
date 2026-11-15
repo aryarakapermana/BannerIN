@@ -13,7 +13,7 @@ import {
   type ChangeEvent,
 } from 'react'
 import {
-  BANNERKU_WHATSAPP,
+  BANNERIN_WHATSAPP,
   Banner,
   designEditorService,
   priceCalculator,
@@ -433,7 +433,7 @@ export default function StudioClient({
             <span className="relative size-8 shrink-0 overflow-hidden rounded-lg shadow-sm">
               <Image
                 src="/bannerku-logo.png"
-                alt="Logo BannerKu"
+                alt="Logo BannerIN"
                 width={32}
                 height={32}
                 className="size-full object-cover"
@@ -441,7 +441,7 @@ export default function StudioClient({
               />
             </span>
             <span className="text-lg font-extrabold tracking-tight text-slate-950">
-              Banner<span className="text-blue-600">Ku</span>
+              Banner<span className="text-blue-600">IN</span>
             </span>
           </Link>
 
@@ -470,7 +470,7 @@ export default function StudioClient({
               </Link>
             )}
             <a
-              href={BANNERKU_WHATSAPP.baseUrl}
+              href={BANNERIN_WHATSAPP.baseUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-100 transition"

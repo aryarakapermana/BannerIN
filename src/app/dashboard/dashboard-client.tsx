@@ -920,7 +920,7 @@ export default function DashboardClient({
             <span className="relative size-8 shrink-0 overflow-hidden rounded-lg shadow-sm">
               <Image
                 src="/bannerku-logo.png"
-                alt="Logo BannerKu"
+                alt="Logo BannerIN"
                 width={32}
                 height={32}
                 className="size-full object-cover"
@@ -929,7 +929,7 @@ export default function DashboardClient({
             </span>
             <div>
               <span className="text-lg font-black tracking-tight text-white">
-                Banner<span className="text-blue-500">Ku</span>
+                Banner<span className="text-blue-500">IN</span>
               </span>
               <span className="block text-[9px] font-bold tracking-widest text-slate-400 uppercase">
                 ADMIN PERCETAKAN
@@ -1040,7 +1040,7 @@ export default function DashboardClient({
               href="/"
               className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-blue-400 hover:text-blue-300"
             >
-              Lihat toko BannerKu ↗
+              Lihat toko BannerIN ↗
             </Link>
           </div>
         </div>
@@ -1070,7 +1070,7 @@ export default function DashboardClient({
               </button>
             </form>
           </div>
-          <span className="mt-3 block text-[10px] text-slate-500">BannerKu Admin · v1.0</span>
+          <span className="mt-3 block text-[10px] text-slate-500">BannerIN Admin · v1.0</span>
         </div>
       </aside>
 

@@ -69,7 +69,7 @@ describe("Fase 10: Domain Model Order, OrderService & Anti-Manipulasi Harga", ()
   });
 
   describe("2. Konstanta QRIS Statis & Format Nomor Pesanan", () => {
-    it("harus memuat metadata QRIS statis resmi BannerKu sesuai aset", () => {
+    it("harus memuat metadata QRIS statis resmi BannerIN sesuai aset", () => {
       assert.strictEqual(STATIC_QRIS_INFO.merchantName, "SYAKIR ALAMSYAH");
       assert.strictEqual(STATIC_QRIS_INFO.nmid, "ID1026622671455");
       assert.strictEqual(STATIC_QRIS_INFO.imagePath, "/qris-bannerku.jpg");
@@ -362,7 +362,7 @@ describe("Fase 10: Domain Model Order, OrderService & Anti-Manipulasi Harga", ()
       assert.strictEqual(Order.isOwnedBy(null, "cust-A"), false);
     });
 
-    it("harus menyimpan kontak resmi WhatsApp toko BannerKu secara konsisten", () => {
+    it("harus menyimpan kontak resmi WhatsApp toko BannerIN secara konsisten", () => {
       assert.strictEqual(BANNERKU_WHATSAPP.display, "+62 858-6360-1253");
       assert.strictEqual(BANNERKU_WHATSAPP.waMeDigits, "6285863601253");
       assert.strictEqual(BANNERKU_WHATSAPP.baseUrl, "https://wa.me/6285863601253");

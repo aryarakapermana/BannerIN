@@ -16,7 +16,7 @@ export default async function CustomerDashboardPage() {
     <CustomerDashboardClient
       profile={{
         id: profile.id,
-        fullName: profile.full_name || "Pelanggan BannerKu",
+        fullName: profile.full_name || "Pelanggan BannerIN",
         phone: profile.phone || "",
         email,
       }}

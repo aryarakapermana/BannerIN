@@ -15,7 +15,7 @@ export const STATIC_QRIS_INFO: StaticQrisInfo = {
   merchantName: "SYAKIR ALAMSYAH",
   nmid: "ID1026622671455",
   imagePath: "/qris-bannerku.jpg",
-  downloadFileName: "QRIS-BannerKu-SYAKIR-ALAMSYAH.jpg",
+  downloadFileName: "QRIS-BannerIN-SYAKIR-ALAMSYAH.jpg",
   providerLabel: "GoPay Merchant / QRIS Nasional",
 };
 
@@ -25,12 +25,15 @@ export interface StoreWhatsAppContact {
   baseUrl: string;
 }
 
-/** Kontak WhatsApp resmi toko/admin BannerKu untuk tautan bantuan pelanggan. */
-export const BANNERKU_WHATSAPP: StoreWhatsAppContact = {
+/** Kontak WhatsApp resmi toko/admin BannerIN untuk tautan bantuan pelanggan. */
+export const BANNERIN_WHATSAPP: StoreWhatsAppContact = {
   display: "+62 858-6360-1253",
   waMeDigits: "6285863601253",
   baseUrl: "https://wa.me/6285863601253",
 };
+
+/** Alias kompatibilitas ke belakang untuk BANNERIN_WHATSAPP */
+export const BANNERKU_WHATSAPP = BANNERIN_WHATSAPP;
 
 export interface NormalizedWhatsApp {
   localDigits: string;
@@ -95,7 +98,7 @@ const CUSTOMER_STATUS_META: Record<OrderStatus, CustomerOrderStatusMeta> = {
     step: 3,
     tone: "blue",
     description:
-      "Banner Anda sedang diproses dan dicetak oleh tim produksi BannerKu.",
+      "Banner Anda sedang diproses dan dicetak oleh tim produksi BannerIN.",
   },
   completed: {
     status: "completed",

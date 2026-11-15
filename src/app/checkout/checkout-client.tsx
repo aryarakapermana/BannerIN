@@ -254,7 +254,7 @@ export default function CheckoutClient({
   async function handleCopySummary() {
     if (!submittedOrder) return;
     const summaryText = [
-      `Halo Admin BannerKu, saya sudah melakukan pemesanan:`,
+      `Halo Admin BannerIN, saya sudah melakukan pemesanan:`,
       `No. Pesanan: ${submittedOrder.orderNumber}`,
       `Nama: ${submittedOrder.customerName}`,
       `WhatsApp: ${submittedOrder.whatsappNumber}`,
@@ -318,7 +318,7 @@ export default function CheckoutClient({
           <p className="mt-1.5 text-xs sm:text-sm text-slate-500">
             {submittedOrder
               ? "Pesananmu sudah tercatat dengan harga terkunci dan menunggu verifikasi admin."
-              : "Lengkapi data pemesan dan selesaikan pembayaran melalui QRIS resmi BannerKu."}
+              : "Lengkapi data pemesan dan selesaikan pembayaran melalui QRIS resmi BannerIN."}
           </p>
         </div>
 
@@ -511,7 +511,7 @@ export default function CheckoutClient({
 
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 flex flex-col items-center text-center">
                   <span className="text-xs font-bold text-slate-800">
-                    Informasi QRIS BannerKu
+                    Informasi QRIS BannerIN
                   </span>
                   <span className="mt-1 text-[11px] text-slate-500">
                     Nominal terverifikasi:{" "}
@@ -811,7 +811,7 @@ export default function CheckoutClient({
                   <div className="overflow-hidden rounded-lg">
                     <Image
                       src={qrisInfo.imagePath}
-                      alt={`QRIS BannerKu - ${qrisInfo.merchantName}`}
+                      alt={`QRIS BannerIN - ${qrisInfo.merchantName}`}
                       width={260}
                       height={360}
                       className="h-auto w-48 sm:w-52 object-contain"

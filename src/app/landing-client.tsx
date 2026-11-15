@@ -224,7 +224,7 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
             <span className="relative size-10 shrink-0 overflow-hidden rounded-xl shadow-sm ring-1 ring-black/5">
               <Image
                 src="/bannerku-logo.png"
-                alt="Logo BannerKu"
+                alt="Logo BannerIN"
                 width={40}
                 height={40}
                 className="size-full object-cover"
@@ -232,7 +232,7 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
               />
             </span>
             <span className="text-xl font-extrabold tracking-tight text-slate-950">
-              Banner<span className="text-blue-600">Ku</span>
+              Banner<span className="text-blue-600">IN</span>
             </span>
           </Link>
 
@@ -363,7 +363,7 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
 
               <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
                 Banner untuk usaha, acara, dan segala rencanamu. Pilih produk, atur ukuran, lalu kirim
-                desain. Mulai dari satu tempat: <span className="font-semibold text-slate-900">BannerKu</span>.
+                desain. Mulai dari satu tempat: <span className="font-semibold text-slate-900">BannerIN</span>.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -595,7 +595,7 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                 Estimasimu.
               </h2>
               <p className="mt-4 text-base leading-relaxed text-slate-600">
-                Tak perlu menebak-nebak. Tarif bahan disinkronkan langsung dari basis data percetakan BannerKu untuk menjamin kepastian harga.
+                Tak perlu menebak-nebak. Tarif bahan disinkronkan langsung dari basis data percetakan BannerIN untuk menjamin kepastian harga.
               </p>
 
               <div className="mt-8 flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600">
@@ -823,7 +823,7 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                 Bahan tepat. Pesan lebih terlihat.
               </h2>
               <p className="mt-2 max-w-2xl text-base text-slate-600">
-                Tarif resmi disinkronkan langsung dari basis data percetakan BannerKu.
+                Tarif resmi disinkronkan langsung dari basis data percetakan BannerIN.
               </p>
             </div>
 
@@ -951,7 +951,7 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
       <footer className="border-t border-slate-200 bg-white py-12 text-xs text-slate-500">
         <div className="mx-auto max-w-7xl px-5 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-extrabold text-slate-950">BannerKu</span>
+            <span className="font-extrabold text-slate-950">BannerIN</span>
             <span>·</span>
             <span>Percetakan Banner Custom Online</span>
           </div>

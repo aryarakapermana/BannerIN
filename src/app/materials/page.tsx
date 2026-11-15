@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { BANNERKU_WHATSAPP } from "@/domain";
+import { BANNERIN_WHATSAPP } from "@/domain";
 
 export const dynamic = "force-dynamic";
 
@@ -71,7 +71,7 @@ export default async function MaterialsPage() {
                 Pilihan Bahan Aktif ({materials.length})
               </h2>
               <p className="text-xs text-slate-500 mt-1">
-                Data disinkronkan langsung dari basis data Supabase BannerKu.
+                Data disinkronkan langsung dari basis data Supabase BannerIN.
               </p>
             </div>
             <Link
@@ -165,7 +165,7 @@ export default async function MaterialsPage() {
                 </p>
               </div>
               <a
-                href={BANNERKU_WHATSAPP.baseUrl}
+                href={BANNERIN_WHATSAPP.baseUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3.5 py-2 hover:bg-emerald-100 transition"

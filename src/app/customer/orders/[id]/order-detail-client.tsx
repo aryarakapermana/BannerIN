@@ -7,7 +7,7 @@ import {
   OrderStatusBadge,
   OrderStatusTimeline,
 } from '@/components/customer/OrderStatusTimeline'
-import { BANNERKU_WHATSAPP, Order, STATIC_QRIS_INFO } from '@/domain'
+import { BANNERIN_WHATSAPP, Order, STATIC_QRIS_INFO } from '@/domain'
 import type { CustomerOrderDTO } from '@/lib/customer-orders'
 
 const rupiah = new Intl.NumberFormat('id-ID', {
@@ -37,7 +37,7 @@ export default function OrderDetailClient({
   const statusMeta = Order.getCustomerStatusMeta(order.status)
   const subtotalPerSheet = Math.ceil(order.areaSqm * order.unitPriceSnapshot)
   const waHelpText = encodeURIComponent(
-    `Halo Admin BannerKu, saya ingin menanyakan detail pesanan ${order.orderNumber} (${order.materialName}, ${order.widthCm}x${order.heightCm} cm).`
+    `Halo Admin BannerIN, saya ingin menanyakan detail pesanan ${order.orderNumber} (${order.materialName}, ${order.widthCm}x${order.heightCm} cm).`
   )
 
   return (
@@ -49,7 +49,7 @@ export default function OrderDetailClient({
             <span className="relative size-8 shrink-0 overflow-hidden rounded-lg shadow-sm">
               <Image
                 src="/bannerku-logo.png"
-                alt="Logo BannerKu"
+                alt="Logo BannerIN"
                 width={32}
                 height={32}
                 className="size-full object-cover"
@@ -57,7 +57,7 @@ export default function OrderDetailClient({
               />
             </span>
             <span className="text-lg font-extrabold tracking-tight text-slate-950">
-              Banner<span className="text-blue-600">Ku</span>
+              Banner<span className="text-blue-600">IN</span>
             </span>
           </Link>
 
@@ -313,7 +313,7 @@ export default function OrderDetailClient({
 
               <div className="mt-5 print:hidden">
                 <a
-                  href={`${BANNERKU_WHATSAPP.baseUrl}?text=${waHelpText}`}
+                  href={`${BANNERIN_WHATSAPP.baseUrl}?text=${waHelpText}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
