@@ -1,15 +1,16 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
 import './studio.css'
+import BannerCanvasEditor from '@/components/studio/BannerCanvasEditor'
 import {
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ChangeEvent,
 } from 'react'
 import {
@@ -27,18 +28,6 @@ import {
 } from '@/app/actions/designs'
 import { NumericInput } from '@/components/ui/NumericInput'
 import type { Database, UserRole } from '@/types/database'
-
-const BannerCanvasEditor = dynamic(
-  () => import('@/components/studio/BannerCanvasEditor'),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="canvas-grid relative mt-6 rounded-xl border border-slate-200 p-8 min-h-[380px] flex flex-col items-center justify-center text-xs font-medium text-slate-500">
-        Memuat kanvas editor Fabric.js...
-      </div>
-    ),
-  },
-)
 
 type MaterialRow = Database['public']['Tables']['materials']['Row']
 
@@ -81,11 +70,19 @@ interface StudioClientProps {
   } | null
 }
 
+const emptySubscribe = () => () => {}
+
 export default function StudioClient({
   materials,
   initialParams,
   currentUser,
 }: StudioClientProps) {
+  const isMounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  )
+
   // 1. Initial State Resolution
   const defaultMaterial = useMemo(() => {
     const initialId = initialParams?.materialId
@@ -1047,21 +1044,27 @@ export default function StudioClient({
               </div>
 
               {/* Client-Only Fabric.js Canvas Editor */}
-              <BannerCanvasEditor
-                widthCm={numericWidth}
-                heightCm={numericHeight}
-                zoom={zoom}
-                imageUrl={imageUrl}
-                lockProportions={lockProportions}
-                showBleedGrommets={showBleedGrommets}
-                resetSignal={resetSignal}
-                ratioLabel={bannerValidation.ratioLabel}
-                orientationLabel={bannerValidation.orientation}
-                onSelectFileClick={() => fileInputRef.current?.click()}
-                onDropFile={handleFileProcess}
-                onConfigChange={setEditorConfig}
-                onRegisterExporter={registerExporter}
-              />
+              {isMounted ? (
+                <BannerCanvasEditor
+                  widthCm={numericWidth}
+                  heightCm={numericHeight}
+                  zoom={zoom}
+                  imageUrl={imageUrl}
+                  lockProportions={lockProportions}
+                  showBleedGrommets={showBleedGrommets}
+                  resetSignal={resetSignal}
+                  ratioLabel={bannerValidation.ratioLabel}
+                  orientationLabel={bannerValidation.orientation}
+                  onSelectFileClick={() => fileInputRef.current?.click()}
+                  onDropFile={handleFileProcess}
+                  onConfigChange={setEditorConfig}
+                  onRegisterExporter={registerExporter}
+                />
+              ) : (
+                <div className="canvas-grid relative mt-6 rounded-xl border border-slate-200 p-8 min-h-[380px] flex flex-col items-center justify-center text-xs font-medium text-slate-500">
+                  Menyiapkan kanvas editor...
+                </div>
+              )}
 
               {/* File Info Card Row */}
               <div className="mt-4 flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs">

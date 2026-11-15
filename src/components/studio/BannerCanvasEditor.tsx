@@ -8,7 +8,7 @@ import {
   useState,
   type DragEvent,
 } from 'react'
-import { Canvas, FabricImage } from 'fabric'
+import type { Canvas, FabricImage } from 'fabric'
 import { designEditorService, type EditorConfig } from '@/domain'
 
 export interface BannerCanvasEditorProps {
@@ -147,81 +147,93 @@ export default function BannerCanvasEditor({
     }
 
     let cancelled = false
-    container.innerHTML = ''
-    const canvasEl = document.createElement('canvas')
-    container.appendChild(canvasEl)
+    let currentCanvas: Canvas | null = null
 
-    const { widthPx, heightPx } = dimensionsRef.current
-    const canvas = new Canvas(canvasEl, {
-      width: widthPx,
-      height: heightPx,
-      backgroundColor: '#0f172a',
-      uniformScaling: latestPropsRef.current.lockProportions,
-      uniScaleKey: latestPropsRef.current.lockProportions ? null : 'shiftKey',
-      preserveObjectStacking: true,
-    })
+    // Muat fabric.js secara dinamis hanya di browser saat gambar diunggah
+    import('fabric')
+      .then(({ Canvas, FabricImage }) => {
+        if (cancelled || !container) return
 
-    fabricCanvasRef.current = canvas
+        container.innerHTML = ''
+        const canvasEl = document.createElement('canvas')
+        container.appendChild(canvasEl)
 
-    FabricImage.fromURL(imageUrl, { crossOrigin: 'anonymous' })
-      .then((img) => {
-        if (cancelled || canvas.disposed) return
-
-        const cw = canvas.getWidth()
-        const ch = canvas.getHeight()
-        const imgW = img.width || cw
-        const imgH = img.height || ch
-        const fitScale = Math.min(cw / imgW, ch / imgH)
-
-        img.set({
-          left: cw / 2,
-          top: ch / 2,
-          originX: 'center',
-          originY: 'center',
-          scaleX: fitScale,
-          scaleY: fitScale,
-          angle: 0,
+        const { widthPx, heightPx } = dimensionsRef.current
+        const canvas = new Canvas(canvasEl, {
+          width: widthPx,
+          height: heightPx,
+          backgroundColor: '#0f172a',
+          uniformScaling: latestPropsRef.current.lockProportions,
+          uniScaleKey: latestPropsRef.current.lockProportions ? null : 'shiftKey',
+          preserveObjectStacking: true,
         })
 
-        applyProportionControlRules(
-          canvas,
-          img,
-          latestPropsRef.current.lockProportions,
-        )
+        currentCanvas = canvas
+        fabricCanvasRef.current = canvas
 
-        canvas.add(img)
-        canvas.setActiveObject(img)
-        canvas.requestRenderAll()
+        FabricImage.fromURL(imageUrl, { crossOrigin: 'anonymous' })
+          .then((img) => {
+            if (cancelled || canvas.disposed) return
 
-        fabricImageRef.current = img
-        latestPropsRef.current.onConfigChange(buildCurrentConfig(canvas, img))
+            const cw = canvas.getWidth()
+            const ch = canvas.getHeight()
+            const imgW = img.width || cw
+            const imgH = img.height || ch
+            const fitScale = Math.min(cw / imgW, ch / imgH)
 
-        const syncConfig = () => {
-          if (!cancelled && !canvas.disposed) {
-            latestPropsRef.current.onConfigChange(buildCurrentConfig(canvas, img))
-          }
-        }
+            img.set({
+              left: cw / 2,
+              top: ch / 2,
+              originX: 'center',
+              originY: 'center',
+              scaleX: fitScale,
+              scaleY: fitScale,
+              angle: 0,
+            })
 
-        canvas.on('object:modified', syncConfig)
-        canvas.on('object:moving', syncConfig)
-        canvas.on('object:scaling', syncConfig)
-        canvas.on('object:rotating', syncConfig)
+            applyProportionControlRules(
+              canvas,
+              img,
+              latestPropsRef.current.lockProportions,
+            )
 
-        onRegisterExporter(async () => {
-          if (canvas.disposed) return null
-          const active = canvas.getActiveObject()
-          canvas.discardActiveObject()
-          canvas.requestRenderAll()
-          const blob = await canvas.toBlob({ format: 'png', multiplier: 1 })
-          if (active) {
-            canvas.setActiveObject(active)
+            canvas.add(img)
+            canvas.setActiveObject(img)
             canvas.requestRenderAll()
-          }
-          return blob
-        })
+
+            fabricImageRef.current = img
+            latestPropsRef.current.onConfigChange(buildCurrentConfig(canvas, img))
+
+            const syncConfig = () => {
+              if (!cancelled && !canvas.disposed) {
+                latestPropsRef.current.onConfigChange(buildCurrentConfig(canvas, img))
+              }
+            }
+
+            canvas.on('object:modified', syncConfig)
+            canvas.on('object:moving', syncConfig)
+            canvas.on('object:scaling', syncConfig)
+            canvas.on('object:rotating', syncConfig)
+
+            onRegisterExporter(async () => {
+              if (canvas.disposed) return null
+              const active = canvas.getActiveObject()
+              canvas.discardActiveObject()
+              canvas.requestRenderAll()
+              const blob = await canvas.toBlob({ format: 'png', multiplier: 1 })
+              if (active) {
+                canvas.setActiveObject(active)
+                canvas.requestRenderAll()
+              }
+              return blob
+            })
+          })
+          .catch((err) => {
+            console.error('Gagal memuat gambar ke kanvas Fabric.js:', err)
+          })
       })
-      .catch(() => {
-        // Error ditangani oleh validasi file pada induk
+      .catch((err) => {
+        console.error('Gagal memuat pustaka Fabric.js:', err)
       })
 
     return () => {
@@ -229,7 +241,9 @@ export default function BannerCanvasEditor({
       onRegisterExporter(null)
       fabricImageRef.current = null
       fabricCanvasRef.current = null
-      void canvas.dispose().catch(() => {})
+      if (currentCanvas) {
+        void currentCanvas.dispose().catch(() => {})
+      }
       if (container) {
         container.innerHTML = ''
       }
