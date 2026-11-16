@@ -51,32 +51,42 @@ export default function BannerCanvasEditor({
   const fabricCanvasRef = useRef<Canvas | null>(null)
   const fabricImageRef = useRef<FabricImage | null>(null)
   const [isDragOver, setIsDragOver] = useState(false)
-  const [maxCanvasWidth, setMaxCanvasWidth] = useState(540)
+  const [maxCanvasWidth, setMaxCanvasWidth] = useState(320)
 
-  // Deteksi lebar kontainer secara responsif agar kanvas tidak pernah overflow di layar HP
+  // Deteksi lebar kontainer secara responsif & presisi agar kanvas tidak pernah overflow di HP
   useEffect(() => {
-    const updateWidth = () => {
-      if (containerRef.current) {
-        const available = containerRef.current.clientWidth - 32
-        if (available > 100) {
-          const clamped = Math.min(540, Math.max(220, available))
-          setMaxCanvasWidth(clamped)
-          return
-        }
+    const updateWidth = (availableWidth?: number) => {
+      let targetW = 320
+      if (typeof availableWidth === 'number' && availableWidth > 50) {
+        targetW = availableWidth
+      } else if (containerRef.current) {
+        const cw = containerRef.current.clientWidth - 16
+        if (cw > 50) targetW = cw
+      } else if (typeof window !== 'undefined') {
+        targetW = window.innerWidth < 640 ? window.innerWidth - 48 : 540
       }
-      if (typeof window !== 'undefined') {
-        const w = window.innerWidth
-        if (w < 640) {
-          setMaxCanvasWidth(Math.max(220, w - 64))
-        } else {
-          setMaxCanvasWidth(540)
-        }
-      }
+      const clamped = Math.min(540, Math.max(180, Math.floor(targetW)))
+      setMaxCanvasWidth(clamped)
     }
 
     updateWidth()
-    window.addEventListener('resize', updateWidth)
-    return () => window.removeEventListener('resize', updateWidth)
+
+    if (containerRef.current && typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const w = entry.contentRect.width
+          if (w > 50) {
+            updateWidth(w - 16)
+          }
+        }
+      })
+      ro.observe(containerRef.current)
+      return () => ro.disconnect()
+    }
+
+    const handleResize = () => updateWidth()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
   }, [])
 
   // Simpan nilai terbaru di ref agar inisialisasi async Fabric tetap memakai konfigurasi terkini
@@ -360,29 +370,11 @@ export default function BannerCanvasEditor({
   return (
     <div
       ref={containerRef}
-      className="canvas-grid relative mt-4 sm:mt-6 rounded-xl border border-slate-200 p-3 sm:p-6 md:p-8 min-h-[260px] sm:min-h-[380px] flex flex-col items-center justify-center overflow-hidden w-full max-w-full"
+      className="canvas-grid relative mt-3 sm:mt-4 rounded-xl border border-slate-200 p-2 sm:p-4 min-h-[160px] sm:min-h-[260px] flex flex-col items-center justify-center overflow-hidden w-full max-w-full min-w-0"
     >
-      {/* Top Ruler Line */}
-      <div className="absolute top-2 sm:top-3 inset-x-6 sm:inset-x-12 flex items-center justify-center z-10 pointer-events-none">
-        <div className="h-px bg-slate-300 flex-1" />
-        <span className="px-2 text-[10px] sm:text-[11px] font-mono font-bold text-slate-600 bg-white/90 rounded shadow-2xs">
-          {widthCm > 0 ? widthCm : 0} cm
-        </span>
-        <div className="h-px bg-slate-300 flex-1" />
-      </div>
-
-      {/* Left Ruler Line */}
-      <div className="absolute left-1.5 sm:left-3 inset-y-8 sm:inset-y-12 flex flex-col items-center justify-center z-10 pointer-events-none">
-        <div className="w-px bg-slate-300 flex-1" />
-        <span className="py-1 sm:py-2 text-[9px] sm:text-[11px] font-mono font-bold text-slate-600 bg-white/90 rounded px-0.5 sm:px-1 shadow-2xs -rotate-90">
-          {heightCm > 0 ? heightCm : 0} cm
-        </span>
-        <div className="w-px bg-slate-300 flex-1" />
-      </div>
-
       {/* Scaling Wrapper */}
       <div
-        className="relative flex items-center justify-center transition-transform max-w-full"
+        className="relative flex items-center justify-center transition-transform w-full max-w-full min-w-0 overflow-hidden"
         style={{
           transform: `scale(${zoom / 100})`,
         }}
@@ -400,7 +392,7 @@ export default function BannerCanvasEditor({
             height: `${canvasDimensions.heightPx}px`,
             maxWidth: '100%',
           }}
-          className={`relative flex items-center justify-center rounded-xl border-2 overflow-hidden transition cursor-pointer ${
+          className={`relative flex items-center justify-center rounded-xl border-2 overflow-hidden transition cursor-pointer max-w-full shrink-0 ${
             imageUrl
               ? 'border-blue-600 shadow-md bg-slate-900'
               : isDragOver
@@ -427,7 +419,7 @@ export default function BannerCanvasEditor({
           {/* Fabric.js Canvas Host */}
           <div
             ref={hostRef}
-            className={imageUrl ? 'relative z-10' : 'hidden'}
+            className={imageUrl ? 'relative z-10 max-w-full overflow-hidden' : 'hidden'}
           />
 
           {/* Dropzone State jika belum ada gambar */}

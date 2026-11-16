@@ -66,10 +66,12 @@
     max-width: 100% !important;
     margin-left: auto !important;
     margin-right: auto !important;
+    overflow: hidden !important;
   }
 
   .canvas-container canvas {
     max-width: 100% !important;
+    height: auto !important;
   }
 
   /* Hide scrollbar utility for mobile preset pills */

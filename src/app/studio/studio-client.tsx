@@ -471,22 +471,21 @@ export default function StudioClient({
               href={BANNERIN_WHATSAPP.baseUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 sm:px-3.5 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-100 transition"
+              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 sm:px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
             >
               <svg className="size-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.75.75 0 01-.777-.777c.057-.597.234-1.222.518-1.808C3.805 16.74 3 14.496 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
               </svg>
-              <span className="hidden sm:inline">Butuh bantuan?</span>
-              <span className="sm:hidden">Bantuan</span>
+              <span>Butuh bantuan?</span>
             </a>
           </div>
         </div>
       </header>
 
       {/* Main Container */}
-      <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 py-4 sm:py-6 w-full max-w-full min-w-0">
         {/* Breadcrumb & Heading */}
-        <div className="flex flex-col gap-3 pb-3 sm:pb-4 border-b border-slate-200/80">
+        <div className="flex flex-col gap-3 pb-3 sm:pb-4 border-b border-slate-200/80 w-full max-w-full min-w-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
               <Link href="/" className="hover:text-blue-600 transition">Beranda</Link>
@@ -505,7 +504,7 @@ export default function StudioClient({
           </div>
 
           {/* Stepper Pills matching Figma */}
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1 w-full max-w-full">
             <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 px-3 py-1 text-xs font-semibold text-emerald-800 shrink-0">
               <span className="text-emerald-600 font-bold">✓</span>
               <span>Bahan</span>
@@ -540,10 +539,10 @@ export default function StudioClient({
         </div>
 
         {/* 2-Column Content Layout */}
-        <div className="mt-5 sm:mt-6 grid gap-5 sm:gap-6 lg:grid-cols-12 items-start">
+        <div className="mt-5 sm:mt-6 grid gap-5 sm:gap-6 lg:grid-cols-12 items-start w-full max-w-full min-w-0">
           {/* Left Column: Form & Calculator (5 cols) */}
-          <div className="space-y-5 lg:col-span-5">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs">
+          <div className="space-y-5 lg:col-span-5 w-full max-w-full min-w-0">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs w-full max-w-full min-w-0">
               {/* Form Title & Number Indicator */}
               <div className="flex items-center justify-between">
                 <h2 className="text-base sm:text-lg font-bold text-slate-900">Kalkulasi Spesifikasi</h2>
@@ -807,8 +806,8 @@ export default function StudioClient({
           </div>
 
           {/* Right Column: Fabric.js Studio Banner Canvas (7 cols) */}
-          <div className="space-y-5 lg:col-span-7">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs">
+          <div className="space-y-5 lg:col-span-7 w-full max-w-full min-w-0">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs w-full max-w-full min-w-0 overflow-hidden">
               {/* Card 2 Title */}
               <div className="flex items-center justify-between">
                 <h2 className="text-base sm:text-lg font-bold text-slate-900">Kustomisasi Banner Anda</h2>
