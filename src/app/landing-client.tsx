@@ -909,7 +909,8 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                   </span>
                   <span className="grid size-9 place-items-center rounded-xl bg-blue-50 text-blue-600 group-hover:scale-110 transition-transform">
                     <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-2.18-7.23a1.5 1.5 0 0 1 2.36 0l2.67 3.12a1.5 1.5 0 0 0 1.15.51h4.08c.83 0 1.5.67 1.5 1.5v4.08a1.5 1.5 0 0 0 .51 1.15l3.12 2.67a1.5 1.5 0 0 1 0 2.36l-3.12 2.67a1.5 1.5 0 0 0-.51 1.15v4.08c0 .83-.67 1.5-1.5 1.5h-4.08a1.5 1.5 0 0 0-1.15.51l-2.67 3.12a1.5 1.5 0 0 1-2.36 0l-2.67-3.12a1.5 1.5 0 0 0-1.15-.51H4.75c-.83 0-1.5-.67-1.5-1.5v-4.08a1.5 1.5 0 0 0-.51-1.15l-3.12-2.67a1.5 1.5 0 0 1 0-2.36l3.12-2.67a1.5 1.5 0 0 0 .51-1.15V4.75c0-.83.67-1.5 1.5-1.5h4.08a1.5 1.5 0 0 0 1.15-.51l2.67-3.12Z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75h.75v.75h-.75V6.75ZM6.75 16.5h.75v.75h-.75V16.5ZM16.5 6.75h.75v.75h-.75V6.75ZM13.5 13.5h2.25v2.25H13.5V13.5ZM18 13.5h2.25v2.25H18V13.5ZM13.5 18h2.25v2.25H13.5V18ZM18 18h2.25v2.25H18V18Z" />
                     </svg>
                   </span>
                 </div>
