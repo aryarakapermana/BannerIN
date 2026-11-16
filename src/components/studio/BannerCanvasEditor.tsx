@@ -47,9 +47,37 @@ export default function BannerCanvasEditor({
   onRegisterExporter,
 }: BannerCanvasEditorProps) {
   const hostRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const fabricCanvasRef = useRef<Canvas | null>(null)
   const fabricImageRef = useRef<FabricImage | null>(null)
   const [isDragOver, setIsDragOver] = useState(false)
+  const [maxCanvasWidth, setMaxCanvasWidth] = useState(540)
+
+  // Deteksi lebar kontainer secara responsif agar kanvas tidak pernah overflow di layar HP
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        const available = containerRef.current.clientWidth - 32
+        if (available > 100) {
+          const clamped = Math.min(540, Math.max(220, available))
+          setMaxCanvasWidth(clamped)
+          return
+        }
+      }
+      if (typeof window !== 'undefined') {
+        const w = window.innerWidth
+        if (w < 640) {
+          setMaxCanvasWidth(Math.max(220, w - 64))
+        } else {
+          setMaxCanvasWidth(540)
+        }
+      }
+    }
+
+    updateWidth()
+    window.addEventListener('resize', updateWidth)
+    return () => window.removeEventListener('resize', updateWidth)
+  }, [])
 
   // Simpan nilai terbaru di ref agar inisialisasi async Fabric tetap memakai konfigurasi terkini
   const latestPropsRef = useRef({
@@ -62,8 +90,14 @@ export default function BannerCanvasEditor({
   })
 
   const canvasDimensions = useMemo(
-    () => designEditorService.computeCanvasDimensions(widthCm, heightCm, 540, 260),
-    [widthCm, heightCm],
+    () =>
+      designEditorService.computeCanvasDimensions(
+        widthCm,
+        heightCm,
+        maxCanvasWidth,
+        Math.round(maxCanvasWidth * 0.52),
+      ),
+    [widthCm, heightCm, maxCanvasWidth],
   )
 
   const dimensionsRef = useRef(canvasDimensions)
@@ -324,20 +358,23 @@ export default function BannerCanvasEditor({
   }
 
   return (
-    <div className="canvas-grid relative mt-6 rounded-xl border border-slate-200 p-8 min-h-[380px] flex flex-col items-center justify-center overflow-hidden">
+    <div
+      ref={containerRef}
+      className="canvas-grid relative mt-4 sm:mt-6 rounded-xl border border-slate-200 p-3 sm:p-6 md:p-8 min-h-[260px] sm:min-h-[380px] flex flex-col items-center justify-center overflow-hidden w-full max-w-full"
+    >
       {/* Top Ruler Line */}
-      <div className="absolute top-3 inset-x-12 flex items-center justify-center z-10 pointer-events-none">
+      <div className="absolute top-2 sm:top-3 inset-x-6 sm:inset-x-12 flex items-center justify-center z-10 pointer-events-none">
         <div className="h-px bg-slate-300 flex-1" />
-        <span className="px-2.5 text-[11px] font-mono font-bold text-slate-600 bg-white/90 rounded shadow-2xs">
+        <span className="px-2 text-[10px] sm:text-[11px] font-mono font-bold text-slate-600 bg-white/90 rounded shadow-2xs">
           {widthCm > 0 ? widthCm : 0} cm
         </span>
         <div className="h-px bg-slate-300 flex-1" />
       </div>
 
       {/* Left Ruler Line */}
-      <div className="absolute left-3 inset-y-12 flex flex-col items-center justify-center z-10 pointer-events-none">
+      <div className="absolute left-1.5 sm:left-3 inset-y-8 sm:inset-y-12 flex flex-col items-center justify-center z-10 pointer-events-none">
         <div className="w-px bg-slate-300 flex-1" />
-        <span className="py-2 text-[11px] font-mono font-bold text-slate-600 bg-white/90 rounded px-1 shadow-2xs -rotate-90">
+        <span className="py-1 sm:py-2 text-[9px] sm:text-[11px] font-mono font-bold text-slate-600 bg-white/90 rounded px-0.5 sm:px-1 shadow-2xs -rotate-90">
           {heightCm > 0 ? heightCm : 0} cm
         </span>
         <div className="w-px bg-slate-300 flex-1" />
@@ -345,7 +382,7 @@ export default function BannerCanvasEditor({
 
       {/* Scaling Wrapper */}
       <div
-        className="relative flex items-center justify-center transition-transform"
+        className="relative flex items-center justify-center transition-transform max-w-full"
         style={{
           transform: `scale(${zoom / 100})`,
         }}
@@ -396,9 +433,9 @@ export default function BannerCanvasEditor({
 
           {/* Dropzone State jika belum ada gambar */}
           {!imageUrl && (
-            <div className="flex flex-col items-center justify-center p-6 text-center z-10">
-              <span className="grid size-12 place-items-center rounded-2xl bg-blue-50 text-blue-600 mb-2">
-                <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <div className="flex flex-col items-center justify-center p-4 sm:p-6 text-center z-10">
+              <span className="grid size-10 sm:size-12 place-items-center rounded-2xl bg-blue-50 text-blue-600 mb-2">
+                <svg className="size-5 sm:size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                 </svg>
               </span>
@@ -427,24 +464,24 @@ export default function BannerCanvasEditor({
       </div>
 
       {/* Subtext below canvas */}
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-4 w-full text-[11px] text-slate-500 px-4">
-        <div className="flex items-center gap-4">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="w-3 border-b-2 border-dashed border-amber-500" />
-            Garis potong (bleed)
+      <div className="mt-4 sm:mt-6 flex flex-wrap items-center justify-between gap-2 sm:gap-4 w-full text-[10px] sm:text-[11px] text-slate-500 px-2 sm:px-4">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+          <span className="inline-flex items-center gap-1 sm:gap-1.5">
+            <span className="w-2.5 sm:w-3 border-b-2 border-dashed border-amber-500" />
+            Garis potong
           </span>
-          <span className="inline-flex items-center gap-1.5">
+          <span className="inline-flex items-center gap-1 sm:gap-1.5">
             <span className="size-2 rounded-full border border-slate-600 bg-slate-200" />
-            Simulasi mata ayam
+            Mata ayam
           </span>
           {imageUrl && (
             <span className="inline-flex items-center gap-1 text-blue-700 font-semibold">
-              {lockProportions ? '🔒 Proporsi Terkunci' : '🔓 Bebas Ubah Rasio'}
+              {lockProportions ? '🔒 Terkunci' : '🔓 Bebas'}
             </span>
           )}
         </div>
         <span className="font-mono font-semibold text-slate-700">
-          {ratioLabel} ({orientationLabel})
+          {ratioLabel}
         </span>
       </div>
     </div>

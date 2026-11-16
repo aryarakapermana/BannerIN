@@ -422,10 +422,10 @@ export default function StudioClient({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden">
       {/* 1. Header */}
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-8">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="inline-flex items-center gap-2.5">
             <span className="relative size-8 shrink-0 overflow-hidden rounded-lg shadow-sm">
               <Image
@@ -449,14 +449,14 @@ export default function StudioClient({
             <Link href="/#panduan-berkas" className="hover:text-blue-600 transition">Panduan cetak</Link>
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             {currentUser ? (
               <Link
                 href={currentUser.role === 'admin' ? '/dashboard' : '/customer/dashboard'}
                 className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-800 hover:border-blue-300 transition"
               >
                 <span className="size-2 rounded-full bg-emerald-500" />
-                <span>{currentUser.fullName}</span>
+                <span className="max-w-[120px] truncate">{currentUser.fullName}</span>
               </Link>
             ) : (
               <Link
@@ -470,35 +470,36 @@ export default function StudioClient({
               href={BANNERIN_WHATSAPP.baseUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-100 transition"
+              className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 sm:px-3.5 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-100 transition"
             >
               <svg className="size-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.75.75 0 01-.777-.777c.057-.597.234-1.222.518-1.808C3.805 16.74 3 14.496 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
               </svg>
-              Butuh bantuan?
+              <span className="hidden sm:inline">Butuh bantuan?</span>
+              <span className="sm:hidden">Bantuan</span>
             </a>
           </div>
         </div>
       </header>
 
       {/* Main Container */}
-      <div className="mx-auto max-w-7xl px-5 py-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Breadcrumb & Heading */}
-        <div className="flex flex-col justify-between gap-4 border-b border-slate-200/80 pb-6 sm:flex-row sm:items-end">
+        <div className="flex flex-col justify-between gap-3 border-b border-slate-200/80 pb-4 sm:pb-6 sm:flex-row sm:items-end">
           <div>
-            <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+            <div className="flex flex-wrap items-center gap-1.5 text-[11px] sm:text-xs font-medium text-slate-500">
               <Link href="/" className="hover:text-blue-600">Beranda</Link>
               <span>›</span>
               <Link href="/materials" className="hover:text-blue-600">Katalog Bahan</Link>
               <span>›</span>
-              <span className="font-semibold text-blue-600">Studio & Editor Desain</span>
+              <span className="font-semibold text-blue-600">Studio &amp; Editor Desain</span>
             </div>
 
-            <div className="mt-2 flex flex-wrap items-center gap-3">
-              <h1 className="text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl">
-                Studio Banner & Editor Desain
+            <div className="mt-1.5 flex flex-wrap items-center gap-2 sm:gap-3">
+              <h1 className="text-xl font-extrabold tracking-tight text-slate-950 sm:text-3xl">
+                Studio Banner &amp; Editor Desain
               </h1>
-              <span className="rounded-full bg-emerald-100 text-emerald-800 px-3 py-1 text-[11px] font-bold">
+              <span className="rounded-full bg-emerald-100 text-emerald-800 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-bold">
                 Fabric.js + Private Storage
               </span>
             </div>
@@ -524,64 +525,70 @@ export default function StudioClient({
         </div>
 
         {/* 2-Column Content Layout */}
-        <div className="mt-8 grid gap-8 lg:grid-cols-12 items-start">
+        <div className="mt-6 sm:mt-8 grid gap-6 sm:gap-8 lg:grid-cols-12 items-start">
           {/* Left Column: Form & Calculator (5 cols) */}
           <div className="space-y-6 lg:col-span-5">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
               {/* Stepper */}
-              <div className="flex items-center justify-between border-b border-slate-100 pb-5">
-                <div className="flex items-center gap-2">
-                  <span className="grid size-5 place-items-center rounded-full bg-emerald-100 text-emerald-600 text-xs font-bold">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4 text-xs">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="grid size-5 place-items-center rounded-full bg-emerald-100 text-emerald-600 text-[10px] sm:text-xs font-bold">
                     ✓
                   </span>
-                  <span className="text-xs font-bold text-slate-900">Bahan & Ukuran</span>
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-900">
+                    Bahan<span className="hidden sm:inline"> &amp; Ukuran</span>
+                  </span>
                 </div>
                 <span className="text-slate-300">›</span>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   <span
-                    className={`grid size-5 place-items-center rounded-full text-xs font-bold ${savedDesign
+                    className={`grid size-5 place-items-center rounded-full text-[10px] sm:text-xs font-bold ${
+                      savedDesign
                         ? 'bg-emerald-100 text-emerald-600'
                         : 'bg-blue-600 text-white'
-                      }`}
+                    }`}
                   >
                     {savedDesign ? '✓' : '2'}
                   </span>
                   <span
-                    className={`text-xs font-bold ${savedDesign ? 'text-slate-900' : 'text-blue-600'
-                      }`}
+                    className={`text-[11px] sm:text-xs font-bold ${
+                      savedDesign ? 'text-slate-900' : 'text-blue-600'
+                    }`}
                   >
-                    Upload & Edit
+                    Upload<span className="hidden sm:inline"> &amp; Edit</span>
                   </span>
                 </div>
                 <span className="text-slate-300">›</span>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   <span
-                    className={`grid size-5 place-items-center rounded-full text-xs font-bold ${savedDesign
+                    className={`grid size-5 place-items-center rounded-full text-[10px] sm:text-xs font-bold ${
+                      savedDesign
                         ? 'bg-blue-600 text-white'
                         : 'border border-slate-300 text-slate-400'
-                      }`}
+                    }`}
                   >
                     3
                   </span>
                   <span
-                    className={`text-xs ${savedDesign ? 'font-bold text-blue-600' : 'font-medium text-slate-400'
-                      }`}
+                    className={`text-[11px] sm:text-xs ${
+                      savedDesign ? 'font-bold text-blue-600' : 'font-medium text-slate-400'
+                    }`}
                   >
-                    Tersimpan
+                    {savedDesign ? 'Tersimpan' : 'Selesai'}
                   </span>
                 </div>
               </div>
 
               {/* Form Title */}
-              <div className="mt-6 flex items-start justify-between">
+              <div className="mt-5 flex items-start justify-between">
                 <div>
-                  <h2 className="text-lg font-extrabold text-slate-950">Kalkulasi Spesifikasi</h2>
+                  <h2 className="text-base sm:text-lg font-extrabold text-slate-950">Kalkulasi Spesifikasi</h2>
                   <p className="mt-0.5 text-xs text-slate-500">
                     Perhitungan otomatis berbasis rumus baku percetakan.
                   </p>
                 </div>
-                <span className="grid size-9 place-items-center rounded-xl bg-blue-50 text-blue-600">
-                  <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <span className="grid size-8 sm:size-9 place-items-center rounded-xl bg-blue-50 text-blue-600">
+                  <svg className="size-4 sm:size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <rect x="3" y="3" width="18" height="18" rx="2" />
                     <line x1="3" y1="9" x2="21" y2="9" />
                     <line x1="9" y1="21" x2="9" y2="9" />
@@ -590,9 +597,9 @@ export default function StudioClient({
               </div>
 
               {/* Preset Ukuran Cepat */}
-              <div className="mt-5">
+              <div className="mt-4 sm:mt-5">
                 <label className="block text-xs font-bold text-slate-700">Preset Ukuran Populer</label>
-                <div className="mt-2 flex flex-wrap gap-2">
+                <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1.5 no-scrollbar sm:flex-wrap">
                   {PRESET_SIZES.map((preset) => (
                     <button
                       key={preset.label}
@@ -602,10 +609,11 @@ export default function StudioClient({
                         setWidth(preset.w)
                         setHeight(preset.h)
                       }}
-                      className={`rounded-lg px-2.5 py-1.5 text-xs font-medium border transition ${width === preset.w && height === preset.h
+                      className={`shrink-0 rounded-lg px-2.5 py-1 text-xs font-medium border transition ${
+                        width === preset.w && height === preset.h
                           ? 'border-blue-600 bg-blue-50 text-blue-700 font-bold'
                           : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                        }`}
+                      }`}
                     >
                       {preset.w}×{preset.h} cm
                     </button>
@@ -614,42 +622,46 @@ export default function StudioClient({
               </div>
 
               {/* Ukuran (Lebar & Tinggi) */}
-              <div className="mt-5 grid grid-cols-2 gap-4">
+              <div className="mt-4 sm:mt-5 grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700">
-                    Lebar (cm) <span className="text-slate-400 font-normal">Min 10</span>
-                  </label>
-                  <div className="relative mt-1.5">
+                  <div className="flex items-baseline justify-between text-xs">
+                    <label className="font-bold text-slate-700">Lebar (cm)</label>
+                    <span className="text-[10px] text-slate-400 font-normal">Min 10</span>
+                  </div>
+                  <div className="relative mt-1">
                     <NumericInput
-                      placeholder="Contoh: 300"
+                      placeholder="300"
                       value={width}
                       onValueChange={setWidth}
-                      className={`w-full rounded-xl border px-3.5 py-2.5 pr-10 text-xs font-bold font-mono focus:outline-none ${numericWidth <= 0 || numericWidth < 10
+                      className={`w-full rounded-xl border px-3 py-2 sm:px-3.5 sm:py-2.5 pr-8 sm:pr-10 text-xs font-bold font-mono focus:outline-none ${
+                        numericWidth <= 0 || numericWidth < 10
                           ? 'border-rose-300 bg-rose-50/50 text-rose-900 focus:border-rose-500'
                           : 'border-slate-200 text-slate-900 focus:border-blue-600'
-                        }`}
+                      }`}
                     />
-                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">
+                    <span className="absolute right-2.5 sm:right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">
                       cm
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700">
-                    Tinggi (cm) <span className="text-slate-400 font-normal">Min 10</span>
-                  </label>
-                  <div className="relative mt-1.5">
+                  <div className="flex items-baseline justify-between text-xs">
+                    <label className="font-bold text-slate-700">Tinggi (cm)</label>
+                    <span className="text-[10px] text-slate-400 font-normal">Min 10</span>
+                  </div>
+                  <div className="relative mt-1">
                     <NumericInput
-                      placeholder="Contoh: 100"
+                      placeholder="100"
                       value={height}
                       onValueChange={setHeight}
-                      className={`w-full rounded-xl border px-3.5 py-2.5 pr-10 text-xs font-bold font-mono focus:outline-none ${numericHeight <= 0 || numericHeight < 10
+                      className={`w-full rounded-xl border px-3 py-2 sm:px-3.5 sm:py-2.5 pr-8 sm:pr-10 text-xs font-bold font-mono focus:outline-none ${
+                        numericHeight <= 0 || numericHeight < 10
                           ? 'border-rose-300 bg-rose-50/50 text-rose-900 focus:border-rose-500'
                           : 'border-slate-200 text-slate-900 focus:border-blue-600'
-                        }`}
+                      }`}
                     />
-                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">
+                    <span className="absolute right-2.5 sm:right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">
                       cm
                     </span>
                   </div>
@@ -933,58 +945,58 @@ export default function StudioClient({
 
           {/* Right Column: Fabric.js Studio Banner Canvas (7 cols) */}
           <div className="space-y-6 lg:col-span-7">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
               {/* Studio Header */}
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
                 <div className="flex items-center gap-3">
-                  <span className="grid size-9 place-items-center rounded-xl bg-blue-50 text-blue-600">
-                    <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <span className="grid size-8 sm:size-9 place-items-center rounded-xl bg-blue-50 text-blue-600">
+                    <svg className="size-4 sm:size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 3.75H6A2.25 2.25 0 003.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0120.25 6v1.5m0 9V18A2.25 2.25 0 0118 20.25h-1.5m-9 0H6A2.25 2.25 0 013.75 18v-1.5" />
                     </svg>
                   </span>
                   <div>
-                    <h2 className="text-base font-bold text-slate-900">Costumisasi Banner Anda</h2>
-                    <p className="text-xs text-slate-500">
-                      Geser gambar &amp; tarik sudut untuk ubah ukuran sesuai rasio {numericWidth} × {numericHeight} cm.
+                    <h2 className="text-sm sm:text-base font-bold text-slate-900">Kustomisasi Banner Anda</h2>
+                    <p className="text-[11px] sm:text-xs text-slate-500">
+                      Geser &amp; tarik sudut gambar sesuai rasio {numericWidth} × {numericHeight} cm.
                     </p>
                   </div>
                 </div>
 
                 {savedDesign ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 border border-emerald-200">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[11px] sm:text-xs font-bold text-emerald-700 border border-emerald-200">
                     <span className="size-1.5 rounded-full bg-emerald-500" />
-                    ✓ Tersimpan di Storage Privat
+                    ✓ Tersimpan di Storage
                   </span>
                 ) : imageUrl ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 border border-blue-200">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[11px] sm:text-xs font-bold text-blue-700 border border-blue-200">
                     <span className="size-1.5 rounded-full bg-blue-500" />
-                    Preview Lokal Siap Disimpan
+                    Preview Siap Disimpan
                   </span>
                 ) : (
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
+                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[11px] sm:text-xs font-medium text-slate-500">
                     Belum ada desain
                   </span>
                 )}
               </div>
 
               {/* Controls Bar */}
-              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3 text-xs">
-                <div className="flex flex-wrap items-center gap-2">
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-3 text-xs">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                   <div className="flex items-center rounded-lg border border-slate-200 bg-white p-0.5">
                     <button
                       type="button"
                       suppressHydrationWarning
                       onClick={() => setZoom((z) => Math.max(50, z - 10))}
-                      className="px-2 py-1 text-slate-600 hover:bg-slate-50 rounded"
+                      className="px-2 py-1 text-slate-600 hover:bg-slate-50 rounded text-xs"
                     >
                       −
                     </button>
-                    <span className="px-2 font-mono font-semibold text-slate-700">{zoom}%</span>
+                    <span className="px-1.5 font-mono font-semibold text-slate-700 text-xs">{zoom}%</span>
                     <button
                       type="button"
                       suppressHydrationWarning
                       onClick={() => setZoom((z) => Math.min(150, z + 10))}
-                      className="px-2 py-1 text-slate-600 hover:bg-slate-50 rounded"
+                      className="px-2 py-1 text-slate-600 hover:bg-slate-50 rounded text-xs"
                     >
                       +
                     </button>
@@ -994,12 +1006,12 @@ export default function StudioClient({
                     type="button"
                     suppressHydrationWarning
                     onClick={() => setZoom(100)}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                    className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2 py-1 sm:px-3 sm:py-1.5 font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer text-xs"
                   >
                     <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                     </svg>
-                    Pas ke layar
+                    <span>Pas layar</span>
                   </button>
 
                   <button
@@ -1007,18 +1019,18 @@ export default function StudioClient({
                     suppressHydrationWarning
                     onClick={() => setResetSignal((s) => s + 1)}
                     disabled={!imageUrl}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer disabled:opacity-40"
+                    className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2 py-1 sm:px-3 sm:py-1.5 font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer disabled:opacity-40 text-xs"
                   >
                     <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
-                    Reset posisi
+                    <span>Reset</span>
                   </button>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-4">
-                  <label className="inline-flex items-center gap-2 cursor-pointer select-none">
-                    <span className="font-semibold text-slate-700">Kunci proporsi</span>
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-1 sm:pt-0">
+                  <label className="inline-flex items-center gap-1.5 sm:gap-2 cursor-pointer select-none text-xs">
+                    <span className="font-semibold text-slate-700 text-[11px] sm:text-xs">Kunci proporsi</span>
                     <input
                       type="checkbox"
                       suppressHydrationWarning
@@ -1026,11 +1038,11 @@ export default function StudioClient({
                       onChange={(e) => setLockProportions(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600 relative"></div>
+                    <div className="w-8 h-4.5 sm:w-9 sm:h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 sm:after:h-4 sm:after:w-4 after:transition-all peer-checked:bg-blue-600 relative"></div>
                   </label>
 
-                  <label className="inline-flex items-center gap-2 cursor-pointer select-none">
-                    <span className="font-semibold text-slate-700">Garis potong &amp; mata ayam</span>
+                  <label className="inline-flex items-center gap-1.5 sm:gap-2 cursor-pointer select-none text-xs">
+                    <span className="font-semibold text-slate-700 text-[11px] sm:text-xs">Garis potong &amp; mata ayam</span>
                     <input
                       type="checkbox"
                       suppressHydrationWarning
@@ -1038,7 +1050,7 @@ export default function StudioClient({
                       onChange={(e) => setShowBleedGrommets(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600 relative"></div>
+                    <div className="w-8 h-4.5 sm:w-9 sm:h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 sm:after:h-4 sm:after:w-4 after:transition-all peer-checked:bg-blue-600 relative"></div>
                   </label>
                 </div>
               </div>
