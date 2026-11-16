@@ -1255,14 +1255,20 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-12 text-xs text-slate-500">
-        <div className="mx-auto max-w-7xl px-5 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="font-extrabold text-slate-950">BannerIN</span>
-            <span>·</span>
-            <span>Percetakan Banner Custom Online</span>
+      <footer className="border-t border-slate-200 bg-white py-10 sm:py-12 text-xs text-slate-500">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-center gap-1.5 sm:gap-2 text-center sm:text-left">
+            <div className="flex items-center gap-1.5">
+              <span className="font-extrabold text-slate-950">BannerIN</span>
+              <span>·</span>
+              <span>Percetakan Banner Custom Online</span>
+            </div>
+            <span className="hidden sm:inline text-slate-300">·</span>
+            <span suppressHydrationWarning className="text-slate-400">
+              &copy; {new Date().getFullYear()} Arya Raka Permana All rights reserved.
+            </span>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
             <Link href="/materials" className="hover:text-blue-600">
               Katalog Bahan
             </Link>

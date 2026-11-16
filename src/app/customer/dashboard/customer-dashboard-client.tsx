@@ -724,8 +724,8 @@ export default function CustomerDashboardClient({
       </main>
 
       <footer className="mt-16 border-t border-slate-200 bg-white py-6 text-xs text-slate-400">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 lg:px-8">
-          <span>© 2026 BannerIN. Hak cipta dilindungi.</span>
+        <div className="mx-auto flex max-w-7xl flex-col sm:flex-row items-center justify-between gap-2 px-5 lg:px-8 text-center sm:text-left">
+          <span suppressHydrationWarning>&copy; {new Date().getFullYear()} Arya Raka Permana All rights reserved.</span>
           <span>Privasi akunmu terjamin melalui Row Level Security.</span>
         </div>
       </footer>

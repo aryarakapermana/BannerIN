@@ -7,7 +7,7 @@ export function Footer() {
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-zinc-500">
           <div>
             <p suppressHydrationWarning className="font-semibold text-zinc-700">
-              BannerIN &copy; {new Date().getFullYear()}
+              BannerIN &copy; {new Date().getFullYear()} Arya Raka Permana All rights reserved.
             </p>
             <p>
               Platform Layanan Pemesanan Banner Online (Proyek Sistem Informasi)
