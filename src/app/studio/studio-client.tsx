@@ -94,6 +94,7 @@ export default function StudioClient({
   }, [materials, initialParams])
 
   const [selectedMaterial, setSelectedMaterial] = useState<MaterialRow | null>(defaultMaterial)
+  const [isMaterialSelectorOpen, setIsMaterialSelectorOpen] = useState(false)
   const [width, setWidth] = useState<number | ''>(initialParams?.width || 300)
   const [height, setHeight] = useState<number | ''>(initialParams?.height || 100)
   const [quantity, setQuantity] = useState<number>(initialParams?.quantity || 1)
@@ -485,183 +486,132 @@ export default function StudioClient({
       {/* Main Container */}
       <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Breadcrumb & Heading */}
-        <div className="flex flex-col justify-between gap-3 border-b border-slate-200/80 pb-4 sm:pb-6 sm:flex-row sm:items-end">
-          <div>
-            <div className="flex flex-wrap items-center gap-1.5 text-[11px] sm:text-xs font-medium text-slate-500">
-              <Link href="/" className="hover:text-blue-600">Beranda</Link>
+        <div className="flex flex-col gap-3 pb-3 sm:pb-4 border-b border-slate-200/80">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+              <Link href="/" className="hover:text-blue-600 transition">Beranda</Link>
               <span>›</span>
-              <Link href="/materials" className="hover:text-blue-600">Katalog Bahan</Link>
-              <span>›</span>
-              <span className="font-semibold text-blue-600">Studio &amp; Editor Desain</span>
+              <span className="font-semibold text-slate-700">Studio Desain</span>
             </div>
-
-            <div className="mt-1.5 flex flex-wrap items-center gap-2 sm:gap-3">
-              <h1 className="text-xl font-extrabold tracking-tight text-slate-950 sm:text-3xl">
-                Studio Banner &amp; Editor Desain
-              </h1>
-              <span className="rounded-full bg-emerald-100 text-emerald-800 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-bold">
-                Fabric.js + Private Storage
-              </span>
-            </div>
+            <span className="rounded-full bg-blue-50 border border-blue-100 text-blue-700 px-3 py-1 text-xs font-semibold">
+              Fabric.js Canvas
+            </span>
           </div>
 
-          <div className="text-left sm:text-right">
-            <span className="text-xs font-extrabold text-blue-600">
-              Langkah {activeStep} dari 3 ·{' '}
-              {activeStep === 1
-                ? 'Bahan & ukuran'
-                : activeStep === 2
-                  ? 'Upload & atur desain'
-                  : 'Desain tersimpan'}
-            </span>
-            <p className="text-xs text-slate-500">
-              {savedDesign
-                ? 'File asli tersimpan aman di bucket privat & konfigurasi tercatat.'
-                : imageUrl
-                  ? 'Geser & ubah ukuran desain di kanvas, lalu simpan.'
-                  : 'Sesuaikan dimensi & bahan, lalu unggah file cetakmu.'}
-            </p>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-950">
+              Studio Banner &amp; Editor Desain
+            </h1>
+          </div>
+
+          {/* Stepper Pills matching Figma */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
+            <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 px-3 py-1 text-xs font-semibold text-emerald-800 shrink-0">
+              <span className="text-emerald-600 font-bold">✓</span>
+              <span>Bahan</span>
+            </div>
+            <span className="text-slate-300 text-xs">›</span>
+            <div className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold shrink-0 border ${
+              savedDesign
+                ? 'bg-emerald-50 border-emerald-200/80 text-emerald-800'
+                : 'bg-blue-50 border-blue-200/80 text-blue-700'
+            }`}>
+              <span className={`grid size-4 place-items-center rounded-full text-[10px] font-bold ${
+                savedDesign ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'
+              }`}>
+                {savedDesign ? '✓' : '2'}
+              </span>
+              <span>Upload</span>
+            </div>
+            <span className="text-slate-300 text-xs">›</span>
+            <div className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold shrink-0 border ${
+              savedDesign
+                ? 'bg-blue-50 border-blue-200/80 text-blue-700'
+                : 'bg-slate-100 border-slate-200/80 text-slate-600'
+            }`}>
+              <span className={`grid size-4 place-items-center rounded-full text-[10px] font-bold ${
+                savedDesign ? 'bg-blue-600 text-white' : 'bg-slate-300 text-slate-700'
+              }`}>
+                3
+              </span>
+              <span>Selesai</span>
+            </div>
           </div>
         </div>
 
         {/* 2-Column Content Layout */}
-        <div className="mt-6 sm:mt-8 grid gap-6 sm:gap-8 lg:grid-cols-12 items-start">
+        <div className="mt-5 sm:mt-6 grid gap-5 sm:gap-6 lg:grid-cols-12 items-start">
           {/* Left Column: Form & Calculator (5 cols) */}
-          <div className="space-y-6 lg:col-span-5">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
-              {/* Stepper */}
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4 text-xs">
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <span className="grid size-5 place-items-center rounded-full bg-emerald-100 text-emerald-600 text-[10px] sm:text-xs font-bold">
-                    ✓
-                  </span>
-                  <span className="text-[11px] sm:text-xs font-bold text-slate-900">
-                    Bahan<span className="hidden sm:inline"> &amp; Ukuran</span>
-                  </span>
-                </div>
-                <span className="text-slate-300">›</span>
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <span
-                    className={`grid size-5 place-items-center rounded-full text-[10px] sm:text-xs font-bold ${
-                      savedDesign
-                        ? 'bg-emerald-100 text-emerald-600'
-                        : 'bg-blue-600 text-white'
-                    }`}
-                  >
-                    {savedDesign ? '✓' : '2'}
-                  </span>
-                  <span
-                    className={`text-[11px] sm:text-xs font-bold ${
-                      savedDesign ? 'text-slate-900' : 'text-blue-600'
-                    }`}
-                  >
-                    Upload<span className="hidden sm:inline"> &amp; Edit</span>
-                  </span>
-                </div>
-                <span className="text-slate-300">›</span>
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <span
-                    className={`grid size-5 place-items-center rounded-full text-[10px] sm:text-xs font-bold ${
-                      savedDesign
-                        ? 'bg-blue-600 text-white'
-                        : 'border border-slate-300 text-slate-400'
-                    }`}
-                  >
-                    3
-                  </span>
-                  <span
-                    className={`text-[11px] sm:text-xs ${
-                      savedDesign ? 'font-bold text-blue-600' : 'font-medium text-slate-400'
-                    }`}
-                  >
-                    {savedDesign ? 'Tersimpan' : 'Selesai'}
-                  </span>
+          <div className="space-y-5 lg:col-span-5">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs">
+              {/* Form Title & Number Indicator */}
+              <div className="flex items-center justify-between">
+                <h2 className="text-base sm:text-lg font-bold text-slate-900">Kalkulasi Spesifikasi</h2>
+                <span className="font-mono text-sm font-bold text-slate-400">01</span>
+              </div>
+
+              {/* Preset Ukuran Populer */}
+              <div className="mt-4">
+                <div className="grid grid-cols-3 gap-2">
+                  {PRESET_SIZES.slice(0, 3).map((preset) => {
+                    const isActive = width === preset.w && height === preset.h
+                    return (
+                      <button
+                        key={preset.label}
+                        type="button"
+                        suppressHydrationWarning
+                        onClick={() => {
+                          setWidth(preset.w)
+                          setHeight(preset.h)
+                        }}
+                        className={`rounded-xl py-2 px-2 text-center text-xs font-bold transition cursor-pointer ${
+                          isActive
+                            ? 'bg-blue-600 text-white shadow-xs'
+                            : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100'
+                        }`}
+                      >
+                        {preset.w}×{preset.h} cm
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
 
-              {/* Form Title */}
-              <div className="mt-5 flex items-start justify-between">
+              {/* Ukuran (Lebar & Tinggi) with inner cm */}
+              <div className="mt-4 grid grid-cols-2 gap-3">
                 <div>
-                  <h2 className="text-base sm:text-lg font-extrabold text-slate-950">Kalkulasi Spesifikasi</h2>
-                  <p className="mt-0.5 text-xs text-slate-500">
-                    Perhitungan otomatis berbasis rumus baku percetakan.
-                  </p>
-                </div>
-                <span className="grid size-8 sm:size-9 place-items-center rounded-xl bg-blue-50 text-blue-600">
-                  <svg className="size-4 sm:size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                    <line x1="3" y1="9" x2="21" y2="9" />
-                    <line x1="9" y1="21" x2="9" y2="9" />
-                  </svg>
-                </span>
-              </div>
-
-              {/* Preset Ukuran Cepat */}
-              <div className="mt-4 sm:mt-5">
-                <label className="block text-xs font-bold text-slate-700">Preset Ukuran Populer</label>
-                <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1.5 no-scrollbar sm:flex-wrap">
-                  {PRESET_SIZES.map((preset) => (
-                    <button
-                      key={preset.label}
-                      type="button"
-                      suppressHydrationWarning
-                      onClick={() => {
-                        setWidth(preset.w)
-                        setHeight(preset.h)
-                      }}
-                      className={`shrink-0 rounded-lg px-2.5 py-1 text-xs font-medium border transition ${
-                        width === preset.w && height === preset.h
-                          ? 'border-blue-600 bg-blue-50 text-blue-700 font-bold'
-                          : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                      }`}
-                    >
-                      {preset.w}×{preset.h} cm
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Ukuran (Lebar & Tinggi) */}
-              <div className="mt-4 sm:mt-5 grid grid-cols-2 gap-3 sm:gap-4">
-                <div>
-                  <div className="flex items-baseline justify-between text-xs">
-                    <label className="font-bold text-slate-700">Lebar (cm)</label>
-                    <span className="text-[10px] text-slate-400 font-normal">Min 10</span>
-                  </div>
-                  <div className="relative mt-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Lebar (cm)</label>
+                  <div className="relative">
                     <NumericInput
                       placeholder="300"
                       value={width}
                       onValueChange={setWidth}
-                      className={`w-full rounded-xl border px-3 py-2 sm:px-3.5 sm:py-2.5 pr-8 sm:pr-10 text-xs font-bold font-mono focus:outline-none ${
+                      className={`w-full rounded-xl border bg-white px-3.5 py-2.5 pr-8 text-xs sm:text-sm font-bold font-mono focus:outline-none transition ${
                         numericWidth <= 0 || numericWidth < 10
                           ? 'border-rose-300 bg-rose-50/50 text-rose-900 focus:border-rose-500'
                           : 'border-slate-200 text-slate-900 focus:border-blue-600'
                       }`}
                     />
-                    <span className="absolute right-2.5 sm:right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-400 pointer-events-none">
                       cm
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <div className="flex items-baseline justify-between text-xs">
-                    <label className="font-bold text-slate-700">Tinggi (cm)</label>
-                    <span className="text-[10px] text-slate-400 font-normal">Min 10</span>
-                  </div>
-                  <div className="relative mt-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Tinggi (cm)</label>
+                  <div className="relative">
                     <NumericInput
                       placeholder="100"
                       value={height}
                       onValueChange={setHeight}
-                      className={`w-full rounded-xl border px-3 py-2 sm:px-3.5 sm:py-2.5 pr-8 sm:pr-10 text-xs font-bold font-mono focus:outline-none ${
+                      className={`w-full rounded-xl border bg-white px-3.5 py-2.5 pr-8 text-xs sm:text-sm font-bold font-mono focus:outline-none transition ${
                         numericHeight <= 0 || numericHeight < 10
                           ? 'border-rose-300 bg-rose-50/50 text-rose-900 focus:border-rose-500'
                           : 'border-slate-200 text-slate-900 focus:border-blue-600'
                       }`}
                     />
-                    <span className="absolute right-2.5 sm:right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-400 pointer-events-none">
                       cm
                     </span>
                   </div>
@@ -678,145 +628,113 @@ export default function StudioClient({
                 </div>
               )}
 
-              {/* Luas Badge */}
-              <div className="mt-3 flex items-center justify-between rounded-xl bg-amber-50/70 border border-amber-200/60 px-3.5 py-2.5 text-xs font-semibold text-amber-900">
-                <span className="inline-flex items-center gap-2 font-bold">
-                  <svg className="size-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <rect x="4" y="3" width="16" height="18" rx="2" strokeWidth={2} />
-                    <line x1="8" y1="7" x2="16" y2="7" strokeWidth={2} />
-                  </svg>
-                  Luas per Lembar: {bannerValidation.area.toFixed(2)} m²
-                </span>
-                <span className="text-[11px] font-mono text-amber-800">
-                  {numericWidth} cm × {numericHeight} cm
+              {/* Luas Alert Bar matching Figma */}
+              <div className="mt-3.5 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50/80 px-3.5 py-2.5 text-xs font-medium text-amber-900">
+                <span className="size-2 rounded-full bg-amber-500 shrink-0" />
+                <span>
+                  Luas per Lembar: <strong className="font-bold">{bannerValidation.area.toFixed(2)} m²</strong> ({numericWidth} cm × {numericHeight} cm)
                 </span>
               </div>
 
-              {/* Pilih Bahan Radio Cards */}
-              <div className="mt-5">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-bold text-slate-700">Pilih Bahan Cetak</label>
-                  <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
-                    Live dari Supabase
-                  </span>
+              {/* Pilih Bahan Card matching Figma */}
+              <div className="mt-4">
+                <div
+                  onClick={() => setIsMaterialSelectorOpen(!isMaterialSelectorOpen)}
+                  className="flex items-center justify-between rounded-xl border-2 border-blue-400 bg-blue-50/40 p-3 sm:p-3.5 cursor-pointer hover:border-blue-500 transition"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="size-5 rounded-full border-2 border-blue-600 bg-white flex items-center justify-center shrink-0">
+                      <span className="size-2 rounded-full bg-blue-600" />
+                    </span>
+                    <div>
+                      <strong className="block text-xs sm:text-sm font-bold text-slate-900">
+                        {selectedMaterial?.name || 'Flexi Standard 280g'}
+                      </strong>
+                      <span className="text-[11px] font-mono text-slate-500">
+                        {rupiah.format(Number(selectedMaterial?.price_per_sqm || 20000))}/m²
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-lg bg-blue-100 px-2.5 py-1 text-xs font-bold text-blue-700">
+                      Terpilih
+                    </span>
+                  </div>
                 </div>
 
-                <div className="mt-2.5 space-y-2.5 max-h-56 overflow-y-auto pr-1">
-                  {materials.map((m) => {
-                    const isSelected = selectedMaterial?.id === m.id
-                    return (
-                      <button
-                        key={m.id}
-                        type="button"
-                        suppressHydrationWarning
-                        onClick={() => setSelectedMaterial(m)}
-                        className={`flex w-full items-start justify-between rounded-xl border p-3.5 text-left transition ${isSelected
-                            ? 'border-blue-600 bg-blue-50/40 ring-1 ring-blue-600'
-                            : 'border-slate-200 bg-white hover:border-slate-300'
+                {/* Dropdown list to pick other materials */}
+                {isMaterialSelectorOpen && (
+                  <div className="mt-2 space-y-1.5 rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
+                    <div className="text-[11px] font-bold text-slate-500 px-2 py-1">Pilih jenis bahan lain:</div>
+                    {materials.map((m) => {
+                      const isSelected = selectedMaterial?.id === m.id
+                      return (
+                        <button
+                          key={m.id}
+                          type="button"
+                          suppressHydrationWarning
+                          onClick={() => {
+                            setSelectedMaterial(m)
+                            setIsMaterialSelectorOpen(false)
+                          }}
+                          className={`flex w-full items-center justify-between rounded-lg p-2.5 text-left text-xs transition cursor-pointer ${
+                            isSelected ? 'bg-blue-50 text-blue-900 font-bold' : 'hover:bg-slate-50 text-slate-700'
                           }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <span
-                            className={`mt-0.5 grid size-4.5 place-items-center rounded-full border transition ${isSelected ? 'border-blue-600 bg-white' : 'border-slate-300'
-                              }`}
-                          >
-                            {isSelected && <span className="size-2 rounded-full bg-blue-600" />}
-                          </span>
+                        >
                           <div>
-                            <strong className="block text-xs font-extrabold text-slate-900">{m.name}</strong>
-                            <span className="text-[11px] text-slate-500 line-clamp-1">
-                              {m.description || 'Bahan berkualitas resmi percetakan'}
-                            </span>
+                            <div className="font-bold">{m.name}</div>
+                            <div className="text-[10px] text-slate-500 line-clamp-1">{m.description}</div>
                           </div>
-                        </div>
-                        <span className="text-xs font-bold text-blue-700 font-mono shrink-0 pl-2">
-                          {rupiah.format(Number(m.price_per_sqm))}<span className="text-[10px] text-slate-400 font-normal">/m²</span>
-                        </span>
-                      </button>
-                    )
-                  })}
-                </div>
+                          <span className="font-mono font-bold text-blue-700 ml-2 shrink-0">
+                            {rupiah.format(Number(m.price_per_sqm))}/m²
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
 
-              {/* Jumlah Pesanan */}
-              <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-5">
-                <div>
-                  <strong className="block text-xs font-bold text-slate-900">Jumlah Cetak (Quantity)</strong>
-                  <span className="text-[11px] text-slate-400">Total lembar pesanan (pcs)</span>
-                </div>
-                <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1">
+              {/* Jumlah Cetak */}
+              <div className="mt-4 flex items-center justify-between">
+                <span className="text-xs sm:text-sm font-semibold text-slate-800">Jumlah cetak</span>
+                <div className="flex items-center rounded-xl border border-slate-200 bg-white p-0.5 shadow-2xs">
                   <button
                     type="button"
                     suppressHydrationWarning
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                     disabled={quantity <= 1}
-                    className="grid size-7 place-items-center rounded-lg bg-white text-slate-700 shadow-sm disabled:opacity-40"
+                    className="size-7 grid place-items-center rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-50 disabled:opacity-40"
                   >
                     −
                   </button>
-                  <span className="min-w-10 text-center text-xs font-bold font-mono text-slate-900">
+                  <span className="px-3 text-xs sm:text-sm font-bold font-mono text-slate-900">
                     {quantity} pcs
                   </span>
                   <button
                     type="button"
                     suppressHydrationWarning
                     onClick={() => setQuantity((q) => q + 1)}
-                    className="grid size-7 place-items-center rounded-lg bg-white text-slate-700 shadow-sm"
+                    className="size-7 grid place-items-center rounded-lg text-blue-600 hover:text-blue-800 hover:bg-blue-50 font-bold"
                   >
                     +
                   </button>
                 </div>
               </div>
 
-              {/* Rincian Harga & Formula Transparan */}
-              <div className="mt-5 rounded-xl border border-blue-100 bg-blue-50/40 p-4">
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-                    <svg className="size-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Transparansi Rumus Harga
-                  </span>
-                  {isVerifying ? (
-                    <span className="text-[10px] font-semibold text-blue-600 animate-pulse">
-                      Sinkronisasi server...
-                    </span>
-                  ) : serverVerification?.success ? (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full">
-                      <span>✓</span> Server Verified
-                    </span>
-                  ) : null}
+              {/* Total Estimasi Cetak Box matching Figma */}
+              <div className="mt-4 flex items-center justify-between rounded-xl bg-blue-50/50 border border-blue-100/80 p-3.5 sm:p-4">
+                <div>
+                  <span className="block text-[11px] sm:text-xs text-slate-500 font-medium">Total Estimasi Cetak</span>
+                  <strong className="text-2xl sm:text-3xl font-extrabold text-blue-600 font-mono">
+                    {breakdown?.formattedTotal || 'Rp0'}
+                  </strong>
                 </div>
-
-                {breakdown ? (
-                  <div className="mt-2.5 space-y-2 text-xs">
-                    <div className="rounded-lg bg-white/80 p-2.5 font-mono text-slate-600 text-[11px] border border-blue-100/60">
-                      <div className="text-slate-500 font-sans text-[10px] uppercase font-bold tracking-wider">
-                        1. Rumus Luas:
-                      </div>
-                      <div className="mt-0.5">
-                        ({numericWidth} cm ÷ 100) × ({numericHeight} cm ÷ 100) = <strong className="text-slate-900">{breakdown.formattedArea}</strong>
-                      </div>
-                      <div className="mt-2 text-slate-500 font-sans text-[10px] uppercase font-bold tracking-wider">
-                        2. Rumus Subtotal:
-                      </div>
-                      <div className="mt-0.5">
-                        {breakdown.formattedArea} × {rupiah.format(breakdown.pricePerSqm)} × {quantity} pcs
-                      </div>
-                    </div>
-
-                    <div className="flex items-baseline justify-between border-t border-blue-200/50 pt-3">
-                      <span className="text-xs font-semibold text-slate-700">Total Estimasi Cetak</span>
-                      <strong className="text-2xl font-black text-blue-900 font-mono">
-                        {breakdown.formattedTotal}
-                      </strong>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="mt-2 text-xs text-rose-600">
-                    {bannerValidation.error || 'Silakan perbaiki ukuran banner.'}
-                  </p>
-                )}
+                <div className="shrink-0">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                    <span className="text-emerald-600 font-bold">✓</span> Server Verified
+                  </span>
+                </div>
               </div>
 
               {/* Validation & Auth Error Alerts */}
@@ -849,39 +767,6 @@ export default function StudioClient({
                 </div>
               )}
 
-              {/* Action Button */}
-              <div className="mt-6">
-                <button
-                  type="button"
-                  suppressHydrationWarning
-                  onClick={handleSaveDesign}
-                  disabled={Boolean(bannerValidation.error) || isUploading}
-                  className={`flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed ${imageUrl
-                      ? 'bg-amber-500 text-slate-950 hover:bg-amber-600 shadow-amber-500/20 cursor-pointer'
-                      : 'bg-amber-100/70 text-amber-700/80 cursor-pointer'
-                    }`}
-                >
-                  {isUploading
-                    ? 'Mengunggah ke Storage Privat...'
-                    : savedDesign
-                      ? 'Simpan Pembaruan Posisi Editor'
-                      : imageUrl
-                        ? 'Unggah & Simpan Desain ke Server'
-                        : 'Pilih & Unggah File Desain'}
-                  <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                  </svg>
-                </button>
-
-                <p className="mt-2 text-center text-[11px] text-slate-400">
-                  {savedDesign
-                    ? 'Desain sudah tersimpan di tabel designs & siap untuk tahap pemesanan.'
-                    : imageUrl
-                      ? 'File akan divalidasi di server dan disimpan ke bucket privat Supabase.'
-                      : 'Unggah file JPG/JPEG/PNG (maks. 20 MB) terlebih dahulu.'}
-                </p>
-              </div>
-
               {/* Confirmation Card when saved to Supabase Storage + designs table */}
               {savedDesign && breakdown && (
                 <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs text-emerald-900 space-y-2">
@@ -902,28 +787,6 @@ export default function StudioClient({
                     </code>
                     .
                   </p>
-                  <div className="rounded-lg bg-white/80 p-2.5 font-mono text-[10px] text-slate-700 space-y-1 border border-emerald-200/70">
-                    <div className="truncate">ID Desain: {savedDesign.id}</div>
-                    <div className="truncate">Path Privat: {savedDesign.originalFilePath}</div>
-                    {editorConfig && (
-                      <div>
-                        Transform: x={editorConfig.imageTransform.left}, y={editorConfig.imageTransform.top}, skala={editorConfig.imageTransform.scaleX}×
-                      </div>
-                    )}
-                  </div>
-                  {savedDesign.signedOriginalUrl && (
-                    <div className="pt-1 flex flex-wrap items-center gap-3">
-                      <a
-                        href={savedDesign.signedOriginalUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 font-bold text-emerald-700 underline"
-                      >
-                        Uji Akses Signed URL (1 Jam) ↗
-                      </a>
-                    </div>
-                  )}
-
                   <div className="pt-2">
                     <Link
                       href={`/checkout?${new URLSearchParams({
@@ -944,118 +807,90 @@ export default function StudioClient({
           </div>
 
           {/* Right Column: Fabric.js Studio Banner Canvas (7 cols) */}
-          <div className="space-y-6 lg:col-span-7">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
-              {/* Studio Header */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
-                <div className="flex items-center gap-3">
-                  <span className="grid size-8 sm:size-9 place-items-center rounded-xl bg-blue-50 text-blue-600">
-                    <svg className="size-4 sm:size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 3.75H6A2.25 2.25 0 003.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0120.25 6v1.5m0 9V18A2.25 2.25 0 0118 20.25h-1.5m-9 0H6A2.25 2.25 0 013.75 18v-1.5" />
-                    </svg>
-                  </span>
-                  <div>
-                    <h2 className="text-sm sm:text-base font-bold text-slate-900">Kustomisasi Banner Anda</h2>
-                    <p className="text-[11px] sm:text-xs text-slate-500">
-                      Geser &amp; tarik sudut gambar sesuai rasio {numericWidth} × {numericHeight} cm.
-                    </p>
-                  </div>
-                </div>
-
+          <div className="space-y-5 lg:col-span-7">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs">
+              {/* Card 2 Title */}
+              <div className="flex items-center justify-between">
+                <h2 className="text-base sm:text-lg font-bold text-slate-900">Kustomisasi Banner Anda</h2>
                 {savedDesign ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[11px] sm:text-xs font-bold text-emerald-700 border border-emerald-200">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700 border border-emerald-200">
                     <span className="size-1.5 rounded-full bg-emerald-500" />
-                    ✓ Tersimpan di Storage
+                    Tersimpan
                   </span>
                 ) : imageUrl ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[11px] sm:text-xs font-bold text-blue-700 border border-blue-200">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-700 border border-blue-200">
                     <span className="size-1.5 rounded-full bg-blue-500" />
-                    Preview Siap Disimpan
+                    Preview Siap
                   </span>
-                ) : (
-                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[11px] sm:text-xs font-medium text-slate-500">
-                    Belum ada desain
-                  </span>
-                )}
+                ) : null}
               </div>
 
-              {/* Controls Bar */}
-              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-3 text-xs">
-                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                  <div className="flex items-center rounded-lg border border-slate-200 bg-white p-0.5">
-                    <button
-                      type="button"
-                      suppressHydrationWarning
-                      onClick={() => setZoom((z) => Math.max(50, z - 10))}
-                      className="px-2 py-1 text-slate-600 hover:bg-slate-50 rounded text-xs"
-                    >
-                      −
-                    </button>
-                    <span className="px-1.5 font-mono font-semibold text-slate-700 text-xs">{zoom}%</span>
-                    <button
-                      type="button"
-                      suppressHydrationWarning
-                      onClick={() => setZoom((z) => Math.min(150, z + 10))}
-                      className="px-2 py-1 text-slate-600 hover:bg-slate-50 rounded text-xs"
-                    >
-                      +
-                    </button>
-                  </div>
-
+              {/* Controls Bar Row 1: Zoom + Fit + Reset */}
+              <div className="mt-3.5 flex flex-wrap items-center gap-2 text-xs">
+                <div className="flex items-center rounded-xl border border-slate-200 bg-white p-0.5">
                   <button
                     type="button"
                     suppressHydrationWarning
-                    onClick={() => setZoom(100)}
-                    className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2 py-1 sm:px-3 sm:py-1.5 font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer text-xs"
+                    onClick={() => setZoom((z) => Math.max(50, z - 10))}
+                    className="px-2.5 py-1 text-slate-600 hover:bg-slate-50 rounded-lg text-xs font-bold"
                   >
-                    <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                    </svg>
-                    <span>Pas layar</span>
+                    −
                   </button>
-
+                  <span className="px-2 font-mono font-bold text-slate-700 text-xs">{zoom}%</span>
                   <button
                     type="button"
                     suppressHydrationWarning
-                    onClick={() => setResetSignal((s) => s + 1)}
-                    disabled={!imageUrl}
-                    className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2 py-1 sm:px-3 sm:py-1.5 font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer disabled:opacity-40 text-xs"
+                    onClick={() => setZoom((z) => Math.min(150, z + 10))}
+                    className="px-2.5 py-1 text-slate-600 hover:bg-slate-50 rounded-lg text-xs font-bold"
                   >
-                    <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    <span>Reset</span>
+                    +
                   </button>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-1 sm:pt-0">
-                  <label className="inline-flex items-center gap-1.5 sm:gap-2 cursor-pointer select-none text-xs">
-                    <span className="font-semibold text-slate-700 text-[11px] sm:text-xs">Kunci proporsi</span>
-                    <input
-                      type="checkbox"
-                      suppressHydrationWarning
-                      checked={lockProportions}
-                      onChange={(e) => setLockProportions(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-8 h-4.5 sm:w-9 sm:h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 sm:after:h-4 sm:after:w-4 after:transition-all peer-checked:bg-blue-600 relative"></div>
-                  </label>
+                <button
+                  type="button"
+                  suppressHydrationWarning
+                  onClick={() => setZoom(100)}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer text-xs transition"
+                >
+                  <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                  </svg>
+                  <span>Pas layar</span>
+                </button>
 
-                  <label className="inline-flex items-center gap-1.5 sm:gap-2 cursor-pointer select-none text-xs">
-                    <span className="font-semibold text-slate-700 text-[11px] sm:text-xs">Garis potong &amp; mata ayam</span>
-                    <input
-                      type="checkbox"
-                      suppressHydrationWarning
-                      checked={showBleedGrommets}
-                      onChange={(e) => setShowBleedGrommets(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-8 h-4.5 sm:w-9 sm:h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 sm:after:h-4 sm:after:w-4 after:transition-all peer-checked:bg-blue-600 relative"></div>
-                  </label>
-                </div>
+                <button
+                  type="button"
+                  suppressHydrationWarning
+                  onClick={() => setResetSignal((s) => s + 1)}
+                  disabled={!imageUrl}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer disabled:opacity-40 text-xs transition"
+                >
+                  <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span>Reset</span>
+                </button>
               </div>
 
-              {/* Client-Only Fabric.js Canvas Editor */}
+              {/* Controls Bar Row 2: Garis Potong & Mata Ayam Toggle */}
+              <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
+                <span className="text-xs sm:text-sm font-semibold text-slate-800">
+                  Garis potong &amp; mata ayam
+                </span>
+                <label className="inline-flex items-center cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    suppressHydrationWarning
+                    checked={showBleedGrommets}
+                    onChange={(e) => setShowBleedGrommets(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600 relative"></div>
+                </label>
+              </div>
+
+              {/* Canvas Editor */}
               {isMounted ? (
                 <BannerCanvasEditor
                   widthCm={numericWidth}
@@ -1073,81 +908,65 @@ export default function StudioClient({
                   onRegisterExporter={registerExporter}
                 />
               ) : (
-                <div className="canvas-grid relative mt-6 rounded-xl border border-slate-200 p-8 min-h-[380px] flex flex-col items-center justify-center text-xs font-medium text-slate-500">
+                <div className="canvas-grid relative mt-4 rounded-xl border border-slate-200 p-8 min-h-[260px] flex flex-col items-center justify-center text-xs font-medium text-slate-500">
                   Menyiapkan kanvas editor...
                 </div>
               )}
 
-              {/* File Info Card Row */}
-              <div className="mt-4 flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs">
-                <div className="flex items-center gap-3">
-                  <span className="grid size-9 place-items-center rounded-lg bg-blue-50 text-blue-600">
-                    <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                    </svg>
-                  </span>
-                  <div>
-                    <strong className="block text-xs font-bold text-slate-900">
-                      {fileMeta ? fileMeta.name : 'Desainmu akan tampil di sini'}
-                    </strong>
-                    <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
-                      <span>
-                        {fileMeta
-                          ? `${fileMeta.dimensions} · ${fileMeta.size}`
-                          : 'Format JPG / JPEG / PNG · Maksimal 20 MB'}
-                      </span>
-                      {fileMeta && (
-                        <span className="inline-flex items-center gap-1 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600">
-                          {lockProportions ? '🔒 Proporsi terkunci' : '🔓 Bebas skala'}
-                        </span>
-                      )}
-                    </div>
+              {/* File Info Bar if image selected */}
+              {imageUrl && fileMeta && (
+                <div className="mt-4 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/50 p-3 text-xs">
+                  <div className="truncate">
+                    <strong className="block text-slate-900 truncate">{fileMeta.name}</strong>
+                    <span className="text-slate-500 text-[11px]">{fileMeta.dimensions} · {fileMeta.size}</span>
                   </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    suppressHydrationWarning
-                    onClick={() => fileInputRef.current?.click()}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
-                  >
-                    {imageUrl ? 'Ganti file' : 'Pilih file'}
-                    <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                    </svg>
-                  </button>
-
-                  {imageUrl && (
+                  <div className="flex items-center gap-2 shrink-0 ml-2">
                     <button
                       type="button"
-                      suppressHydrationWarning
-                      onClick={removeFile}
-                      aria-label="Hapus file"
-                      className="grid size-8 place-items-center rounded-lg border border-slate-200 text-slate-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 transition cursor-pointer"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                     >
-                      <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                      Ganti
+                    </button>
+                    <button
+                      type="button"
+                      onClick={removeFile}
+                      className="rounded-lg border border-slate-200 bg-white p-1 text-rose-600 hover:bg-rose-50"
+                    >
+                      <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     </button>
-                  )}
+                  </div>
                 </div>
-              </div>
+              )}
+            </div>
 
-              {/* Mandatory Preview Disclaimer Box */}
-              <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50/70 p-3.5 text-xs text-amber-950">
-                <svg className="size-4 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                </svg>
-                <span>
-                  <strong>Catatan Penting: Preview di layar bukan jaminan hasil cetak.</strong>{' '}
-                  Tampilan editor adalah simulasi tata letak; kualitas hasil cetak bergantung pada resolusi berkas asli, ukuran cetak, karakter bahan, dan pemeriksaan tim produksi sebelum cetak.
+            {/* Bottom CTA Button matching Figma */}
+            <div className="pt-1">
+              <button
+                type="button"
+                suppressHydrationWarning
+                onClick={imageUrl ? handleSaveDesign : () => fileInputRef.current?.click()}
+                disabled={Boolean(bannerValidation.error) || isUploading}
+                className="w-full flex items-center justify-between rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 sm:px-5 shadow-md hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <span className="flex items-center gap-2.5 text-xs sm:text-sm">
+                  <svg className="size-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                  </svg>
+                  <span>
+                    {isUploading
+                      ? 'Mengunggah ke Storage Privat...'
+                      : savedDesign
+                        ? 'Simpan Pembaruan Posisi Editor'
+                        : imageUrl
+                          ? 'Unggah & Simpan Desain ke Server'
+                          : 'Pilih & Unggah File Desain'}
+                  </span>
                 </span>
-              </div>
-
-              <p className="mt-3 text-[11px] text-slate-400">
-                Jauhkan teks dan logo penting minimal 3–5 cm dari garis potong (bleed) serta titik mata ayam.
-              </p>
+                <span className="text-base sm:text-lg">→</span>
+              </button>
             </div>
           </div>
         </div>

@@ -400,29 +400,28 @@ export default function BannerCanvasEditor({
             height: `${canvasDimensions.heightPx}px`,
             maxWidth: '100%',
           }}
-          className={`relative flex items-center justify-center rounded-sm border-2 overflow-hidden ${
+          className={`relative flex items-center justify-center rounded-xl border-2 overflow-hidden transition cursor-pointer ${
             imageUrl
               ? 'border-blue-600 shadow-md bg-slate-900'
               : isDragOver
-              ? 'border-dashed border-blue-500 bg-blue-50/60'
-              : 'border-dashed border-amber-400 bg-white/95 shadow-sm'
+              ? 'border-dashed border-blue-500 bg-blue-50/70'
+              : 'border-dashed border-blue-400 bg-white shadow-xs hover:border-blue-500'
           }`}
+          onClick={!imageUrl ? onSelectFileClick : undefined}
         >
-          {/* Grommets / Mata Ayam overlay non-destruktif */}
+          {/* Grommets / Mata Ayam overlay */}
           {showBleedGrommets && (
             <>
-              <span className="absolute top-1.5 left-1.5 size-2.5 rounded-full border border-slate-700 bg-slate-200 shadow-xs z-20 pointer-events-none" />
-              <span className="absolute top-1.5 right-1.5 size-2.5 rounded-full border border-slate-700 bg-slate-200 shadow-xs z-20 pointer-events-none" />
-              <span className="absolute bottom-1.5 left-1.5 size-2.5 rounded-full border border-slate-700 bg-slate-200 shadow-xs z-20 pointer-events-none" />
-              <span className="absolute bottom-1.5 right-1.5 size-2.5 rounded-full border border-slate-700 bg-slate-200 shadow-xs z-20 pointer-events-none" />
-              <span className="absolute top-1.5 left-1/2 -translate-x-1/2 size-2.5 rounded-full border border-slate-700 bg-slate-200 shadow-xs z-20 pointer-events-none" />
-              <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 size-2.5 rounded-full border border-slate-700 bg-slate-200 shadow-xs z-20 pointer-events-none" />
+              <span className="absolute top-2 left-2 size-3 rounded-full border-2 border-blue-400 bg-white shadow-2xs z-20 pointer-events-none" />
+              <span className="absolute top-2 right-2 size-3 rounded-full border-2 border-blue-400 bg-white shadow-2xs z-20 pointer-events-none" />
+              <span className="absolute bottom-2 left-2 size-3 rounded-full border-2 border-blue-400 bg-white shadow-2xs z-20 pointer-events-none" />
+              <span className="absolute bottom-2 right-2 size-3 rounded-full border-2 border-blue-400 bg-white shadow-2xs z-20 pointer-events-none" />
             </>
           )}
 
-          {/* Bleed line overlay non-destruktif */}
+          {/* Bleed line overlay */}
           {showBleedGrommets && (
-            <div className="absolute inset-1.5 border border-dashed border-amber-400/80 pointer-events-none z-20" />
+            <div className="absolute inset-2 border border-dashed border-blue-300/80 pointer-events-none z-20" />
           )}
 
           {/* Fabric.js Canvas Host */}
@@ -433,31 +432,13 @@ export default function BannerCanvasEditor({
 
           {/* Dropzone State jika belum ada gambar */}
           {!imageUrl && (
-            <div className="flex flex-col items-center justify-center p-4 sm:p-6 text-center z-10">
-              <span className="grid size-10 sm:size-12 place-items-center rounded-2xl bg-blue-50 text-blue-600 mb-2">
-                <svg className="size-5 sm:size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                </svg>
-              </span>
-              <strong className="text-xs font-bold text-slate-800">
-                Tarik file JPG / JPEG / PNG ke sini (Maks 20 MB)
+            <div className="flex flex-col items-center justify-center p-6 text-center z-10 select-none">
+              <strong className="text-sm font-bold text-slate-800">
+                Pratinjau desain Anda
               </strong>
-              <p className="mt-0.5 text-[11px] text-slate-500">
-                atau pilih berkas desain dari perangkatmu
+              <p className="mt-1 font-mono text-xs text-slate-500">
+                {widthCm} × {heightCm} cm
               </p>
-
-              <button
-                type="button"
-                suppressHydrationWarning
-                onClick={onSelectFileClick}
-                className="btn-primary mt-3 text-xs py-2 px-4 cursor-pointer"
-              >
-                Pilih file desain +
-              </button>
-
-              <span className="mt-2 text-[10px] text-slate-400">
-                Kanvas Fabric.js mengikuti rasio banner: {ratioLabel}
-              </span>
             </div>
           )}
         </div>
