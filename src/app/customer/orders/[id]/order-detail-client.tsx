@@ -63,10 +63,10 @@ export default function OrderDetailClient({
 
           <div className="flex items-center gap-2.5">
             <Link
-              href="/customer/dashboard"
+              href={order.customerId ? "/customer/dashboard" : "/"}
               className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
             >
-              ← Kembali ke Riwayat
+              ← {order.customerId ? "Kembali ke Riwayat" : "Kembali ke Beranda"}
             </Link>
             <button
               type="button"

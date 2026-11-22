@@ -15,20 +15,10 @@ export async function POST(request: Request) {
 
     const {
       data: { user },
-      error: authError,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
-      return NextResponse.json(
-        {
-          success: false,
-          requiresAuth: true,
-          error:
-            "Silakan masuk terlebih dahulu sebelum mengunggah bukti pembayaran.",
-        },
-        { status: 401 }
-      );
-    }
+    const isGuest = !user;
+    const storageUserId = isGuest ? "guest" : user.id;
 
     let formData: FormData;
     try {
@@ -76,7 +66,7 @@ export async function POST(request: Request) {
     }
 
     const storagePath = orderService.buildPaymentProofStoragePath(
-      user.id,
+      storageUserId,
       fileEntry.name,
       validation.canonicalMimeType
     );

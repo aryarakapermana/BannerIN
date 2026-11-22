@@ -311,11 +311,6 @@ export default function StudioClient({
       return
     }
 
-    if (!currentUser) {
-      setRequiresAuthNotice(true)
-      return
-    }
-
     const fallbackDimensions = designEditorService.computeCanvasDimensions(
       numericWidth,
       numericHeight,

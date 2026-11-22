@@ -13,22 +13,14 @@ export async function POST(request: Request) {
   try {
     const supabase = await createClient();
 
-    // 1. Verifikasi sesi autentikasi di server
+    // 1. Verifikasi sesi autentikasi di server (Opsional untuk Guest Checkout)
     const {
       data: { user },
-      error: authError,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
-      return NextResponse.json(
-        {
-          success: false,
-          error:
-            "Silakan masuk terlebih dahulu sebelum mengunggah dan menyimpan desain.",
-        },
-        { status: 401 }
-      );
-    }
+    const isGuest = !user;
+    const storageUserId = isGuest ? "guest" : user.id;
+    const customerId = isGuest ? null : user.id;
 
     // 2. Parse FormData multipart
     let formData: FormData;
@@ -105,9 +97,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // 5. Susun path Storage privat berbasis user.id (sesuai policy RLS Storage)
+    // 5. Susun path Storage privat berbasis user.id atau guest (sesuai policy RLS Storage)
     const { originalPath, previewPath } = designEditorService.buildStoragePaths(
-      user.id,
+      storageUserId,
       fileEntry.name,
       fileValidation.canonicalMimeType
     );
@@ -153,7 +145,7 @@ export async function POST(request: Request) {
 
     // 8. Bentuk entitas domain Design & simpan metadata + editor_config ke tabel public.designs
     const designEntity = new Design({
-      customerId: user.id,
+      customerId,
       originalFilePath: originalPath,
       previewFilePath: storedPreviewPath,
       fileType: fileValidation.canonicalMimeType,

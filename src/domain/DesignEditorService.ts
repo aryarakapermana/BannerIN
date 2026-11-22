@@ -67,18 +67,19 @@ export class DesignEditorService {
   }
 
   /**
-   * Membuat path aman di bucket privat `designs`, diawali ID pemilik sesuai policy RLS Storage.
+   * Membuat path aman di bucket privat `designs`, diawali ID pemilik atau 'guest' untuk pengunjung.
    */
   public buildStoragePaths(
-    customerId: string,
+    customerId: string | null | undefined,
     originalFileName: string,
     mimeType: "image/jpeg" | "image/png"
   ): { originalPath: string; previewPath: string } {
-    if (!customerId || !customerId.trim()) {
-      throw new Error("Customer ID diperlukan untuk menyusun path penyimpanan.");
-    }
+    const isGuest =
+      !customerId || !customerId.trim() || customerId.trim().toLowerCase() === "guest";
+    const cleanFolder = isGuest
+      ? "guest"
+      : customerId.trim().replace(/[^a-zA-Z0-9_-]/g, "");
 
-    const cleanCustomerId = customerId.trim().replace(/[^a-zA-Z0-9_-]/g, "");
     const safeBase = ImageFileValidator.sanitizeFileBase(
       originalFileName,
       "desain-banner"
@@ -93,8 +94,8 @@ export class DesignEditorService {
     const ext = ImageFileValidator.extensionForMime(mimeType);
 
     return {
-      originalPath: `${cleanCustomerId}/original/${timestamp}-${uniqueId}-${safeBase}.${ext}`,
-      previewPath: `${cleanCustomerId}/preview/${timestamp}-${uniqueId}-${safeBase}-preview.png`,
+      originalPath: `${cleanFolder}/original/${timestamp}-${uniqueId}-${safeBase}.${ext}`,
+      previewPath: `${cleanFolder}/preview/${timestamp}-${uniqueId}-${safeBase}-preview.png`,
     };
   }
 

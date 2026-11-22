@@ -44,7 +44,8 @@ export interface NormalizedWhatsApp {
 
 export interface OrderProps {
   id?: string;
-  customerId: string;
+  customerId?: string | null;
+  trackingToken?: string | null;
   customerName: string;
   whatsappNumber: string;
   materialId: string;
@@ -142,7 +143,8 @@ export class Order {
   ] as const;
 
   public readonly id?: string;
-  public readonly customerId: string;
+  public readonly customerId: string | null;
+  public readonly trackingToken?: string | null;
   public readonly customerName: string;
   public readonly whatsappNumber: string;
   public readonly materialId: string;
@@ -159,9 +161,6 @@ export class Order {
   public readonly status: OrderStatus;
 
   constructor(props: OrderProps) {
-    if (!props.customerId || !props.customerId.trim()) {
-      throw new Error("ID pelanggan tidak valid.");
-    }
     if (!props.materialId || !props.materialId.trim()) {
       throw new Error("Bahan cetak wajib dipilih.");
     }
@@ -179,7 +178,8 @@ export class Order {
     }
 
     this.id = props.id;
-    this.customerId = props.customerId.trim();
+    this.customerId = props.customerId ? props.customerId.trim() : null;
+    this.trackingToken = props.trackingToken ? props.trackingToken.trim() : null;
     this.customerName = Order.normalizeCustomerName(props.customerName);
     this.whatsappNumber = Order.normalizeWhatsApp(props.whatsappNumber).e164;
     this.materialId = props.materialId.trim();
@@ -222,6 +222,7 @@ export class Order {
   public toInsertPayload(): OrderInsertPayload {
     return {
       customer_id: this.customerId,
+      tracking_token: this.trackingToken,
       customer_name: this.customerName,
       whatsapp_number: this.whatsappNumber,
       material_id: this.materialId,
@@ -240,17 +241,29 @@ export class Order {
   }
 
   public static validatePaymentProofPath(
-    customerId: string,
+    customerId: string | null | undefined,
     rawPath?: string | null
   ): string | null {
     if (!rawPath || !rawPath.trim()) {
       return null;
     }
     const cleanPath = rawPath.trim();
-    if (cleanPath.includes("..") || !cleanPath.startsWith(`${customerId}/`)) {
-      throw new Error(
-        "Path bukti pembayaran harus berada di direktori milik pengguna."
-      );
+    if (cleanPath.includes("..")) {
+      throw new Error("Path bukti pembayaran tidak valid.");
+    }
+    if (customerId && customerId.trim()) {
+      if (!cleanPath.startsWith(`${customerId.trim()}/`)) {
+        throw new Error(
+          "Path bukti pembayaran harus berada di direktori milik pengguna."
+        );
+      }
+    } else {
+      // Guest payment proof path
+      if (!cleanPath.startsWith("guest/")) {
+        throw new Error(
+          "Path bukti pembayaran tamu harus berada di direktori guest."
+        );
+      }
     }
     return cleanPath;
   }

@@ -28,7 +28,8 @@ export interface AuthoritativeMaterialSpec {
 }
 
 export interface CreateAuthoritativeOrderInput {
-  customerId: string;
+  customerId?: string | null;
+  trackingToken?: string | null;
   customerName: string;
   whatsappNumber: string;
   material: AuthoritativeMaterialSpec;
@@ -161,17 +162,16 @@ export class OrderService {
   }
 
   public buildPaymentProofStoragePath(
-    customerId: string,
+    customerId: string | null | undefined,
     originalFileName: string,
     mimeType: PaymentProofMimeType
   ): string {
-    if (!customerId || !customerId.trim()) {
-      throw new Error(
-        "Customer ID diperlukan untuk menyusun path bukti pembayaran."
-      );
-    }
+    const isGuest =
+      !customerId || !customerId.trim() || customerId.trim().toLowerCase() === "guest";
+    const cleanFolder = isGuest
+      ? "guest"
+      : customerId.trim().replace(/[^a-zA-Z0-9_-]/g, "");
 
-    const cleanCustomerId = customerId.trim().replace(/[^a-zA-Z0-9_-]/g, "");
     const safeBase = ImageFileValidator.sanitizeFileBase(
       originalFileName,
       "bukti-pembayaran"
@@ -183,7 +183,7 @@ export class OrderService {
     const timestamp = Date.now();
     const ext = ImageFileValidator.extensionForMime(mimeType);
 
-    return `${cleanCustomerId}/proof-${timestamp}-${uniqueId}-${safeBase}.${ext}`;
+    return `${cleanFolder}/proof-${timestamp}-${uniqueId}-${safeBase}.${ext}`;
   }
 
   /**
@@ -220,7 +220,8 @@ export class OrderService {
     );
 
     return new Order({
-      customerId: input.customerId,
+      customerId: input.customerId ?? null,
+      trackingToken: input.trackingToken ?? null,
       customerName: input.customerName,
       whatsappNumber: input.whatsappNumber,
       materialId: quote.materialId,

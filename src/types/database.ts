@@ -24,7 +24,7 @@ export type Database = {
       designs: {
         Row: {
           created_at: string;
-          customer_id: string;
+          customer_id: string | null;
           editor_config: Json;
           file_type: string;
           id: string;
@@ -33,7 +33,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
-          customer_id: string;
+          customer_id?: string | null;
           editor_config?: Json;
           file_type: string;
           id?: string;
@@ -42,7 +42,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
-          customer_id?: string;
+          customer_id?: string | null;
           editor_config?: Json;
           file_type?: string;
           id?: string;
@@ -93,7 +93,7 @@ export type Database = {
         Row: {
           area_sqm: number;
           created_at: string;
-          customer_id: string;
+          customer_id: string | null;
           customer_name: string | null;
           design_id: string | null;
           height_cm: number;
@@ -105,6 +105,7 @@ export type Database = {
           quantity: number;
           status: OrderStatus;
           total_price: number;
+          tracking_token: string | null;
           unit_price_snapshot: number;
           updated_at: string;
           whatsapp_number: string | null;
@@ -113,7 +114,7 @@ export type Database = {
         Insert: {
           area_sqm: number;
           created_at?: string;
-          customer_id: string;
+          customer_id?: string | null;
           customer_name?: string | null;
           design_id?: string | null;
           height_cm: number;
@@ -125,6 +126,7 @@ export type Database = {
           quantity: number;
           status?: OrderStatus;
           total_price: number;
+          tracking_token?: string | null;
           unit_price_snapshot: number;
           updated_at?: string;
           whatsapp_number?: string | null;
@@ -133,7 +135,7 @@ export type Database = {
         Update: {
           area_sqm?: number;
           created_at?: string;
-          customer_id?: string;
+          customer_id?: string | null;
           customer_name?: string | null;
           design_id?: string | null;
           height_cm?: number;
@@ -145,6 +147,7 @@ export type Database = {
           quantity?: number;
           status?: OrderStatus;
           total_price?: number;
+          tracking_token?: string | null;
           unit_price_snapshot?: number;
           updated_at?: string;
           whatsapp_number?: string | null;

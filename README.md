@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS v4](https://img.shields.io/badge/TailwindCSS-v4.0-38bdf8?logo=tailwind-css)](https://tailwindcss.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e?logo=supabase)](https://supabase.com/)
-[![Tests Passing](https://img.shields.io/badge/Tests-62%2F62%20PASS-brightgreen)](https://github.com/aryarakapermana/BannerIN)
+[![Tests Passing](https://img.shields.io/badge/Tests-70%2F70%20PASS-brightgreen)](https://github.com/aryarakapermana/BannerIN)
 
 > **BannerIN** adalah platform web modern untuk layanan pemesanan spanduk dan digital printing yang mengotomatisasi seluruh alur bisnis percetakan: mulai dari pemilihan bahan, kalkulasi ukuran & harga otomatis, studio kanvas preview desain interaktif, transaksi pembayaran QRIS statis, hingga pelacakan status pesanan real-time bagi konsumen dan panel operasional back-office bagi administrator.
 
@@ -42,6 +42,7 @@ Pada industri percetakan digital printing konvensional, proses pemesanan sering 
   $$\text{Luas (m}^2) = \frac{\text{Lebar (cm)}}{100} \times \frac{\text{Tinggi (cm)}}{100}$$
   $$\text{Total Biaya} = \text{Luas} \times \text{Tarif Bahan/m}^2 \times \text{Jumlah}$$
 - **Studio Editor Kanvas (Fabric.js v7):** Kanvas interaktif yang merender rasio spanduk secara akurat, mendukung unggah gambar (JPG/PNG maks 20 MB), geser/skala gambar, serta fitur toggle *garis potong & mata ayam*.
+- **Model Hybrid Guest Checkout:** Pengunjung dapat langsung mendesain dan checkout (*tanpa wajib mendaftar akun*) serta mendapatkan tautan pelacakan instan (`tracking_token`), sementara pelanggan setia tetap bisa login untuk melihat riwayat terpusat di dashboard.
 - **Checkout Pembayaran QRIS Statis:** Menampilkan QRIS toko resmi, formulir kontak WhatsApp pemesan, dan upload bukti transfer (maks 10 MB).
 - **Portal & Invoice Konsumen:** Pelacakan pesanan via nomor invoice unik `#BK-...`, status stepper 4 tahap, dan cetak invoice snapshot transaksi.
 
@@ -184,7 +185,7 @@ Buka peramban Anda di [http://localhost:3000](http://localhost:3000).
 
 ## 🧪 Pengujian Otomatis (Testing)
 
-Seluruh logika bisnis diuji secara berkala dengan 62 skenario pengujian:
+Seluruh logika bisnis diuji secara berkala dengan 70 skenario pengujian:
 
 ```bash
 npm test
@@ -192,11 +193,11 @@ npm test
 
 Hasil verifikasi:
 ```text
-ℹ tests 62
-ℹ suites 27
-ℹ pass 62
+ℹ tests 70
+ℹ suites 31
+ℹ pass 70
 ℹ fail 0
-ℹ duration_ms ~400ms
+ℹ duration_ms ~500ms
 ```
 
 ---

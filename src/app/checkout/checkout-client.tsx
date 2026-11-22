@@ -23,6 +23,7 @@ import {
 
 export interface CheckoutInitialData {
   userDisplayName: string;
+  isGuest?: boolean;
   initialCustomerName: string;
   initialWhatsapp: string;
   studioBackHref: string;
@@ -53,6 +54,7 @@ export default function CheckoutClient({
 }) {
   const {
     userDisplayName,
+    isGuest,
     studioBackHref,
     material,
     widthCm,
@@ -296,10 +298,16 @@ export default function CheckoutClient({
               <span className="sm:hidden">Studio</span>
             </Link>
 
-            <span className="inline-flex items-center rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">
-              <span className="hidden sm:inline">{userDisplayName}</span>
-              <span className="sm:hidden">{firstName}</span>
-            </span>
+            {isGuest ? (
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 border border-amber-200 px-2.5 py-1 text-xs font-bold text-amber-800">
+                <span>Guest Mode (Tamu)</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">
+                <span className="hidden sm:inline">{userDisplayName}</span>
+                <span className="sm:hidden">{firstName}</span>
+              </span>
+            )}
           </div>
         </div>
       </header>
@@ -458,12 +466,38 @@ export default function CheckoutClient({
                   </div>
                 )}
 
+                {submittedOrder.trackingUrl && (
+                  <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-4 text-xs text-blue-900 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold">Tautan Pelacakan Pesanan:</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const fullUrl = `${window.location.origin}${submittedOrder.trackingUrl}`;
+                          navigator.clipboard.writeText(fullUrl);
+                          setCopiedSummary(true);
+                          setTimeout(() => setCopiedSummary(false), 2500);
+                        }}
+                        className="text-[11px] font-bold text-blue-700 underline hover:text-blue-900 cursor-pointer"
+                      >
+                        Salin Tautan Pelacakan
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-slate-600">
+                      Simpan tautan ini untuk memantau status pesanan dan proses cetak Anda sewaktu-waktu:
+                    </p>
+                    <code className="block break-all rounded bg-white p-2 text-[11px] font-mono border border-blue-100 text-blue-800">
+                      {typeof window !== "undefined" ? window.location.origin : ""}{submittedOrder.trackingUrl}
+                    </code>
+                  </div>
+                )}
+
                 <div className="flex flex-wrap items-center gap-3 pt-1">
                   <Link
-                    href="/customer/dashboard"
+                    href={submittedOrder.trackingUrl || "/customer/dashboard"}
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-sm hover:bg-blue-700 transition"
                   >
-                    Lihat Status Pesanan →
+                    Lacak Status Pesanan →
                   </Link>
 
                   <button

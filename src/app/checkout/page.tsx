@@ -52,16 +52,16 @@ export default async function CheckoutPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect(`/login?redirect=${encodeURIComponent(currentPath)}`);
-  }
+  // Ambil profil user jika terautentikasi untuk prefill & header badge
+  const { data: profile } = user
+    ? await supabase
+        .from("profiles")
+        .select("full_name, phone, role")
+        .eq("id", user.id)
+        .maybeSingle()
+    : { data: null };
 
-  // Ambil profil user untuk prefill & header badge
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, phone, role")
-    .eq("id", user.id)
-    .maybeSingle();
+  const isGuest = !user;
 
   // Ambil daftar bahan cetak aktif dari Supabase (authoritative source)
   const { data: activeMaterials } = await supabase
@@ -122,10 +122,11 @@ export default async function CheckoutPage({
     }
   }
 
-  const displayName =
-    profile?.full_name?.trim() ||
-    user.email?.split("@")[0] ||
-    "Pelanggan BannerIN";
+  const displayName = user
+    ? profile?.full_name?.trim() ||
+      user.email?.split("@")[0] ||
+      "Pelanggan BannerIN"
+    : "Tamu";
 
   // Siapkan nomor WA prefill bersih (tanpa prefix +62 double) jika sudah tersimpan di profil
   const cleanInitialPhone = profile?.phone
@@ -140,6 +141,7 @@ export default async function CheckoutPage({
 
   const initialData: CheckoutInitialData = {
     userDisplayName: displayName,
+    isGuest,
     initialCustomerName: profile?.full_name?.trim() || "",
     initialWhatsapp: cleanInitialPhone,
     studioBackHref: `/studio?${studioBackQuery.toString()}`,

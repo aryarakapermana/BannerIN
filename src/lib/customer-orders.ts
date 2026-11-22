@@ -8,7 +8,7 @@ type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
 export interface CustomerOrderDTO {
   id: string;
   orderNumber: string;
-  customerId: string;
+  customerId: string | null;
   customerName: string;
   whatsappNumber: string;
   materialName: string;
@@ -83,7 +83,7 @@ export async function requireCustomerSession(currentPath: string): Promise<{
 
 interface JoinedOrderRow {
   id: string;
-  customer_id: string;
+  customer_id: string | null;
   customer_name: string | null;
   whatsapp_number: string | null;
   width_cm: number;
@@ -258,6 +258,44 @@ export async function getCustomerOrderById(
     typedRow,
     profile.full_name || "Pelanggan",
     profile.phone || "-"
+  );
+}
+
+/**
+ * Mengambil detail pesanan pengunjung (Guest Checkout) berdasarkan ID dan tracking_token yang sah.
+ * Mengembalikan `null` jika ID atau token tidak cocok.
+ */
+export async function getGuestOrderByToken(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  orderId: string,
+  trackingToken: string
+): Promise<CustomerOrderDTO | null> {
+  const cleanId = (orderId ?? "").trim();
+  const cleanToken = (trackingToken ?? "").trim();
+
+  if (!isValidUuid(cleanId) || !cleanToken) {
+    return null;
+  }
+
+  const { data: row, error } = await supabase
+    .from("orders")
+    .select(
+      "*, materials:material_id(name, description), designs:design_id(original_file_path, preview_file_path, file_type)"
+    )
+    .eq("id", cleanId)
+    .eq("tracking_token", cleanToken)
+    .maybeSingle();
+
+  if (error || !row) {
+    return null;
+  }
+
+  const typedRow = row as unknown as JoinedOrderRow;
+  return mapJoinedOrderToDTO(
+    supabase,
+    typedRow,
+    typedRow.customer_name || "Pelanggan (Tamu)",
+    typedRow.whatsapp_number || "-"
   );
 }
 

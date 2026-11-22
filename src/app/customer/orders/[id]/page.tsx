@@ -1,8 +1,10 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import OrderDetailClient from "./order-detail-client";
 import {
   getCustomerOrderById,
-  requireCustomerSession,
+  getGuestOrderByToken,
+  type CustomerOrderDTO,
 } from "@/lib/customer-orders";
 
 export const dynamic = "force-dynamic";
@@ -12,17 +14,46 @@ export default async function CustomerOrderDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ print?: string }>;
+  searchParams: Promise<{ print?: string; token?: string }>;
 }) {
   const { id } = await params;
-  const { print } = await searchParams;
+  const { print, token } = await searchParams;
 
-  const { supabase, profile } = await requireCustomerSession(
-    `/customer/orders/${id}`
-  );
-  const order = await getCustomerOrderById(supabase, profile, id);
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let order: CustomerOrderDTO | null = null;
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profile?.role === "admin") {
+      redirect("/dashboard");
+    }
+
+    if (profile) {
+      order = await getCustomerOrderById(supabase, profile, id);
+    }
+  }
+
+  // Jika belum ditemukan dan terdapat token pelacakan (Guest Checkout)
+  if (!order && token) {
+    order = await getGuestOrderByToken(supabase, id, token);
+  }
 
   if (!order) {
+    if (!user) {
+      const redirectTarget = token
+        ? `/customer/orders/${id}?token=${encodeURIComponent(token)}`
+        : `/customer/orders/${id}`;
+      redirect(`/login?redirect=${encodeURIComponent(redirectTarget)}`);
+    }
     notFound();
   }
 

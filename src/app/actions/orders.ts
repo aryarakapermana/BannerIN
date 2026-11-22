@@ -55,6 +55,9 @@ export interface CreatedOrderReceipt {
   qrisMerchantName: string;
   qrisNmid: string;
   createdAt: string;
+  trackingToken?: string | null;
+  trackingUrl: string;
+  isGuest: boolean;
 }
 
 export interface CreateOrderActionResult {
@@ -123,19 +126,17 @@ export async function createOrderAction(
   try {
     const supabase = await createClient();
 
-    // 1. Pastikan pengguna terautentikasi
+    // 1. Dapatkan info pengguna jika ada (Mendukung Guest Checkout Hybrid)
     const {
       data: { user },
-      error: authError,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
-      return {
-        success: false,
-        requiresAuth: true,
-        error: "Sesi login Anda tidak ditemukan. Silakan masuk kembali untuk membuat pesanan.",
-      };
-    }
+    const isGuest = !user;
+    const trackingToken = isGuest
+      ? typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`
+      : null;
 
     // 2. Ambil tarif bahan aktif langsung dari Supabase (abaikan angka harga dari browser)
     const materialId = (input.materialId ?? "").trim();
@@ -157,7 +158,7 @@ export async function createOrderAction(
       };
     }
 
-    // 3. Jika melampirkan designId, verifikasi desain memang ada & milik user yang login
+    // 3. Jika melampirkan designId, verifikasi desain memang ada & sesuai hak akses
     const requestedDesignId = input.designId?.trim() || null;
     let designOwnedByCustomer = true;
 
@@ -168,14 +169,20 @@ export async function createOrderAction(
         .eq("id", requestedDesignId)
         .maybeSingle();
 
-      if (designError || !design || design.customer_id !== user.id) {
+      if (designError || !design) {
         designOwnedByCustomer = false;
+      } else if (design.customer_id) {
+        // Desain terikat akun: wajib dicocokkan dengan user login
+        if (!user || design.customer_id !== user.id) {
+          designOwnedByCustomer = false;
+        }
       }
     }
 
     // 4. Susun Order domain object (recalculate penuh oleh server, abaikan harga browser)
     const order = orderService.prepareOrder({
-      customerId: user.id,
+      customerId: user ? user.id : null,
+      trackingToken,
       customerName: input.customerName,
       whatsappNumber: input.whatsappNumber,
       material: {
@@ -199,7 +206,7 @@ export async function createOrderAction(
       clientStatus: input.clientStatus,
     });
 
-    // 5. Simpan ke public.orders dengan RLS customer_id = auth.uid() & status = 'pending'
+    // 5. Simpan ke public.orders dengan status = 'pending'
     const payload = order.toInsertPayload();
     const { data: insertedOrder, error: insertError } = await supabase
       .from("orders")
@@ -242,6 +249,9 @@ export async function createOrderAction(
     revalidatePath("/customer/dashboard");
     revalidatePath("/dashboard");
 
+    const finalTrackingToken = insertedOrder.tracking_token ?? trackingToken;
+    const trackingUrl = `/customer/orders/${insertedOrder.id}${finalTrackingToken ? `?token=${finalTrackingToken}` : ""}`;
+
     return {
       success: true,
       order: {
@@ -267,6 +277,9 @@ export async function createOrderAction(
         qrisMerchantName: STATIC_QRIS_INFO.merchantName,
         qrisNmid: STATIC_QRIS_INFO.nmid,
         createdAt: insertedOrder.created_at,
+        trackingToken: finalTrackingToken,
+        trackingUrl,
+        isGuest,
       },
     };
   } catch (err: unknown) {

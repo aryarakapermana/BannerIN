@@ -23,29 +23,26 @@ export async function updateDesignConfigAction(input: {
     const supabase = await createClient();
     const {
       data: { user },
-      error: authError,
     } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return {
-        success: false,
-        error: "Sesi login tidak ditemukan. Silakan masuk kembali.",
-      };
-    }
 
     const normalizedConfig = designEditorService.normalizeEditorConfig(
       input.editorConfig
     );
 
-    const { data, error } = await supabase
+    let query = supabase
       .from("designs")
       .update({
         editor_config: normalizedConfig as unknown as Json,
       })
-      .eq("id", input.designId)
-      .eq("customer_id", user.id)
-      .select("id")
-      .single();
+      .eq("id", input.designId);
+
+    if (user) {
+      query = query.or(`customer_id.eq.${user.id},customer_id.is.null`);
+    } else {
+      query = query.is("customer_id", null);
+    }
+
+    const { data, error } = await query.select("id").maybeSingle();
 
     if (error || !data) {
       return {
@@ -71,7 +68,7 @@ export async function updateDesignConfigAction(input: {
 
 /**
  * Menerbitkan signed URL berdurasi terbatas (1 jam) untuk file desain privat.
- * Hanya dapat dipanggil oleh pemilik desain atau admin (ditegakkan oleh RLS Supabase).
+ * Terbuka untuk desain tamu (guest) serta pemilik desain atau admin untuk pengguna terdaftar.
  */
 export async function getDesignSignedUrlsAction(
   designId: string
@@ -80,27 +77,42 @@ export async function getDesignSignedUrlsAction(
     const supabase = await createClient();
     const {
       data: { user },
-      error: authError,
     } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return {
-        success: false,
-        error: "Autentikasi diperlukan untuk mengakses file desain privat.",
-      };
-    }
 
     const { data: designRow, error: fetchError } = await supabase
       .from("designs")
-      .select("id, original_file_path, preview_file_path")
+      .select("id, customer_id, original_file_path, preview_file_path")
       .eq("id", designId)
-      .single();
+      .maybeSingle();
 
     if (fetchError || !designRow) {
       return {
         success: false,
         error: "Desain tidak ditemukan atau Anda tidak memiliki akses.",
       };
+    }
+
+    // Jika desain milik user terdaftar, pastikan diakses oleh pemiliknya atau admin
+    if (designRow.customer_id) {
+      if (!user) {
+        return {
+          success: false,
+          error: "Autentikasi diperlukan untuk mengakses file desain akun ini.",
+        };
+      }
+      if (designRow.customer_id !== user.id) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle();
+        if (profile?.role !== "admin") {
+          return {
+            success: false,
+            error: "Akses ditolak: Desain ini bukan milik akun Anda.",
+          };
+        }
+      }
     }
 
     const { data: origSigned } = await supabase.storage

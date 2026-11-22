@@ -28,7 +28,7 @@ export interface EditorConfig {
 
 export interface DesignProps {
   id?: string;
-  customerId: string;
+  customerId?: string | null;
   originalFilePath: string;
   previewFilePath?: string | null;
   fileType: AllowedDesignMimeType;
@@ -50,7 +50,7 @@ export class Design {
   ];
 
   private _id?: string;
-  private _customerId: string;
+  private _customerId: string | null;
   private _originalFilePath: string;
   private _previewFilePath: string | null;
   private _fileType: AllowedDesignMimeType;
@@ -59,7 +59,7 @@ export class Design {
 
   constructor(props: DesignProps) {
     this._id = props.id;
-    this._customerId = props.customerId;
+    this._customerId = props.customerId ? props.customerId.trim() : null;
     this._originalFilePath = props.originalFilePath;
     this._previewFilePath = props.previewFilePath ?? null;
     this._fileType = props.fileType;
@@ -72,7 +72,7 @@ export class Design {
     return this._id;
   }
 
-  public get customerId(): string {
+  public get customerId(): string | null {
     return this._customerId;
   }
 
@@ -105,26 +105,43 @@ export class Design {
   }
 
   public validate(): void {
-    if (!this._customerId || !this._customerId.trim()) {
-      throw new Error("Customer ID wajib diisi pada entitas desain.");
-    }
+    if (this._customerId) {
+      if (
+        !this._originalFilePath ||
+        !this._originalFilePath.startsWith(`${this._customerId}/`)
+      ) {
+        throw new Error(
+          "Path file asli harus berada di dalam direktori milik pengguna pada bucket privat."
+        );
+      }
 
-    if (
-      !this._originalFilePath ||
-      !this._originalFilePath.startsWith(`${this._customerId}/`)
-    ) {
-      throw new Error(
-        "Path file asli harus berada di dalam direktori milik pengguna pada bucket privat."
-      );
-    }
+      if (
+        this._previewFilePath &&
+        !this._previewFilePath.startsWith(`${this._customerId}/`)
+      ) {
+        throw new Error(
+          "Path file preview harus berada di dalam direktori milik pengguna."
+        );
+      }
+    } else {
+      // Guest design: path harus berada di dalam folder 'guest/'
+      if (
+        !this._originalFilePath ||
+        !this._originalFilePath.startsWith("guest/")
+      ) {
+        throw new Error(
+          "Path file tamu harus berada di dalam direktori guest pada bucket privat."
+        );
+      }
 
-    if (
-      this._previewFilePath &&
-      !this._previewFilePath.startsWith(`${this._customerId}/`)
-    ) {
-      throw new Error(
-        "Path file preview harus berada di dalam direktori milik pengguna."
-      );
+      if (
+        this._previewFilePath &&
+        !this._previewFilePath.startsWith("guest/")
+      ) {
+        throw new Error(
+          "Path file preview tamu harus berada di dalam direktori guest."
+        );
+      }
     }
 
     if (!Design.ALLOWED_MIME_TYPES.includes(this._fileType)) {
@@ -146,7 +163,7 @@ export class Design {
    * Mengonversi entitas domain ke payload insert tabel `public.designs`.
    */
   public toInsertPayload(): {
-    customer_id: string;
+    customer_id: string | null;
     original_file_path: string;
     preview_file_path: string | null;
     file_type: string;
