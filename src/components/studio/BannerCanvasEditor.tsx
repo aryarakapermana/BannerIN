@@ -28,8 +28,8 @@ export interface BannerCanvasEditorProps {
 }
 
 /**
- * Komponen Editor Canvas berbasis Fabric.js v7 (hanya berjalan di sisi client / no SSR).
- * Mendukung rasio dinamis sesuai ukuran banner, drag posisi, dan resize dengan proporsi terkunci default.
+ * Komponen Editor Canvas berbasis Fabric.js v7.
+ * Mendukung tampilan desktop lebar & adaptif mobile tanpa overflow horizontal.
  */
 export default function BannerCanvasEditor({
   widthCm,
@@ -51,16 +51,16 @@ export default function BannerCanvasEditor({
   const fabricCanvasRef = useRef<Canvas | null>(null)
   const fabricImageRef = useRef<FabricImage | null>(null)
   const [isDragOver, setIsDragOver] = useState(false)
-  const [maxCanvasWidth, setMaxCanvasWidth] = useState(320)
+  const [maxCanvasWidth, setMaxCanvasWidth] = useState(540)
 
-  // Deteksi lebar kontainer secara responsif & presisi agar kanvas tidak pernah overflow di HP
+  // Deteksi lebar kontainer secara responsif agar di mobile tidak pernah overflow horizontal
   useEffect(() => {
     const updateWidth = (availableWidth?: number) => {
-      let targetW = 320
+      let targetW = 540
       if (typeof availableWidth === 'number' && availableWidth > 50) {
         targetW = availableWidth
       } else if (containerRef.current) {
-        const cw = containerRef.current.clientWidth - 16
+        const cw = containerRef.current.clientWidth - 24
         if (cw > 50) targetW = cw
       } else if (typeof window !== 'undefined') {
         targetW = window.innerWidth < 640 ? window.innerWidth - 48 : 540
@@ -76,7 +76,7 @@ export default function BannerCanvasEditor({
         for (const entry of entries) {
           const w = entry.contentRect.width
           if (w > 50) {
-            updateWidth(w - 16)
+            updateWidth(w - 24)
           }
         }
       })
@@ -112,7 +112,6 @@ export default function BannerCanvasEditor({
 
   const dimensionsRef = useRef(canvasDimensions)
 
-  // Sinkronisasi ref lewat useEffect agar patuh aturan React Compiler (no ref write during render)
   useEffect(() => {
     latestPropsRef.current = {
       widthCm,
@@ -193,7 +192,7 @@ export default function BannerCanvasEditor({
     let cancelled = false
     let currentCanvas: Canvas | null = null
 
-    // Muat fabric.js secara dinamis hanya di browser saat gambar diunggah
+    // Muat fabric.js secara dinamis di browser saat gambar siap
     import('fabric')
       .then(({ Canvas, FabricImage }) => {
         if (cancelled || !container) return
@@ -252,95 +251,91 @@ export default function BannerCanvasEditor({
             fabricImageRef.current = img
             latestPropsRef.current.onConfigChange(buildCurrentConfig(canvas, img))
 
-            const syncConfig = () => {
-              if (!cancelled && !canvas.disposed) {
-                latestPropsRef.current.onConfigChange(buildCurrentConfig(canvas, img))
-              }
+            const emitChange = () => {
+              if (canvas.disposed) return
+              latestPropsRef.current.onConfigChange(buildCurrentConfig(canvas, img))
             }
 
-            canvas.on('object:modified', syncConfig)
-            canvas.on('object:moving', syncConfig)
-            canvas.on('object:scaling', syncConfig)
-            canvas.on('object:rotating', syncConfig)
+            canvas.on('object:modified', emitChange)
+            canvas.on('object:scaling', emitChange)
+            canvas.on('object:moving', emitChange)
+            canvas.on('object:rotating', emitChange)
 
-            onRegisterExporter(async () => {
-              if (canvas.disposed) return null
-              const active = canvas.getActiveObject()
-              canvas.discardActiveObject()
-              canvas.requestRenderAll()
-              const blob = await canvas.toBlob({ format: 'png', multiplier: 1 })
-              if (active) {
-                canvas.setActiveObject(active)
-                canvas.requestRenderAll()
-              }
-              return blob
+            onRegisterExporter(() => {
+              return new Promise<Blob | null>((resolve) => {
+                if (canvas.disposed) {
+                  resolve(null)
+                  return
+                }
+                try {
+                  const dataUrl = canvas.toDataURL({
+                    format: 'png',
+                    quality: 0.9,
+                    multiplier: 1,
+                  })
+                  fetch(dataUrl)
+                    .then((r) => r.blob())
+                    .then((b) => resolve(b))
+                    .catch(() => resolve(null))
+                } catch {
+                  resolve(null)
+                }
+              })
             })
           })
-          .catch((err) => {
-            console.error('Gagal memuat gambar ke kanvas Fabric.js:', err)
+          .catch(() => {
+            // Abaikan kegagalan gambar lokal
           })
       })
-      .catch((err) => {
-        console.error('Gagal memuat pustaka Fabric.js:', err)
+      .catch(() => {
+        // Abaikan kegagalan import
       })
 
     return () => {
       cancelled = true
-      onRegisterExporter(null)
-      fabricImageRef.current = null
-      fabricCanvasRef.current = null
       if (currentCanvas) {
-        void currentCanvas.dispose().catch(() => {})
+        try {
+          currentCanvas.dispose()
+        } catch {
+          // ignore
+        }
       }
-      if (container) {
-        container.innerHTML = ''
-      }
+      fabricCanvasRef.current = null
+      fabricImageRef.current = null
     }
-  }, [
-    imageUrl,
-    applyProportionControlRules,
-    buildCurrentConfig,
-    onRegisterExporter,
-  ])
+  }, [imageUrl, applyProportionControlRules, buildCurrentConfig, onRegisterExporter])
 
-  // 2. Perbarui dimensi kanvas Fabric.js saat lebar/tinggi banner (cm) berubah
+  // 2. Resize Canvas Dinamis saat Dimensi Banner Diubah
   useEffect(() => {
     const canvas = fabricCanvasRef.current
-    const img = fabricImageRef.current
     if (!canvas || canvas.disposed) return
 
-    canvas.setDimensions({
-      width: canvasDimensions.widthPx,
-      height: canvasDimensions.heightPx,
-    })
+    const { widthPx, heightPx } = canvasDimensions
+    canvas.setDimensions({ width: widthPx, height: heightPx })
 
+    const img = fabricImageRef.current
     if (img) {
-      const cw = canvasDimensions.widthPx
-      const ch = canvasDimensions.heightPx
-      // Jaga objek tetap terlihat di dalam frame saat rasio berubah drastis
-      const left = Math.min(cw, Math.max(0, img.left ?? cw / 2))
-      const top = Math.min(ch, Math.max(0, img.top ?? ch / 2))
-      img.set({ left, top })
+      img.set({
+        left: widthPx / 2,
+        top: heightPx / 2,
+      })
       img.setCoords()
-      latestPropsRef.current.onConfigChange(buildCurrentConfig(canvas, img))
     }
-
     canvas.requestRenderAll()
-  }, [canvasDimensions.widthPx, canvasDimensions.heightPx, buildCurrentConfig])
+  }, [canvasDimensions])
 
-  // 3. Perbarui aturan proporsi terkunci secara dinamis
+  // 3. Update Aturan Proporsi (Lock / Free Ratio)
   useEffect(() => {
     const canvas = fabricCanvasRef.current
     const img = fabricImageRef.current
     if (!canvas || !img || canvas.disposed) return
 
     applyProportionControlRules(canvas, img, lockProportions)
-    img.setCoords()
     canvas.requestRenderAll()
     latestPropsRef.current.onConfigChange(buildCurrentConfig(canvas, img))
   }, [lockProportions, applyProportionControlRules, buildCurrentConfig])
 
-  // 4. Reset posisi & ukuran gambar ke tengah kanvas saat resetSignal bertambah
+  // 4. Signal Reset Posisi & Skala Desain
   useEffect(() => {
     if (resetSignal === 0) return
     const canvas = fabricCanvasRef.current
@@ -374,8 +369,26 @@ export default function BannerCanvasEditor({
   return (
     <div
       ref={containerRef}
-      className="canvas-grid relative mt-3 sm:mt-4 rounded-xl border border-slate-200 p-2 sm:p-4 min-h-[160px] sm:min-h-[260px] flex flex-col items-center justify-center overflow-hidden w-full max-w-full min-w-0"
+      className="canvas-grid relative mt-4 rounded-xl border border-slate-200 p-4 sm:p-8 min-h-[280px] sm:min-h-[380px] flex flex-col items-center justify-center overflow-hidden w-full max-w-full min-w-0"
     >
+      {/* Top Ruler Line (Muncul di tablet/desktop, tersembunyi di mobile agar tidak overflow) */}
+      <div className="hidden sm:flex absolute top-3 inset-x-12 items-center justify-center z-10 pointer-events-none">
+        <div className="h-px bg-slate-300 flex-1" />
+        <span className="px-2.5 text-[11px] font-mono font-bold text-slate-600 bg-white/90 rounded shadow-2xs">
+          {widthCm > 0 ? widthCm : 0} cm
+        </span>
+        <div className="h-px bg-slate-300 flex-1" />
+      </div>
+
+      {/* Left Ruler Line (Muncul di tablet/desktop, tersembunyi di mobile agar tidak overflow) */}
+      <div className="hidden sm:flex absolute left-3 inset-y-12 flex-col items-center justify-center z-10 pointer-events-none">
+        <div className="w-px bg-slate-300 flex-1" />
+        <span className="py-2 text-[11px] font-mono font-bold text-slate-600 bg-white/90 rounded px-1 shadow-2xs -rotate-90">
+          {heightCm > 0 ? heightCm : 0} cm
+        </span>
+        <div className="w-px bg-slate-300 flex-1" />
+      </div>
+
       {/* Scaling Wrapper */}
       <div
         className="relative flex items-center justify-center transition-transform w-full max-w-full min-w-0 overflow-hidden"
@@ -405,19 +418,27 @@ export default function BannerCanvasEditor({
           }`}
           onClick={!imageUrl ? onSelectFileClick : undefined}
         >
-          {/* Grommets / Mata Ayam overlay */}
+          {/* Grommets / Mata Ayam overlay non-destruktif */}
           {showBleedGrommets && (
             <>
-              <span className="absolute top-2 left-2 size-3 rounded-full border-2 border-blue-400 bg-white shadow-2xs z-20 pointer-events-none" />
-              <span className="absolute top-2 right-2 size-3 rounded-full border-2 border-blue-400 bg-white shadow-2xs z-20 pointer-events-none" />
-              <span className="absolute bottom-2 left-2 size-3 rounded-full border-2 border-blue-400 bg-white shadow-2xs z-20 pointer-events-none" />
-              <span className="absolute bottom-2 right-2 size-3 rounded-full border-2 border-blue-400 bg-white shadow-2xs z-20 pointer-events-none" />
+              <span className="absolute top-2.5 left-2.5 size-3.5 rounded-full border-2 border-blue-400/80 bg-white flex items-center justify-center z-20 pointer-events-none">
+                <span className="size-1.5 rounded-full border border-blue-400/80 bg-white" />
+              </span>
+              <span className="absolute top-2.5 right-2.5 size-3.5 rounded-full border-2 border-blue-400/80 bg-white flex items-center justify-center z-20 pointer-events-none">
+                <span className="size-1.5 rounded-full border border-blue-400/80 bg-white" />
+              </span>
+              <span className="absolute bottom-2.5 left-2.5 size-3.5 rounded-full border-2 border-blue-400/80 bg-white flex items-center justify-center z-20 pointer-events-none">
+                <span className="size-1.5 rounded-full border border-blue-400/80 bg-white" />
+              </span>
+              <span className="absolute bottom-2.5 right-2.5 size-3.5 rounded-full border-2 border-blue-400/80 bg-white flex items-center justify-center z-20 pointer-events-none">
+                <span className="size-1.5 rounded-full border border-blue-400/80 bg-white" />
+              </span>
             </>
           )}
 
           {/* Bleed line overlay */}
           {showBleedGrommets && (
-            <div className="absolute inset-2 border border-dashed border-blue-300/80 pointer-events-none z-20" />
+            <div className="absolute inset-2 border border-dashed border-blue-400/80 rounded pointer-events-none z-20" />
           )}
 
           {/* Fabric.js Canvas Host */}
@@ -426,15 +447,18 @@ export default function BannerCanvasEditor({
             className={imageUrl ? 'relative z-10 max-w-full overflow-hidden' : 'hidden'}
           />
 
-          {/* Dropzone State jika belum ada gambar */}
+          {/* Dropzone State jika belum ada gambar (sesuai UI Figma / mobile screenshot) */}
           {!imageUrl && (
-            <div className="flex flex-col items-center justify-center p-6 text-center z-10 select-none">
-              <strong className="text-sm font-bold text-slate-800">
+            <div className="flex flex-col items-center justify-center p-3 sm:p-6 text-center z-10 select-none">
+              <strong className="text-xs sm:text-sm font-bold text-slate-800">
                 Pratinjau desain Anda
               </strong>
-              <p className="mt-1 font-mono text-xs text-slate-500">
+              <p className="mt-1 font-mono text-[11px] sm:text-xs text-slate-500">
                 {widthCm} × {heightCm} cm
               </p>
+              <span className="hidden sm:inline-block mt-2 font-mono text-[10px] text-slate-400">
+                Klik atau tarik berkas ke sini (JPG/PNG maks 20MB)
+              </span>
             </div>
           )}
         </div>
@@ -458,10 +482,9 @@ export default function BannerCanvasEditor({
           )}
         </div>
         <span className="font-mono font-semibold text-slate-700">
-          {ratioLabel}
+          {ratioLabel} ({orientationLabel})
         </span>
       </div>
     </div>
   )
 }
-

@@ -1,9 +1,9 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
 import './studio.css'
+import BannerCanvasEditor from '@/components/studio/BannerCanvasEditor'
 import {
   useCallback,
   useEffect,
@@ -12,19 +12,6 @@ import {
   useState,
   type ChangeEvent,
 } from 'react'
-
-const BannerCanvasEditor = dynamic(
-  () => import('@/components/studio/BannerCanvasEditor'),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="canvas-grid relative mt-4 rounded-xl border border-slate-200 p-8 min-h-[260px] flex flex-col items-center justify-center text-xs font-medium text-slate-500">
-        <div className="size-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mb-2" />
-        Menyiapkan kanvas editor...
-      </div>
-    ),
-  },
-)
 import {
   BANNERIN_WHATSAPP,
   Banner,
