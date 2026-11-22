@@ -4,6 +4,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import './landing.css'
 import { useMemo, useState, useEffect } from 'react'
+import { motion } from 'motion/react'
+import SmoothScrollProvider from '@/components/animation/SmoothScrollProvider'
+import WordRevealHeading from '@/components/animation/WordRevealHeading'
 import { priceCalculator, BANNERIN_WHATSAPP } from '@/domain'
 import { NumericInput } from '@/components/ui/NumericInput'
 
@@ -238,7 +241,8 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
   }, [selectedProductTab])
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900">
+    <SmoothScrollProvider>
+      <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900">
       {/* 1. Header / Navbar */}
       <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -429,11 +433,20 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                 Percetakan online, untuk idemu.
               </div>
 
-              <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
-                Ide besar.
-                <br />
-                <span className="text-blue-600">Cetak jadi nyata.</span>
-              </h1>
+              <WordRevealHeading
+                as="h1"
+                className="text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-950 sm:text-5xl lg:text-6xl"
+                wordsList={[
+                  { text: 'Ide' },
+                  { text: 'besar.' },
+                  { text: '', isBreak: true },
+                  { text: 'Cetak', className: 'text-blue-600' },
+                  { text: 'jadi', className: 'text-blue-600' },
+                  { text: 'nyata.', className: 'text-blue-600' },
+                ]}
+                immediate
+                stagger={0.08}
+              />
 
               <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
                 Banner untuk usaha, acara, dan segala rencanamu. Pilih produk, atur ukuran, lalu kirim
@@ -466,7 +479,13 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
             </div>
 
             <div className="lg:col-span-5">
-              <div className="relative rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xl shadow-blue-500/10">
+              <motion.div
+                initial={{ opacity: 0, y: 30, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+                whileHover={{ y: -6, transition: { duration: 0.25 } }}
+                className="relative rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xl shadow-blue-500/10"
+              >
                 <div className="overflow-hidden rounded-xl bg-slate-900 relative aspect-4/3 flex items-center justify-center p-6 text-white text-center">
                   <Image
                     src="/images/landing/banner-custom.jpg"
@@ -496,13 +515,20 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                     <span className="text-slate-500">Banner cetak · Roll banner · Poster</span>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
 
           {/* 3 Value Props Bar */}
           <div className="mt-14 grid gap-4 border-t border-slate-100 pt-8 sm:grid-cols-3">
-            <div className="flex items-start gap-3.5 rounded-2xl border border-slate-200/60 bg-slate-50/50 p-4">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ duration: 0.5, delay: 0.05 }}
+              whileHover={{ y: -5, borderColor: '#93c5fd', transition: { duration: 0.2 } }}
+              className="flex items-start gap-3.5 rounded-2xl border border-slate-200/60 bg-slate-50/50 p-4 transition-colors"
+            >
               <span className="grid size-10 place-items-center rounded-xl bg-blue-50 text-blue-600 shrink-0">
                 <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
@@ -512,9 +538,16 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                 <h4 className="text-sm font-bold text-slate-900">Ukuran sesuai kebutuhan</h4>
                 <p className="mt-0.5 text-xs text-slate-500">Dari meja promosi hingga fasad toko.</p>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="flex items-start gap-3.5 rounded-2xl border border-slate-200/60 bg-slate-50/50 p-4">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              whileHover={{ y: -5, borderColor: '#86efac', transition: { duration: 0.2 } }}
+              className="flex items-start gap-3.5 rounded-2xl border border-slate-200/60 bg-slate-50/50 p-4 transition-colors"
+            >
               <span className="grid size-10 place-items-center rounded-xl bg-emerald-50 text-emerald-600 shrink-0">
                 <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -524,9 +557,16 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                 <h4 className="text-sm font-bold text-slate-900">Konfirmasi sebelum cetak</h4>
                 <p className="mt-0.5 text-xs text-slate-500">Periksa detail pesanan dan desain.</p>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="flex items-start gap-3.5 rounded-2xl border border-slate-200/60 bg-slate-50/50 p-4">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ duration: 0.5, delay: 0.25 }}
+              whileHover={{ y: -5, borderColor: '#fde68a', transition: { duration: 0.2 } }}
+              className="flex items-start gap-3.5 rounded-2xl border border-slate-200/60 bg-slate-50/50 p-4 transition-colors"
+            >
               <span className="grid size-10 place-items-center rounded-xl bg-amber-50 text-amber-600 shrink-0">
                 <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.75.75 0 01-.777-.777c.057-.597.234-1.222.518-1.808C3.805 16.74 3 14.496 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
@@ -536,7 +576,7 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                 <h4 className="text-sm font-bold text-slate-900">Bisa tanya, bisa dibantu</h4>
                 <p className="mt-0.5 text-xs text-slate-500">Konsultasikan bahan dan berkasmu.</p>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -548,9 +588,11 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
             <span className="text-xs font-extrabold uppercase tracking-widest text-blue-600">
               PRODUK CETAK
             </span>
-            <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
-              Ada cetakan untuk setiap rencana.
-            </h2>
+            <WordRevealHeading
+              as="h2"
+              className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl"
+              text="Ada cetakan untuk setiap rencana."
+            />
             <p className="mt-2 max-w-2xl text-base text-slate-600">
               Pilih bentuk yang tepat untuk pesan yang ingin kamu sampaikan.
             </p>
@@ -593,10 +635,22 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
           </div>
 
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {filteredProducts.map((p) => (
-              <div
+            {filteredProducts.map((p, idx) => (
+              <motion.div
                 key={p.id}
-                className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-blue-300 hover:shadow-md"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.5, delay: idx * 0.08 }}
+                whileHover={{
+                  y: -8,
+                  scale: 1.015,
+                  boxShadow:
+                    '0 20px 25px -5px rgba(37, 99, 235, 0.12), 0 8px 10px -6px rgba(37, 99, 235, 0.08)',
+                  borderColor: '#93c5fd',
+                  transition: { duration: 0.25 },
+                }}
+                className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
               >
                 <div>
                   <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-slate-100">
@@ -632,7 +686,7 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
                   </svg>
                 </Link>
-              </div>
+              </motion.div>
             ))}
           </div>
 
@@ -660,11 +714,15 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
               <span className="text-xs font-extrabold uppercase tracking-widest text-blue-600">
                 RENCANAKAN ANGGARAN
               </span>
-              <h2 className="mt-2 text-3xl font-extrabold leading-tight tracking-tight text-slate-950 sm:text-4xl">
-                Ukuranmu.
-                <br />
-                Estimasimu.
-              </h2>
+              <WordRevealHeading
+                as="h2"
+                className="mt-2 text-3xl font-extrabold leading-tight tracking-tight text-slate-950 sm:text-4xl"
+                wordsList={[
+                  { text: 'Ukuranmu.' },
+                  { text: '', isBreak: true },
+                  { text: 'Estimasimu.' },
+                ]}
+              />
               <p className="mt-4 text-base leading-relaxed text-slate-600">
                 Tak perlu menebak-nebak. Tarif bahan disinkronkan langsung dari basis data percetakan BannerIN untuk menjamin kepastian harga.
               </p>
@@ -685,7 +743,14 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
             </div>
 
             <div className="lg:col-span-7">
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-100 sm:p-8">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.6 }}
+                whileHover={{ boxShadow: '0 25px 35px -5px rgba(15, 23, 42, 0.08)' }}
+                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-100 sm:p-8 transition-shadow"
+              >
                 <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                   <h3 className="font-bold text-slate-900">Hitung kebutuhan cetak</h3>
                   <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700 border border-emerald-200">
@@ -820,7 +885,7 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                     </svg>
                   </Link>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>
@@ -835,9 +900,11 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                 <span className="size-1.5 rounded-full bg-blue-600 animate-pulse" />
                 CARA PESAN
               </span>
-              <h2 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-950">
-                Dari klik pertama, sampai siap dipasang.
-              </h2>
+              <WordRevealHeading
+                as="h2"
+                className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-950"
+                text="Dari klik pertama, sampai siap dipasang."
+              />
               <p className="mt-2 max-w-2xl text-xs sm:text-sm lg:text-base text-slate-600">
                 4 langkah mudah mencetak banner tanpa harus buang waktu datang ke toko fisik.
               </p>
@@ -849,7 +916,20 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
 
           <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {/* Step 1 */}
-            <div className="group relative flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs hover:border-blue-400 hover:shadow-md transition">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ duration: 0.5, delay: 0.05 }}
+              whileHover={{
+                y: -8,
+                scale: 1.015,
+                borderColor: '#60a5fa',
+                boxShadow: '0 20px 25px -5px rgba(37, 99, 235, 0.12)',
+                transition: { duration: 0.25 },
+              }}
+              className="group relative flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs"
+            >
               <div>
                 <div className="flex items-center justify-between">
                   <span className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-1 text-xs font-mono font-bold text-white shadow-xs">
@@ -872,10 +952,23 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                 <span>Langkah 1 dari 4</span>
                 <span className="text-blue-600 font-bold">Kalkulator Instant</span>
               </div>
-            </div>
+            </motion.div>
 
             {/* Step 2 */}
-            <div className="group relative flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs hover:border-blue-400 hover:shadow-md transition">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ duration: 0.5, delay: 0.12 }}
+              whileHover={{
+                y: -8,
+                scale: 1.015,
+                borderColor: '#60a5fa',
+                boxShadow: '0 20px 25px -5px rgba(37, 99, 235, 0.12)',
+                transition: { duration: 0.25 },
+              }}
+              className="group relative flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs"
+            >
               <div>
                 <div className="flex items-center justify-between">
                   <span className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-1 text-xs font-mono font-bold text-white shadow-xs">
@@ -898,10 +991,23 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                 <span>Langkah 2 dari 4</span>
                 <span className="text-blue-600 font-bold">Pre-flight Otomatis</span>
               </div>
-            </div>
+            </motion.div>
 
             {/* Step 3 */}
-            <div className="group relative flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs hover:border-blue-400 hover:shadow-md transition">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ duration: 0.5, delay: 0.19 }}
+              whileHover={{
+                y: -8,
+                scale: 1.015,
+                borderColor: '#60a5fa',
+                boxShadow: '0 20px 25px -5px rgba(37, 99, 235, 0.12)',
+                transition: { duration: 0.25 },
+              }}
+              className="group relative flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs"
+            >
               <div>
                 <div className="flex items-center justify-between">
                   <span className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-1 text-xs font-mono font-bold text-white shadow-xs">
@@ -925,10 +1031,23 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                 <span>Langkah 3 dari 4</span>
                 <span className="text-blue-600 font-bold">Bayar Aman QRIS</span>
               </div>
-            </div>
+            </motion.div>
 
             {/* Step 4 */}
-            <div className="group relative flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs hover:border-blue-400 hover:shadow-md transition">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ duration: 0.5, delay: 0.26 }}
+              whileHover={{
+                y: -8,
+                scale: 1.015,
+                borderColor: '#60a5fa',
+                boxShadow: '0 20px 25px -5px rgba(37, 99, 235, 0.12)',
+                transition: { duration: 0.25 },
+              }}
+              className="group relative flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs"
+            >
               <div>
                 <div className="flex items-center justify-between">
                   <span className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-1 text-xs font-mono font-bold text-white shadow-xs">
@@ -951,11 +1070,17 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                 <span>Langkah 4 dari 4</span>
                 <span className="text-emerald-600 font-bold">1 Hari Jadi</span>
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Quick Help & Guidance Banner */}
-          <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-blue-100 bg-blue-50/70 p-4 sm:p-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            whileHover={{ borderColor: '#93c5fd', transition: { duration: 0.2 } }}
+            className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-blue-100 bg-blue-50/70 p-4 sm:p-6 transition-colors"
+          >
             <div className="flex items-center gap-3">
               <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-blue-600 text-white shadow-sm">
                 <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -980,7 +1105,7 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                 Mulai Pesanan ↗
               </Link>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -992,9 +1117,11 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
               <span className="text-xs font-extrabold uppercase tracking-widest text-blue-600">
                 KENALI BAHANNYA
               </span>
-              <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
-                Bahan tepat. Pesan lebih terlihat.
-              </h2>
+              <WordRevealHeading
+                as="h2"
+                className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl"
+                text="Bahan tepat. Pesan lebih terlihat."
+              />
               <p className="mt-2 max-w-2xl text-base text-slate-600">
                 Tarif resmi disinkronkan langsung dari basis data percetakan BannerIN.
               </p>
@@ -1007,7 +1134,13 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
             </div>
           </div>
 
-          <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <motion.div
+            initial={{ opacity: 0, y: 25 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-30px' }}
+            transition={{ duration: 0.5 }}
+            className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+          >
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="border-b border-slate-200 bg-slate-50 font-bold text-slate-700">
@@ -1037,7 +1170,7 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                 </tbody>
               </table>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -1048,9 +1181,11 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
             <span className="text-xs font-extrabold uppercase tracking-widest text-blue-600">
               IDE UNTUK CETAKANMU
             </span>
-            <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
-              Kecil usahanya. Besar kesannya.
-            </h2>
+            <WordRevealHeading
+              as="h2"
+              className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl"
+              text="Kecil usahanya. Besar kesannya."
+            />
             <p className="mt-2 max-w-2xl text-base text-slate-600">
               Inspirasi visual untuk promosi, ruang usaha, dan momen yang kamu rencanakan.
             </p>
@@ -1058,7 +1193,15 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
 
           <div className="mt-10 grid gap-6 sm:grid-cols-3">
             {inspirations.map((item, idx) => (
-              <div key={idx} className="group overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md">
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                whileHover={{ y: -8, scale: 1.015, borderColor: '#93c5fd', transition: { duration: 0.25 } }}
+                className="group overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+              >
                 <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-slate-100">
                   <Image
                     src={item.image}
@@ -1077,7 +1220,7 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                   </svg>
                 </h3>
                 <p className="mt-1 text-xs text-slate-500">{item.desc}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -1099,11 +1242,19 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                     <span className="size-1.5 rounded-full bg-blue-400 animate-pulse" />
                     PANDUAN CETAK & BERKAS
                   </span>
-                  <h2 className="mt-4 text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight text-white">
-                    Desain siap?
-                    <br />
-                    <span className="text-blue-400">Kita lanjut cetak sempurna.</span>
-                  </h2>
+                  <WordRevealHeading
+                    as="h2"
+                    className="mt-4 text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight text-white"
+                    wordsList={[
+                      { text: 'Desain' },
+                      { text: 'siap?' },
+                      { text: '', isBreak: true },
+                      { text: 'Kita', className: 'text-blue-400' },
+                      { text: 'lanjut', className: 'text-blue-400' },
+                      { text: 'cetak', className: 'text-blue-400' },
+                      { text: 'sempurna.', className: 'text-blue-400' },
+                    ]}
+                  />
                   <p className="mt-4 text-xs sm:text-sm leading-relaxed text-slate-300">
                     Kualitas cetakan spanduk Anda sangat dipengaruhi oleh kesiapan berkas desain. Pastikan 4 aspek teknis di samping terpenuhi agar hasil cetak tajam, warna akurat, dan tidak terpotong.
                   </p>
@@ -1141,7 +1292,14 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
               {/* Kolom Kanan: 4 Kartu Spesifikasi Teknis Responsif */}
               <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* 1. Format Berkas */}
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 backdrop-blur-xs transition hover:border-blue-500/50">
+                <motion.div
+                  initial={{ opacity: 0, y: 25 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-30px' }}
+                  transition={{ duration: 0.5, delay: 0.05 }}
+                  whileHover={{ y: -6, borderColor: 'rgba(59, 130, 246, 0.6)', transition: { duration: 0.2 } }}
+                  className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 backdrop-blur-xs transition-colors"
+                >
                   <div className="flex items-center justify-between">
                     <span className="grid size-9 place-items-center rounded-xl bg-blue-500/20 text-blue-400">
                       <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -1156,10 +1314,17 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                   <p className="mt-1.5 text-xs leading-relaxed text-slate-300">
                     Disarankan <strong className="text-white">PDF</strong>, <strong className="text-white">TIFF</strong>, atau <strong className="text-white">JPG</strong> kualitas tinggi. Pastikan font sudah di-<em>convert to curves/outlines</em>.
                   </p>
-                </div>
+                </motion.div>
 
                 {/* 2. Resolusi & Skala */}
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 backdrop-blur-xs transition hover:border-blue-500/50">
+                <motion.div
+                  initial={{ opacity: 0, y: 25 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-30px' }}
+                  transition={{ duration: 0.5, delay: 0.12 }}
+                  whileHover={{ y: -6, borderColor: 'rgba(245, 158, 11, 0.6)', transition: { duration: 0.2 } }}
+                  className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 backdrop-blur-xs transition-colors"
+                >
                   <div className="flex items-center justify-between">
                     <span className="grid size-9 place-items-center rounded-xl bg-amber-500/20 text-amber-400">
                       <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -1174,10 +1339,17 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                   <p className="mt-1.5 text-xs leading-relaxed text-slate-300">
                     Gunakan skala 1:1 dengan resolusi <strong className="text-white">150–300 DPI</strong>. Untuk spanduk sangat besar (&gt;5m), dapat menggunakan skala 1:10 pada 300 DPI.
                   </p>
-                </div>
+                </motion.div>
 
                 {/* 3. Mode Warna */}
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 backdrop-blur-xs transition hover:border-blue-500/50">
+                <motion.div
+                  initial={{ opacity: 0, y: 25 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-30px' }}
+                  transition={{ duration: 0.5, delay: 0.19 }}
+                  whileHover={{ y: -6, borderColor: 'rgba(16, 185, 129, 0.6)', transition: { duration: 0.2 } }}
+                  className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 backdrop-blur-xs transition-colors"
+                >
                   <div className="flex items-center justify-between">
                     <span className="grid size-9 place-items-center rounded-xl bg-emerald-500/20 text-emerald-400">
                       <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -1192,10 +1364,17 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                   <p className="mt-1.5 text-xs leading-relaxed text-slate-300">
                     Gunakan color mode <strong className="text-white">CMYK</strong>. Warna RGB layar HP/monitor dapat mengalami pergeseran tone saat dikonversi ke tinta cetak fisik.
                   </p>
-                </div>
+                </motion.div>
 
                 {/* 4. Area Aman & Bleed */}
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 backdrop-blur-xs transition hover:border-blue-500/50">
+                <motion.div
+                  initial={{ opacity: 0, y: 25 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-30px' }}
+                  transition={{ duration: 0.5, delay: 0.26 }}
+                  whileHover={{ y: -6, borderColor: 'rgba(168, 85, 247, 0.6)', transition: { duration: 0.2 } }}
+                  className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 backdrop-blur-xs transition-colors"
+                >
                   <div className="flex items-center justify-between">
                     <span className="grid size-9 place-items-center rounded-xl bg-purple-500/20 text-purple-400">
                       <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -1210,7 +1389,7 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                   <p className="mt-1.5 text-xs leading-relaxed text-slate-300">
                     Beri jarak aman minimal <strong className="text-white">3–5 cm</strong> dari tepi kanvas untuk teks dan logo penting agar tidak terpotong atau tertusuk ring mata ayam.
                   </p>
-                </div>
+                </motion.div>
               </div>
             </div>
           </div>
@@ -1224,14 +1403,24 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
             <span className="text-xs font-extrabold uppercase tracking-widest text-blue-600">
               BANTUAN & PERTANYAAN
             </span>
-            <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
-              Pertanyaan yang sering ditanyakan.
-            </h2>
+            <WordRevealHeading
+              as="h2"
+              className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl"
+              text="Pertanyaan yang sering ditanyakan."
+            />
           </div>
 
           <div className="mt-10 space-y-3">
             {faqs.map((faq, idx) => (
-              <div key={idx} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-20px' }}
+                transition={{ duration: 0.4, delay: idx * 0.05 }}
+                whileHover={{ borderColor: '#93c5fd', transition: { duration: 0.2 } }}
+                className="overflow-hidden rounded-2xl border border-slate-200 bg-white transition-colors"
+              >
                 <button
                   type="button"
                   suppressHydrationWarning
@@ -1248,7 +1437,7 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                     {faq.a}
                   </div>
                 )}
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -1285,6 +1474,7 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
         </div>
       </footer>
     </div>
-  )
+  </SmoothScrollProvider>
+)
 }
 
