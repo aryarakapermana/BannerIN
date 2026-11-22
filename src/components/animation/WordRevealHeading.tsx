@@ -92,7 +92,7 @@ export default function WordRevealHeading({
   return (
     <Component
       ref={containerRef}
-      className={`inline-block leading-[1.15] [perspective:1000px] ${className}`}
+      className={`block leading-[1.15] [perspective:1000px] ${className}`}
     >
       {items.map((item, idx) => {
         if (item.isBreak) {

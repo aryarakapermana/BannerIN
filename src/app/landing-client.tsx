@@ -585,15 +585,17 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
       <section id="produk" className="scroll-mt-24 border-t border-slate-200/80 bg-slate-50 py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div>
-            <span className="text-xs font-extrabold uppercase tracking-widest text-blue-600">
-              PRODUK CETAK
-            </span>
+            <div className="mb-2.5">
+              <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-blue-600">
+                PRODUK CETAK
+              </span>
+            </div>
             <WordRevealHeading
               as="h2"
-              className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl"
+              className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl"
               text="Ada cetakan untuk setiap rencana."
             />
-            <p className="mt-2 max-w-2xl text-base text-slate-600">
+            <p className="mt-3 max-w-2xl text-base sm:text-lg text-slate-600">
               Pilih bentuk yang tepat untuk pesan yang ingin kamu sampaikan.
             </p>
           </div>
@@ -711,19 +713,21 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
                   <line x1="14" y1="15" x2="16" y2="15" />
                 </svg>
               </span>
-              <span className="text-xs font-extrabold uppercase tracking-widest text-blue-600">
-                RENCANAKAN ANGGARAN
-              </span>
+              <div className="mb-2.5">
+                <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-blue-600">
+                  RENCANAKAN ANGGARAN
+                </span>
+              </div>
               <WordRevealHeading
                 as="h2"
-                className="mt-2 text-3xl font-extrabold leading-tight tracking-tight text-slate-950 sm:text-4xl"
+                className="text-3xl font-extrabold leading-tight tracking-tight text-slate-950 sm:text-4xl lg:text-5xl"
                 wordsList={[
                   { text: 'Ukuranmu.' },
                   { text: '', isBreak: true },
                   { text: 'Estimasimu.' },
                 ]}
               />
-              <p className="mt-4 text-base leading-relaxed text-slate-600">
+              <p className="mt-4 text-base sm:text-lg leading-relaxed text-slate-600">
                 Tak perlu menebak-nebak. Tarif bahan disinkronkan langsung dari basis data percetakan BannerIN untuk menjamin kepastian harga.
               </p>
 
@@ -896,16 +900,18 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 border border-blue-200/60">
-                <span className="size-1.5 rounded-full bg-blue-600 animate-pulse" />
-                CARA PESAN
-              </span>
+              <div className="mb-2.5">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3.5 py-1 text-xs font-bold text-blue-700 border border-blue-200/60 uppercase tracking-wider">
+                  <span className="size-1.5 rounded-full bg-blue-600 animate-pulse" />
+                  CARA PESAN
+                </span>
+              </div>
               <WordRevealHeading
                 as="h2"
-                className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-950"
+                className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-950"
                 text="Dari klik pertama, sampai siap dipasang."
               />
-              <p className="mt-2 max-w-2xl text-xs sm:text-sm lg:text-base text-slate-600">
+              <p className="mt-2.5 max-w-2xl text-xs sm:text-sm lg:text-base text-slate-600">
                 4 langkah mudah mencetak banner tanpa harus buang waktu datang ke toko fisik.
               </p>
             </div>
@@ -1114,15 +1120,17 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
-              <span className="text-xs font-extrabold uppercase tracking-widest text-blue-600">
-                KENALI BAHANNYA
-              </span>
+              <div className="mb-2.5">
+                <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-blue-600">
+                  KENALI BAHANNYA
+                </span>
+              </div>
               <WordRevealHeading
                 as="h2"
-                className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl"
+                className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl"
                 text="Bahan tepat. Pesan lebih terlihat."
               />
-              <p className="mt-2 max-w-2xl text-base text-slate-600">
+              <p className="mt-3 max-w-2xl text-base sm:text-lg text-slate-600">
                 Tarif resmi disinkronkan langsung dari basis data percetakan BannerIN.
               </p>
             </div>
@@ -1178,15 +1186,17 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
       <section className="border-t border-slate-200/80 bg-slate-50 py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div>
-            <span className="text-xs font-extrabold uppercase tracking-widest text-blue-600">
-              IDE UNTUK CETAKANMU
-            </span>
+            <div className="mb-2.5">
+              <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-blue-600">
+                IDE UNTUK CETAKANMU
+              </span>
+            </div>
             <WordRevealHeading
               as="h2"
-              className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl"
+              className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl"
               text="Kecil usahanya. Besar kesannya."
             />
-            <p className="mt-2 max-w-2xl text-base text-slate-600">
+            <p className="mt-3 max-w-2xl text-base sm:text-lg text-slate-600">
               Inspirasi visual untuk promosi, ruang usaha, dan momen yang kamu rencanakan.
             </p>
           </div>
@@ -1400,12 +1410,14 @@ export default function LandingClient({ initialMaterials }: LandingClientProps) 
       <section id="faq" className="scroll-mt-24 border-t border-slate-200/80 bg-white py-16 lg:py-24">
         <div className="mx-auto max-w-4xl px-5 lg:px-8">
           <div className="text-center">
-            <span className="text-xs font-extrabold uppercase tracking-widest text-blue-600">
-              BANTUAN & PERTANYAAN
-            </span>
+            <div className="mb-2.5">
+              <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-blue-600">
+                BANTUAN & PERTANYAAN
+              </span>
+            </div>
             <WordRevealHeading
               as="h2"
-              className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl"
+              className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl"
               text="Pertanyaan yang sering ditanyakan."
             />
           </div>

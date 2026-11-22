@@ -449,14 +449,14 @@ export default function BannerCanvasEditor({
 
           {/* Dropzone State jika belum ada gambar (sesuai UI Figma / mobile screenshot) */}
           {!imageUrl && (
-            <div className="flex flex-col items-center justify-center p-3 sm:p-6 text-center z-10 select-none">
-              <strong className="text-xs sm:text-sm font-bold text-slate-800">
+            <div className="flex flex-col items-center justify-center p-4 sm:p-6 text-center z-10 select-none">
+              <strong className="text-sm sm:text-base font-bold text-slate-800">
                 Pratinjau desain Anda
               </strong>
-              <p className="mt-1 font-mono text-[11px] sm:text-xs text-slate-500">
+              <p className="mt-1 font-mono text-xs sm:text-sm font-semibold text-slate-600">
                 {widthCm} × {heightCm} cm
               </p>
-              <span className="hidden sm:inline-block mt-2 font-mono text-[10px] text-slate-400">
+              <span className="hidden sm:inline-block mt-2 font-mono text-[11px] text-slate-400">
                 Klik atau tarik berkas ke sini (JPG/PNG maks 20MB)
               </span>
             </div>
