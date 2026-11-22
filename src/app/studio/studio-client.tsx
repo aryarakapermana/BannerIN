@@ -10,7 +10,6 @@ import {
   useMemo,
   useRef,
   useState,
-  useSyncExternalStore,
   type ChangeEvent,
 } from 'react'
 import {
@@ -70,18 +69,15 @@ interface StudioClientProps {
   } | null
 }
 
-const emptySubscribe = () => () => {}
-
 export default function StudioClient({
   materials,
   initialParams,
   currentUser,
 }: StudioClientProps) {
-  const isMounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false,
-  )
+  const [isMounted, setIsMounted] = useState(false)
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   // 1. Initial State Resolution
   const defaultMaterial = useMemo(() => {

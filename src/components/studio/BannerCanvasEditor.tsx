@@ -215,7 +215,11 @@ export default function BannerCanvasEditor({
         currentCanvas = canvas
         fabricCanvasRef.current = canvas
 
-        FabricImage.fromURL(imageUrl, { crossOrigin: 'anonymous' })
+        const isBlobOrData = imageUrl.startsWith('blob:') || imageUrl.startsWith('data:')
+        FabricImage.fromURL(
+          imageUrl,
+          isBlobOrData ? undefined : { crossOrigin: 'anonymous' },
+        )
           .then((img) => {
             if (cancelled || canvas.disposed) return
 
