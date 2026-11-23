@@ -29,6 +29,29 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        {/* Filter out noise from browser extensions like MetaMask */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined') {
+                window.addEventListener('unhandledrejection', function(event) {
+                  var reason = event.reason;
+                  var msg = (reason && reason.message) ? reason.message : String(reason || '');
+                  var stack = (reason && reason.stack) ? reason.stack : '';
+                  if (
+                    msg.indexOf('MetaMask') !== -1 ||
+                    stack.indexOf('chrome-extension://') !== -1 ||
+                    stack.indexOf('moz-extension://') !== -1
+                  ) {
+                    event.preventDefault();
+                  }
+                });
+              }
+            `,
+          }}
+        />
+      </head>
       <body suppressHydrationWarning className="min-h-full flex flex-col">
         {children}
       </body>
